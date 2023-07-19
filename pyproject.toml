@@ -12,8 +12,14 @@ readme = "README.md"
 requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
-]
+    ]
 dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest"
+    ]
 
 [tool.setuptools.dynamic]
 version = {attr = "envalidate.__version__"}
+
