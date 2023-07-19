@@ -52,3 +52,9 @@ class CheckBase:
         """
         # Run all subchecks
         return all(sub.check() for sub in self.sub_checks)
+
+    @classmethod
+    def types_dict(cls) -> t.Dict[str, type]:
+        """Return all the types and subtypes of Checks in a dict."""
+        types = [cls] + cls.__subclasses__()
+        return {c.__name__:c for c in types}
