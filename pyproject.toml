@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "envalidate"
+authors = [
+    {name = "Justin Lorieau", email = 'justin@lorieau.com'},
+]
+description = "A deployment environment validator"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dynamic = ["version"]
+
+[tool.setuptools.dynamic]
+version = {attr = "envalidate.__version__"}
