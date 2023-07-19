@@ -31,22 +31,26 @@ class CheckEnv(CheckBase):
     # (Optional) regex to match the environment variable value
     regex: t.Optional[t.Tuple[str, ...]] = None
 
-    # The message for checking environment variables
-    msg: str = "Check environment variable '{variable_name}'...{status}."
-
     # If True (default), environment variables in variable_name or
     # variable_value are substituted with the values of other environment
     # variables.
     env_substitute: bool = True
 
+    # The message for checking environment variables
+    msg: str = "Check environment variable '{variable_name}'...{status}."
+
     def __init__(self,
                  *args,
                  variable_name: str,
                  regex: t.Optional[str] = None,
+                 env_substitute: t.Optional[bool] = None,
                  **kwargs):
         super().__init__(*args, **kwargs)
         self.variable_name = variable_name
         self.regex = regex
+
+        if isinstance(env_substitute, bool):
+            self.env_substitute = env_substitute
 
     @property
     def variable_name(self) -> str:
