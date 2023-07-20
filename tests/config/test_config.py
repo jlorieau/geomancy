@@ -1,4 +1,7 @@
 """Test the config module"""
+import tomllib
+from pathlib import Path
+
 import pytest
 
 from geomancy.config.config import Config, Parameter
@@ -114,3 +117,17 @@ def test_config_nested(reset_config):
     assert A.attribute2 == 4
     assert a.attribute1 == 'very new value 1'
     assert a.attribute2 == 4
+
+
+def test_toml_parsing(reset_config):
+    """Test Config with the parsing of TOML strings and files"""
+    # Load the toml file
+    filename = Path(__file__).parent / 'config1.toml'
+    config = Config()
+    config.toml_load(filename)
+
+    config.pprint()
+    # Check the parsed config
+    assert config.checkEnv.env_substitute
+    assert config.checkEnv.msg == "A test message"
+    assert config.checkEnv.value.nested == 1

@@ -1,0 +1,4 @@
+[checkEnv]
+env_substitute = true
+msg = "A test message"
+value.nested = 1

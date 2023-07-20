@@ -1,6 +1,8 @@
 """An instance-wide configuration"""
 import typing as t
 from threading import Lock
+from pathlib import Path
+import tomllib
 
 
 class Config:
@@ -45,7 +47,6 @@ class Config:
 
     def __getattribute__(self, key):
         """Get attributes Config with support for attribute nesting"""
-
         try:
             return super().__getattribute__(key)
         except AttributeError:
@@ -61,6 +62,43 @@ class Config:
     def __len__(self):
         """The number of items in this Config"""
         return len(self.__dict__)
+
+    def load(self, d: dict):
+        """Load config with values from a dict"""
+        for k, v in d.items():
+            # Only key strings are allowed for the Config
+            assert isinstance(k, str), (f"Config keys must be strings. "
+                                        f"Received: '{k}'")
+
+            if isinstance(v, dict):
+                # Create a sub Config and load the sub dict
+                sub_config = Config(initial=dict())
+                sub_config.load(v)
+                setattr(self, k, sub_config)
+            else:
+                # Otherwise just store the value
+                setattr(self, k, v)
+
+    def toml_loads(self, s: str):
+        """Load config from a string formatted in TOML format"""
+        d = tomllib.loads(s)
+        self.load(d)
+
+    def toml_load(self, filename: Path):
+        """Load config from a file formatted in TOML format"""
+        with open(filename, 'rb') as f:
+            d = tomllib.load(f)
+        self.load(d)
+
+    def pprint(self, level=0):
+        """Pretty pring the config"""
+        for k, v in self.__dict__.items():
+            if isinstance(v, Config):
+                print("  " * level + f"** {k} **")
+                v.pprint(level=level + 1)
+            else:
+                print("  " * level + f"{k} = {v}")
+
 
 class Parameter:
     """A descriptor for a Config parameter.
