@@ -13,8 +13,9 @@ class Config:
     The base class is deliberately modified dynamically with descriptors. This
     is because the Config was designed to be configured on the fly.
     """
+
     # The root singleton instance
-    _instance: t.Optional['Config'] = None
+    _instance: t.Optional["Config"] = None
 
     # The thread lock
     _lock: Lock = Lock()
@@ -62,7 +63,7 @@ class Config:
         return len(self.__dict__)
 
     @classmethod
-    def load(cls, d: dict, root=True) -> 'Config':
+    def load(cls, d: dict, root=True) -> "Config":
         """Load config with values from a dict.
 
         Parameters
@@ -82,8 +83,9 @@ class Config:
 
         for k, v in d.items():
             # Only key strings are allowed for the Config
-            assert isinstance(k, str), (f"Config keys must be strings. "
-                                        f"Received: '{k}'")
+            assert isinstance(k, str), (
+                f"Config keys must be strings. " f"Received: '{k}'"
+            )
 
             if isinstance(v, dict):
                 # Create a sub Config and load the sub dict
@@ -96,7 +98,7 @@ class Config:
         return config
 
     @classmethod
-    def toml_loads(cls, s: str) -> 'Config':
+    def toml_loads(cls, s: str) -> "Config":
         """Load config from a string formatted in TOML format.
 
         Returns
@@ -108,7 +110,7 @@ class Config:
         return cls.load(d)
 
     @classmethod
-    def toml_load(cls, filename: Path) -> 'Config':
+    def toml_load(cls, filename: Path) -> "Config":
         """Load config from a file formatted in TOML format.
 
         Returns
@@ -116,7 +118,7 @@ class Config:
         config
             The root config instance with parameters loaded
         """
-        with open(filename, 'rb') as f:
+        with open(filename, "rb") as f:
             d = tomllib.load(f)
         return cls.load(d)
 
@@ -142,13 +144,13 @@ class Parameter:
     method is not called from a class--only instances of a class.
     """
 
-    __slots__ = ('key', '_config')
+    __slots__ = ("key", "_config")
 
     # The key/name of the parameter in the Config
     key: str
 
     # The delimiter used for splitting keys
-    delim: str = '.'
+    delim: str = "."
 
     # A reference to the Config() singleton
     _config: Config
