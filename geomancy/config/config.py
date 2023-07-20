@@ -38,12 +38,14 @@ class Config:
             # Otherwise return the singleton
             return cls._instance
 
-    def __init__(self, **kwargs):
+    def __init__(self, initial: t.Optional[dict] = None, **kwargs):
         # Set the specified parameters
         for k, v in kwargs.items():
             setattr(self, k, v)
 
     def __getattribute__(self, key):
+        """Get attributes Config with support for attribute nesting"""
+
         try:
             return super().__getattribute__(key)
         except AttributeError:
@@ -53,8 +55,12 @@ class Config:
             return super().__getattribute__(key)
 
     def __setattr__(self, key, value):
+        """Set attributes in the Config"""
         super().__setattr__(key, value)
 
+    def __len__(self):
+        """The number of items in this Config"""
+        return len(self.__dict__)
 
 class Parameter:
     """A descriptor for a Config parameter.

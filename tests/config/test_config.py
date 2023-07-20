@@ -1,8 +1,16 @@
 """Test the config module"""
+import pytest
+
 from geomancy.config.config import Config, Parameter
 
+@pytest.fixture
+def reset_config():
+    """Reset the Config singleton"""
+    if Config._instance is not None:
+        Config._instance = None
 
-def test_config_getset():
+
+def test_config_getset(reset_config):
     """Test the Config and Parameter get/set methods"""
 
     config = Config(value1='value1', value2=3)
@@ -45,7 +53,7 @@ def test_config_getset():
     assert a.attribute2 == 5
 
 
-def test_config_nested():
+def test_config_nested(reset_config):
     """Test the Config and Parameter with nested attributes """
     config = Config()
 
@@ -58,6 +66,19 @@ def test_config_nested():
         attribute1 = Parameter('general.value1')
         attribute2 = Parameter('general.value2')
     a = A()
+
+    # Check the nested dict in Config - level 1
+    assert isinstance(config.__dict__, dict)
+    assert len(config.__dict__) == 1
+
+    # Check the nested dict in Config - level 2
+    assert len(config.__dict__['general']) == 2
+    assert isinstance(config.__dict__['general'], Config)
+
+    # Check the nested dict in Config - level 3
+    assert len(config.__dict__['general'].__dict__) == 2
+    assert config.__dict__['general'].__dict__['value1'] == 'value 1'
+    assert config.__dict__['general'].__dict__['value2'] == 2
 
     # Try measuring the values directly on the Config singleton and the
     # class/instance attributes
