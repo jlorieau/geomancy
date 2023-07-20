@@ -25,6 +25,7 @@ def construct_from_dict(name: str,
 
     # See if the dict makes a call to a Check type
     matching_keys = [k for k in d.keys() if k in check_types]
+
     if len(matching_keys) > 1:
         msg = f"More than 1 check type specified: {matching_keys}"
         raise NotImplementedError(msg)

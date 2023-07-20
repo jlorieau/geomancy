@@ -81,4 +81,3 @@ def test_check_base_types_dict():
     # Verify CheckEnv entries and aliases
     assert types['CheckEnv'] == CheckEnv
     assert types['checkEnv'] == CheckEnv
-    
