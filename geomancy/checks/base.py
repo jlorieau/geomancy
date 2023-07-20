@@ -12,6 +12,9 @@ class CheckBase:
     # Name of the check
     name: str
 
+    # Value for the check to check
+    value: t.Any
+
     # Description of the check
     desc: str = ''
 
@@ -26,6 +29,7 @@ class CheckBase:
 
     def __init__(self,
                  name: str,
+                 value: t.Any,
                  desc: str = '',
                  sub_checks: t.Optional[list['CheckBase', ...]] = None):
         # Make sure the sub_checks are checks
@@ -38,6 +42,7 @@ class CheckBase:
 
         # Set attributes
         self.name = name
+        self.value = value
         self.desc = desc
         self.sub_checks = list(sub_checks)
 

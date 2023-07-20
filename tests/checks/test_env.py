@@ -5,14 +5,14 @@ import os
 
 from pytest import MonkeyPatch
 
-from envalidate.checks import CheckEnv
+from geomancy.checks import CheckEnv
 
 
 def test_check_env_missing(variable_name='missingVariable'):
     """Test CheckEnv for a missing environment variable"""
     assert variable_name not in os.environ
 
-    check = CheckEnv(name='missing', variable_name=variable_name)
+    check = CheckEnv(name='missing', value=variable_name)
     assert not check.check()
 
 
@@ -20,7 +20,7 @@ def test_check_env_present(variable_name='PATH'):
     """Test CheckEnv for a present environment variable"""
     assert variable_name in os.environ
 
-    check = CheckEnv(name='present', variable_name=variable_name)
+    check = CheckEnv(name='present', value=variable_name)
     assert check.check()
 
 
@@ -40,11 +40,11 @@ def test_check_env_name_substitution(variable_name='VARIABLE_NAME',
         # Setup the check to use the variable name with environment variable
         # substitution--i.e. wrap it in curly braces
         check = CheckEnv(name='substitution',
-                         variable_name='{' + variable_name + '}')
+                         value='{' + variable_name + '}')
 
         # Check that the subsitution is correct
         assert check.variable_name == 'PATH'
-        assert check._variable_name == '{' + variable_name + '}'  # hidden var
+        assert check.value == '{' + variable_name + '}'  # hidden var
 
         assert check.check()
 
@@ -60,7 +60,7 @@ def test_check_env_regex(variable_name='VARIABLE_NAME',
         mp.setenv(variable_name, variable_value)
 
         # The regex should match
-        check1 = CheckEnv(name='regex1', variable_name=variable_name,
+        check1 = CheckEnv(name='regex1', value=variable_name,
                           regex=regex)
         assert check1.check()
 
@@ -69,6 +69,6 @@ def test_check_env_regex(variable_name='VARIABLE_NAME',
         mp.setenv(variable_name, '!' + variable_value + '!')
 
         # The regex should not match
-        check2 = CheckEnv(name='regex2', variable_name=variable_name,
+        check2 = CheckEnv(name='regex2', value=variable_name,
                           regex=regex)
         assert not check2.check()

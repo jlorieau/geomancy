@@ -26,7 +26,7 @@ class CheckEnv(CheckBase):
     'DEPLOYMENT_DEV'.
     """
 
-    _variable_name: str
+    value: str
 
     # (Optional) regex to match the environment variable value
     regex: t.Optional[t.Tuple[str, ...]] = None
@@ -41,12 +41,10 @@ class CheckEnv(CheckBase):
 
     def __init__(self,
                  *args,
-                 variable_name: str,
                  regex: t.Optional[str] = None,
                  env_substitute: t.Optional[bool] = None,
                  **kwargs):
         super().__init__(*args, **kwargs)
-        self.variable_name = variable_name
         self.regex = regex
 
         if isinstance(env_substitute, bool):
@@ -56,12 +54,12 @@ class CheckEnv(CheckBase):
     def variable_name(self) -> str:
         """The name of the environment variable with environment variable
         substitution"""
-        return (sub_env(self._variable_name) if self.env_substitute else
-                self._variable_name)
+        return (sub_env(self.value) if self.env_substitute else
+                self.value)
 
     @variable_name.setter
     def variable_name(self, value: str) -> None:
-        self._variable_name = value
+        self.value = value
 
     @property
     def variable_value(self) -> t.Union[None, str]:
