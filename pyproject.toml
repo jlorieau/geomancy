@@ -26,3 +26,5 @@ dev = [
 [tool.setuptools.dynamic]
 version = {attr = "geomancy.__version__"}
 
+[tool.pytest.ini_options]
+addopts = "--doctest-modules"
