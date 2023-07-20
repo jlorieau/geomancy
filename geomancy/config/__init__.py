@@ -1,0 +1,1 @@
+"""Instance-wide configuration"""
