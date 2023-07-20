@@ -1,14 +1,15 @@
 """Test the config module"""
-import tomllib
 from pathlib import Path
 
 import pytest
 
 from geomancy.config.config import Config, Parameter
 
+
 @pytest.fixture
 def reset_config():
     """Reset the Config singleton"""
+    # noinspection PyProtectedMember
     if Config._instance is not None:
         Config._instance = None
 

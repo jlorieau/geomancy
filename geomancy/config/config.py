@@ -65,6 +65,14 @@ class Config:
     def load(cls, d: dict, root=True) -> 'Config':
         """Load config with values from a dict.
 
+        Parameters
+        ----------
+        d
+            The dict with config values to load
+        root
+            Whether the root Config singleton is returned or a new sub config
+            is returned.
+
         Returns
         -------
         config
