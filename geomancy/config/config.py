@@ -142,6 +142,10 @@ class Config(metaclass=ConfigMeta):
                 print("  " * level + f"{k} = {v}")
 
 
+# dummy placeholder object
+missing = object()
+
+
 class Parameter:
     """A descriptor for a Config parameter.
 
@@ -165,9 +169,13 @@ class Parameter:
     # A reference to the Config() singleton
     _config: Config
 
-    def __init__(self, key):
+    def __init__(self, key, default=missing):
         self.key = key
         self._config = Config()
+
+        # Set the default, if specified
+        if default is not missing:
+            self.__set__(instance=None, value=default)
 
     def __repr__(self):
         value = getattr(self._config, self.key)
@@ -177,6 +185,7 @@ class Parameter:
         # Convert strings with '.' into nested keys
         keys = self.key.split(self.delim)
         value = self._config
+
         for key in keys:
             value = getattr(value, key)
         return value
