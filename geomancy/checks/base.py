@@ -47,7 +47,14 @@ class CheckBase:
         self.name = name
         self.value = value
         self.desc = desc
-        self.sub_checks = list(sub_checks)
+        self.sub_checks = list(sub_checks) if sub_checks is not None else []
+
+        # Check attributes
+        msg = "All sub-checks should be instances of CheckBase"
+        assert all(isinstance(sc, CheckBase) for sc in self.sub_checks), msg
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.name})"
 
     def check(self) -> bool:
         """Performs the checks and sub-checks.
@@ -60,6 +67,14 @@ class CheckBase:
         """
         # Run all subchecks
         return all(sub.check() for sub in self.sub_checks)
+
+    def flatten(self) -> t.List['CheckBase']:
+        """Return a flattened list of this check (first item) and all
+        sub checks."""
+        flattened = [self]
+        for sub_check in self.sub_checks:
+            flattened += sub_check.flatten()
+        return flattened
 
     @classmethod
     def types_dict(cls) -> t.Dict[str, type]:
