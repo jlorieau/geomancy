@@ -20,6 +20,7 @@ dynamic = ["version"]
 dev = [
     "pytest>=7.4",
     "twine>=4.0",
+    "black[d]",
     "build"
     ]
 
