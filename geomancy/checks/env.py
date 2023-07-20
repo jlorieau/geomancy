@@ -8,7 +8,7 @@ import re
 from .base import CheckBase
 from .utils import sub_env
 from ..config import Parameter
-from ..cli import p_pass, p_fail
+from ..cli import term
 
 
 class CheckEnv(CheckBase):
@@ -35,11 +35,11 @@ class CheckEnv(CheckBase):
     # If True (default), environment variables in variable_name or
     # variable_value are substituted with the values of other environment
     # variables.
-    env_substitute: bool = Parameter("checkEnv.env_substitute", default=True)
+    env_substitute: bool = Parameter("CheckEnv.env_substitute", default=True)
 
     # The message for checking environment variables
     msg: str = Parameter(
-        "checkEnv.msg",
+        "CheckEnv.msg",
         default="Check environment variable " "'{variable_name}'...{status}.",
     )
 
@@ -86,23 +86,23 @@ class CheckEnv(CheckBase):
         # Make sure the environment variable exists.
         if variable_value is None:
             msg = self.msg.format(variable_name=variable_name, status="missing")
-            p_fail(msg)
+            term.p_fail(msg)
             return False
 
         # Check that the variable has a non-zero value
         if variable_value == "":
             msg = self.msg.format(variable_name=variable_name, status="empty string")
-            p_fail(msg)
+            term.p_fail(msg)
             return False
 
         # Check the regex, if specified
         if isinstance(self.regex, str) and re.match(self.regex, variable_value) is None:
             status = "value does not match regex " "'{regex}'".format(regex=self.regex)
             msg = self.msg.format(variable_name=variable_name, status=status)
-            p_fail(msg)
+            term.p_fail(msg)
             return False
 
         # All checks passed!
         msg = self.msg.format(variable_name=variable_name, status="passed")
-        p_pass(msg)
+        term.p_pass(msg)
         return True

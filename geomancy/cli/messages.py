@@ -1,49 +1,97 @@
 """Messages for the command-line interface"""
-import typing as t
-import enum
 import sys
 import os
 
-__all__ = ('p_header', 'p_pass', 'p_fail', 'p_bold', 'p_warn')
+from ..config import Parameter
+
+__all__ = ("term",)
 
 
-class Colors(enum.StrEnum):
-    """ASCII terminal colors"""
-    RED = "\033[1;31m"
-    BLUE = "\033[1;34m"
-    CYAN = "\033[1;36m"
-    GREEN = "\033[0;32m"
-    YELLOW = "\033[1;33m"
-    MAGENTA = "\033[1;35m"
-    RESET = "\033[0;0m"
-    BOLD = "\033[;1m"
-    REVERSE = "\033[;7m"
+class Term:
+    """Terminal settings"""
+
+    # Default ANSI codes for color
+    ansi_codes = {
+        "RED": "\033[1;31m",
+        "BLUE": "\033[1;34m",
+        "CYAN": "\033[1;36m",
+        "GREEN": "\033[0;32m",
+        "YELLOW": "\033[1;33m",
+        "MAGENTA": "\033[1;35m",
+        "RESET": "\033[0;0m",
+        "BOLD": "\033[;1m",
+        "REVERSE": "\033[;7m",
+    }
+
+    # Whether to use color
+    use_color = Parameter("Term.use_color", default=True)
+
+    # Maximum allowed number of characters per line
+    max_width = Parameter("Term.max_width", default=80)
+
+    @property
+    def width(self):
+        """The current width of the termina"""
+        return os.get_terminal_size()
+
+    @property
+    def RED(self):
+        return self.ansi_codes["RED"] if self.use_color else ""
+
+    @property
+    def BLUE(self):
+        return self.ansi_codes["BLUE"] if self.use_color else ""
+
+    @property
+    def CYAN(self):
+        return self.ansi_codes["CYAN"] if self.use_color else ""
+
+    @property
+    def GREEN(self):
+        return self.ansi_codes["GREEN"] if self.use_color else ""
+
+    @property
+    def YELLOW(self):
+        return self.ansi_codes["YELLOW"] if self.use_color else ""
+
+    @property
+    def MAGENTA(self):
+        return self.ansi_codes["MAGENTA"] if self.use_color else ""
+
+    @property
+    def RESET(self):
+        return self.ansi_codes["RESET"] if self.use_color else ""
+
+    @property
+    def BOLD(self):
+        return self.ansi_codes["BOLD"] if self.use_color else ""
+
+    @property
+    def REVERSE(self):
+        return self.ansi_codes["REVERSE"] if self.use_color else ""
+
+    def p_header(self, msg: str, end: str = "\n"):
+        """Print a heading"""
+        msg = msg.strip() + " "
+        term_width = min(self.width, self.max_width)
+
+        sys.stdout.write(f"{self.MAGENTA}{msg:=<{term_width - 1}}{self.RESET}{end}")
+
+    def p_pass(self, msg: str, end: str = "\n"):
+        """Print a message for a passed test"""
+        sys.stdout.write(f"  {self.GREEN}✔ {msg.strip()}{self.RESET}{end}")
+
+    def p_fail(self, msg: str, end: str = "\n"):
+        """Print a message for a failed test"""
+        sys.stderr.write(f"  {self.RED}✖ {msg.strip()}{self.RESET}{end}")
+
+    def p_bold(self, msg: str, end: str = "\n"):
+        """Print a message in bold"""
+        sys.stdout.write(f"  {self.BOLD}  {msg.strip()}{self.RESET}{end}")
+
+    def p_warn(self, msg: str, end: str = "\n"):
+        """Print a message for a warning"""
+        sys.stderr.write(f"  {self.YELLOW}! {msg.strip()}{self.RESET}{end}")
 
 
-def p_header(msg: str, end: str = '\n'):
-    """Print a heading"""
-    msg = msg.strip() + ' '
-    term_width = os.get_terminal_size()[0]
-
-    sys.stdout.write(f'{Colors.MAGENTA}{msg:=<{term_width - 1}}{Colors.RESET}'
-                     f'{end}')
-
-
-def p_pass(msg: str, end: str = '\n'):
-    """Print a message for a passed test"""
-    sys.stdout.write(f'  {Colors.GREEN}✔ {msg.strip()}{Colors.RESET}{end}')
-
-
-def p_fail(msg: str, end: str = '\n'):
-    """Print a message for a failed test"""
-    sys.stderr.write(f'  {Colors.RED}✖ {msg.strip()}{Colors.RESET}{end}')
-
-
-def p_bold(msg: str, end: str = '\n'):
-    """Print a message in bold"""
-    sys.stdout.write(f'  {Colors.BOLD}  {msg.strip()}{Colors.RESET}{end}')
-
-
-def p_warn(msg: str, end: str = '\n'):
-    """Print a message for a warning"""
-    sys.stderr.write(f'  {Colors.YELLOW}! {msg.strip()}{Colors.RESET}{end}')
+term = Term()
