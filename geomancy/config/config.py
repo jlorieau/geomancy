@@ -57,11 +57,26 @@ class Config:
 
 
 class Parameter:
-    """A descriptor for a Config parameter"""
+    """A descriptor for a Config parameter.
+
+    Notes
+    -----
+    This is a descriptor. Its value can be accessed or modified from an
+    instance. However, its value can only be access from the class itself. This
+    is because the descriptor will be replaced if its corresponding class
+    attribute is modified with a new value. Stated another way, the __set__
+    method is not called from a class--only instances of a class.
+    """
 
     __slots__ = ('key', '_config')
 
+    # The key/name of the parameter in the Config
     key: str
+
+    # The delimiter used for splitting keys
+    delim: str = '.'
+
+    # A reference to the Config() singleton
     _config: Config
 
     def __init__(self, key):
@@ -74,12 +89,16 @@ class Parameter:
 
     def __get__(self, instance, objtype=None):
         # Convert strings with '.' into nested keys
-        keys = self.key.split('.')
+        keys = self.key.split(self.delim)
         value = self._config
         for key in keys:
             value = getattr(value, key)
         return value
 
     def __set__(self, instance, value):
-        setattr(self._config, self.key, value)
-
+        # Convert strings with '.' into nested keys
+        keys = self.key.split(self.delim)
+        obj = self._config
+        for key in keys[:-1]:
+            obj = getattr(obj, key)
+        setattr(obj, keys[-1], value)
