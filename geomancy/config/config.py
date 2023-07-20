@@ -19,7 +19,7 @@ class Config:
     # The thread lock
     _lock: Lock = Lock()
 
-    def __new__(cls, initial: t.Optional[dict] = None, **kwargs):
+    def __new__(cls, root: bool = True, **kwargs):
         # Create the singleton instance if it hasn't been created
         if cls._instance is None:
             # Lock the thread
@@ -29,18 +29,16 @@ class Config:
                 if cls._instance is None:
                     cls._instance = super().__new__(cls)
 
-        if initial is not None:
-            # If an initial dict was specified--i.e. a sub-dict of the
-            # singleton--then return a Config object with its dict replaced
-            # with that dict
+        if not root:
+            # If this is not the root Config--i.e. a sub config--return a
+            # new Config object instead of the root singleton
             obj = super().__new__(cls)
-            obj.__dict__ = initial
             return obj
         else:
             # Otherwise return the singleton
             return cls._instance
 
-    def __init__(self, initial: t.Optional[dict] = None, **kwargs):
+    def __init__(self, root: bool = True, **kwargs):
         # Set the specified parameters
         for k, v in kwargs.items():
             setattr(self, k, v)
@@ -52,7 +50,7 @@ class Config:
         except AttributeError:
             # Create a dict by default for a missing attribute
             # This allows nested attribute access
-            self.__dict__[key] = Config(initial=dict())
+            self.__dict__[key] = Config(root=False)
             return super().__getattribute__(key)
 
     def __setattr__(self, key, value):
@@ -72,7 +70,7 @@ class Config:
 
             if isinstance(v, dict):
                 # Create a sub Config and load the sub dict
-                sub_config = Config(initial=dict())
+                sub_config = Config(root=False)
                 sub_config.load(v)
                 setattr(self, k, sub_config)
             else:
