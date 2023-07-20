@@ -11,9 +11,8 @@ tasks:
     generates:
       - .venv
 
-  install-env:
+  install:
     desc: Install the package in development (edit) mode
-    internal: true
     cmds:
       - python -m pip install -e ".[dev]"
     sources:
@@ -23,7 +22,7 @@ tasks:
     desc: Setup the development environment
     cmds:
       - task: create-env
-      - task: install-env
+      - task: install
 
   upload:
     desc: Upload the package to PyPI
