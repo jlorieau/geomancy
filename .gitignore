@@ -125,3 +125,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Taskfile (temp hashes)
+.task/

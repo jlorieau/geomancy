@@ -1,0 +1,32 @@
+# https://taskfile.dev/
+version: '3'
+
+tasks:
+
+  create-env:
+    desc: Create a local virtual environment for development
+    internal: true
+    cmds:
+      - python3 -m venv .venv
+    generates:
+      - .venv
+
+  install-env:
+    desc: Install the package in development (edit) mode
+    internal: true
+    cmds:
+      - python -m pip install -e ".[dev]"
+    sources:
+      - pyproject.toml
+
+  setup:
+    desc: Setup the development environment
+    cmds:
+      - task: create-env
+      - task: install-env
+
+  upload:
+    desc: Upload the package to PyPI
+    cmds:
+      - python -m build
+      - twine upload dist/*
