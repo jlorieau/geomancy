@@ -123,10 +123,8 @@ def test_toml_parsing(reset_config):
     """Test Config with the parsing of TOML strings and files"""
     # Load the toml file
     filename = Path(__file__).parent / 'config1.toml'
-    config = Config()
-    config.toml_load(filename)
+    config = Config.toml_load(filename)
 
-    config.pprint()
     # Check the parsed config
     assert config.checkEnv.env_substitute
     assert config.checkEnv.msg == "A test message"

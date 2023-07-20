@@ -61,8 +61,17 @@ class Config:
         """The number of items in this Config"""
         return len(self.__dict__)
 
-    def load(self, d: dict):
-        """Load config with values from a dict"""
+    @classmethod
+    def load(cls, d: dict, root=True) -> 'Config':
+        """Load config with values from a dict.
+
+        Returns
+        -------
+        config
+            The root config instance with parameters loaded
+        """
+        config = cls(root=root)
+
         for k, v in d.items():
             # Only key strings are allowed for the Config
             assert isinstance(k, str), (f"Config keys must be strings. "
@@ -70,23 +79,38 @@ class Config:
 
             if isinstance(v, dict):
                 # Create a sub Config and load the sub dict
-                sub_config = Config(root=False)
-                sub_config.load(v)
-                setattr(self, k, sub_config)
+                sub_config = Config.load(v, root=False)
+                setattr(config, k, sub_config)
             else:
                 # Otherwise just store the value
-                setattr(self, k, v)
+                setattr(config, k, v)
 
-    def toml_loads(self, s: str):
-        """Load config from a string formatted in TOML format"""
+        return config
+
+    @classmethod
+    def toml_loads(cls, s: str) -> 'Config':
+        """Load config from a string formatted in TOML format.
+
+        Returns
+        -------
+        config
+            The root config instance with parameters loaded
+        """
         d = tomllib.loads(s)
-        self.load(d)
+        return cls.load(d)
 
-    def toml_load(self, filename: Path):
-        """Load config from a file formatted in TOML format"""
+    @classmethod
+    def toml_load(cls, filename: Path) -> 'Config':
+        """Load config from a file formatted in TOML format.
+
+        Returns
+        -------
+        config
+            The root config instance with parameters loaded
+        """
         with open(filename, 'rb') as f:
             d = tomllib.load(f)
-        self.load(d)
+        return cls.load(d)
 
     def pprint(self, level=0):
         """Pretty pring the config"""
