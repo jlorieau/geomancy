@@ -5,7 +5,17 @@ from pathlib import Path
 import tomllib
 
 
-class Config:
+class ConfigMeta(type):
+    """A metaclass to set up the creation of Config objects and singleton"""
+
+    def __call__(cls, root: bool = True, **kwargs):
+        # noinspection PyArgumentList
+        obj = cls.__new__(cls, root=root)
+        obj.__init__(**kwargs)
+        return obj
+
+
+class Config(metaclass=ConfigMeta):
     """A thread-safe Config manager to get and set configuration parameters.
 
     Notes
@@ -20,7 +30,7 @@ class Config:
     # The thread lock
     _lock: Lock = Lock()
 
-    def __new__(cls, root: bool = True, **kwargs):
+    def __new__(cls, root: bool = True):
         # Create the singleton instance if it hasn't been created
         if cls._instance is None:
             # Lock the thread
@@ -39,7 +49,7 @@ class Config:
             # Otherwise return the singleton
             return cls._instance
 
-    def __init__(self, root: bool = True, **kwargs):
+    def __init__(self, **kwargs):
         # Set the specified parameters
         for k, v in kwargs.items():
             setattr(self, k, v)
@@ -123,7 +133,7 @@ class Config:
         return cls.load(d)
 
     def pprint(self, level=0):
-        """Pretty pring the config"""
+        """Pretty print the config"""
         for k, v in self.__dict__.items():
             if isinstance(v, Config):
                 print("  " * level + f"** {k} **")
