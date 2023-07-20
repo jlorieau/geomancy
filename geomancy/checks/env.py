@@ -39,6 +39,9 @@ class CheckEnv(CheckBase):
     # The message for checking environment variables
     msg: str = "Check environment variable '{variable_name}'...{status}."
 
+    # Alternative names for the class
+    aliases = ('checkEnv',)
+
     def __init__(self,
                  *args,
                  regex: t.Optional[str] = None,

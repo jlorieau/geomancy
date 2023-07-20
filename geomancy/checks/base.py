@@ -24,12 +24,15 @@ class CheckBase:
     # The message to print during the check. {STATUS} is substituted
     msg: str = ''
 
+    # Alternative names for the class
+    aliases: t.Optional[t.Tuple[str, ...]] = None
+
     # A list of sub checks
     sub_checks: list
 
     def __init__(self,
                  name: str,
-                 value: t.Any,
+                 value: t.Any = None,
                  desc: str = '',
                  sub_checks: t.Optional[list['CheckBase', ...]] = None):
         # Make sure the sub_checks are checks
@@ -61,5 +64,22 @@ class CheckBase:
     @classmethod
     def types_dict(cls) -> t.Dict[str, type]:
         """Return all the types and subtypes of Checks in a dict."""
-        types = [cls] + cls.__subclasses__()
-        return {c.__name__:c for c in types}
+        # Retrieve the base class (BaseCheck) and subclasses
+        cls_types = [cls] + cls.__subclasses__()
+
+        # Create a dict with the class name string (key) and the class type
+        # (value)
+        d = dict()
+        for cls_type in cls_types:
+            # Add the class name directly
+            d[cls_type.__name__] = cls_type
+
+            # Add class name aliases
+            aliases = cls_type.aliases if cls_type.aliases is not None else ()
+            for alias in aliases:
+                # Aliases should not create name collisions
+                assert alias not in d, f"Duplicate alias name '{alias}'"
+
+                d[alias] = cls_type
+
+        return d

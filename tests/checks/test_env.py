@@ -72,3 +72,13 @@ def test_check_env_regex(variable_name='VARIABLE_NAME',
         check2 = CheckEnv(name='regex2', value=variable_name,
                           regex=regex)
         assert not check2.check()
+
+
+def test_check_base_types_dict():
+    """Test the CheckBase.types_dict() method for the CheckEnv class."""
+    types = CheckEnv.types_dict()
+
+    # Verify CheckEnv entries and aliases
+    assert types['CheckEnv'] == CheckEnv
+    assert types['checkEnv'] == CheckEnv
+    
