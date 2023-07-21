@@ -104,7 +104,7 @@ def get_checks(args: argparse.Namespace, required: bool = True) -> t.List["Check
         checks_files = args.checks_files
     else:
         # Otherwise use the default paths in the config
-        checks_files = [filepath(p) for p in config.CLI.CHECKS_PATHS]
+        checks_files = [filepath(p, required=False) for p in config.CLI.CHECKS_PATHS]
         checks_files = [p for p in checks_files if p is not None]
 
     # Nothing to do if no checks files were found
