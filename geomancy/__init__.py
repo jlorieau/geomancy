@@ -1,8 +1,8 @@
-# Current package version
-__version__ = (0, 1, 0, "a")  # Major, minor, patch, stage
-
-# Current description
+# Project description
 __description__ = "Geomancy validates deployment and development environments"
+
+# Project version
+__version__ = (0, 1, 0, "a")  # Major, minor, patch, stage
 
 
 def get_version(version=__version__):
