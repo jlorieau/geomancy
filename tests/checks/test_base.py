@@ -2,7 +2,11 @@
 Test the environment variable check class
 """
 from geomancy.checks import CheckBase
-from pytest import MonkeyPatch
+
+
+# A dummy CheckBase subclass for tests
+class CheckDummy(CheckBase):
+    aliases = ("checkDummy",)
 
 
 def test_check_base_flatten():
@@ -39,13 +43,13 @@ def test_check_base_types_dict():
 
 def test_check_base_load_simple():
     """Test the CheckBase load method from a simple dict"""
-    d = {"CheckEnv": "PATH", "desc": "The $PATH environment variable"}
+    d = {"CheckDummy": "PATH", "desc": "The $PATH environment variable"}
 
     check = CheckBase.load(d=d, name="base check")
 
     assert check is not None
     assert isinstance(check, CheckBase)
-    assert check.__class__.__name__ == "CheckEnv"
+    assert check.__class__ == CheckDummy
     assert check.value == "PATH"
     assert check.desc == d["desc"]
 
@@ -55,8 +59,8 @@ def test_check_base_load_nested():
     d = {
         "Environment": {
             "desc": "Environment checks",
-            "checkPath": {"checkEnv": "VAR1", "desc": "Check VAR2"},
-            "checkTerm": {"checkEnv": "VAR2", "desc": "Check VAR2"},
+            "checkPath": {"checkDummy": "VAR1", "desc": "Check VAR2"},
+            "checkTerm": {"checkDummy": "VAR2", "desc": "Check VAR2"},
         }
     }
 
@@ -72,10 +76,10 @@ def test_check_base_load_nested():
     assert len(flattened) == 4
 
     # Validate class types
-    assert flattened[0].__class__.__name__ == "CheckBase"
-    assert flattened[1].__class__.__name__ == "CheckBase"
-    assert flattened[2].__class__.__name__ == "CheckEnv"
-    assert flattened[3].__class__.__name__ == "CheckEnv"
+    assert flattened[0].__class__ == CheckBase
+    assert flattened[1].__class__ == CheckBase
+    assert flattened[2].__class__ == CheckDummy
+    assert flattened[3].__class__ == CheckDummy
 
     # Validate check names
     assert flattened[0].name == "base check"
@@ -94,17 +98,3 @@ def test_check_base_load_nested():
     assert flattened[1].sub_checks == [flattened[2], flattened[3]]
     assert flattened[2].sub_checks == []
     assert flattened[3].sub_checks == []
-
-    # Validate that check is correct
-    with MonkeyPatch.context() as mp:
-        # Set the environment variables so that the overall check passes
-        mp.setenv("VAR1", "value 1")
-        mp.setenv("VAR2", "value 2")
-
-        assert check.check()
-
-        # Remove the environment variables so that the overall check fails
-        mp.delenv("VAR1")
-        mp.delenv("VAR2")
-
-        assert not check.check()
