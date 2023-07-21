@@ -35,11 +35,11 @@ class CheckEnv(CheckBase):
     # If True (default), environment variables in variable_name or
     # variable_value are substituted with the values of other environment
     # variables.
-    env_substitute: bool = Parameter("CheckEnv.env_substitute", default=True)
+    env_substitute: bool = Parameter("CHECKENV.ENV_SUBSTITUTE", default=True)
 
     # The message for checking environment variables
     msg: str = Parameter(
-        "CheckEnv.msg",
+        "CHECKENV.MSG",
         default="Check environment variable " "'{variable_name}'...{status}.",
     )
 
