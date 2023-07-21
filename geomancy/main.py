@@ -79,21 +79,12 @@ def setup_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def setup_logger(debug: bool = False):
-    """Set up the default logger logger"""
-    # Create a stream (terminal) handler, and configure its level
-    sh = logging.StreamHandler()
-
-    # Configure the handlers
-    formatter = logging.Formatter("%(name)s:%(levelname)s: %(message)s")
-    sh.setFormatter(formatter)
-
-    # Set default log level
-    if debug:
-        logger.setLevel(logging.DEBUG)
-
-    # Add handlers to the logger
-    logger.addHandler(sh)
+def setup_logging(debug: bool = False):
+    """Set up the default logging"""
+    logging.basicConfig(
+        level=logging.DEBUG if debug else None,
+        format="%(name)s:%(levelname)s: %(message)s",
+    )
 
 
 def get_checks(args: argparse.Namespace, required: bool = True) -> t.List["CheckBase"]:
@@ -149,7 +140,7 @@ def main_cli():
     args = parser.parse_args()
 
     # Setup the default logger
-    setup_logger(debug=args.debug)
+    setup_logging(debug=args.debug)
     logger.debug(f"CLI parsed args: {args}")
 
     # Get the checks
