@@ -1,3 +1,3 @@
-from .messages import term
+from .term import term
 
 __all__ = (term,)
