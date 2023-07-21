@@ -1,3 +1,5 @@
+from . import checks, cli, config
+
 # Project description
 __description__ = "Geomancy validates deployment and development environments"
 
