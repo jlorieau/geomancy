@@ -7,14 +7,13 @@ name = "geomancy"
 authors = [
     {name = "Justin Lorieau"},
 ]
-description = "A deployment environment validator"
 readme = "README.md"
 requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Development Status :: 3 - Alpha"
     ]
-dynamic = ["version"]
+dynamic = ["version", "description"]
 
 [project.optional-dependencies]
 dev = [
@@ -26,6 +25,10 @@ dev = [
 
 [tool.setuptools.dynamic]
 version = {attr = "geomancy.__version__"}
+description = {attr = "geomancy.__description__"}
+
+[project.scripts]
+geo = "geomancy.main:main_cli"
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"
