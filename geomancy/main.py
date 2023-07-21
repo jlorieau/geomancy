@@ -49,15 +49,11 @@ def filepath(string: str, required: bool = True) -> t.Union["Path", None]:
     return path
 
 
-def setup_parsers() -> t.Dict[str, argparse.ArgumentParser]:
-    """Set up the CLI parsers"""
+def setup_parser() -> argparse.ArgumentParser:
+    """Set up the CLI parser"""
     # Create the parser
     parser = argparse.ArgumentParser(description=__description__)
-    subparsers = parser.add_subparsers(dest="subparser")
 
-    parser.add_argument(
-        "--disable-color", action="store_true", help="Disable colors in the terminal"
-    )
     parser.add_argument(
         "-V",
         "--version",
@@ -66,26 +62,18 @@ def setup_parsers() -> t.Dict[str, argparse.ArgumentParser]:
         help="Print the current version",
     )
     parser.add_argument("-d", "--debug", action="store_true", help="Enable debug mode")
-
-    # Check subparser
-    check_parser = subparsers.add_parser("check", help="Run checks (default)")
-
-    check_parser.add_argument(
+    parser.add_argument(
+        "--disable-color", action="store_true", help="Disable colors in the terminal"
+    )
+    parser.add_argument("--config", action="store_true", help="Print default config")
+    parser.add_argument(
         "checks_files",
         type=filepath,
         nargs="*",
         help="Optional file containing checks to run",
     )
 
-    # Config subparser
-    config_parser = subparsers.add_parser(
-        "config", help="View and manage configuration"
-    )
-    return {
-        "parser": parser,
-        "check_parser": check_parser,
-        "config_parser": config_parser,
-    }
+    return parser
 
 
 def setup_logging(debug: bool = False):
@@ -96,7 +84,7 @@ def setup_logging(debug: bool = False):
     )
 
 
-def action_check(args: argparse.Namespace) -> bool:
+def action_check(args: argparse.Namespace) -> t.Union[bool, None]:
     """Handle execution of the 'check' sub-command
 
     Parameters
@@ -106,8 +94,10 @@ def action_check(args: argparse.Namespace) -> bool:
 
     Returns
     -------
-    successful
-        True if the command ran successfully
+    result
+        True if the checks ran successfully
+        False if one of the checks failed
+        None if no valid checks files were found
     """
     # Check the specified files
     if len(args.checks_files) > 0:
@@ -121,7 +111,7 @@ def action_check(args: argparse.Namespace) -> bool:
     # Nothing to do if no checks files were found
     if len(checks_files) == 0:
         logger.error(f"Could not find a checks file")
-        return False
+        return None
 
     # Convert the checks_files into root checks
     checks = []
@@ -143,36 +133,28 @@ def action_check(args: argparse.Namespace) -> bool:
         checks.append(check)
 
     # Run the checks
-    for check in checks:
-        check.check()
-
-    return True  # The action was completed successfully--regardless of the checks
+    return all(check.check() for check in checks)
 
 
-def action_config(args):
+def action_config(args) -> bool:
     """Handle execution of the 'config' sub-command"""
 
 
 def main_cli():
     # Parse the CLI arguments
-    parsers = setup_parsers()
-    parser = parsers["parser"]  # root parser
-    args, extra = parser.parse_known_args()  # parse root parser args
+    parser = setup_parser()
+    args = parser.parse_args()  # parse root parser args
 
     # Setup the default logger
     setup_logging(debug=args.debug)
     logger.debug(f"CLI parsed args: {args}")
 
-    # Find the sub-command and continue parser
-    if args.subparser == "check" or args.subparser is None:
-        check_parser = parsers["check_parser"]
-        args = check_parser.parse_args(extra)
-        successful = action_check(args)
-        if not successful:
-            check_parser.print_help()
-    elif args.subparser == "config":
-        config_parser = parsers["config_parser"]
-        args = config_parser.parse_args(extra)
+    # Process the --config flag
+    if args.config:
         action_config(args)
-    else:
-        raise NotImplementedError(f"Unknown subcommand {args.subparser}")
+        exit(0)
+
+    # Process the checks
+    result = action_check(args)
+    if result is None:
+        parser.print_help()
