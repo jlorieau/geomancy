@@ -2,6 +2,7 @@
 import typing as t
 from threading import Lock
 from pathlib import Path
+import textwrap
 import tomllib
 
 
@@ -132,14 +133,53 @@ class Config(metaclass=ConfigMeta):
             d = tomllib.load(f)
         return cls.load(d)
 
-    def pprint(self, level=0):
-        """Pretty print the config"""
-        for k, v in self.__dict__.items():
-            if isinstance(v, Config):
-                print("  " * level + f"** {k} **")
-                v.pprint(level=level + 1)
+    def toml_dumps(self, name="config", level=0) -> str:
+        """Produce a string of the current config in TOML format.
+
+        Parameters
+        ----------
+        name
+            Name of the current section. Sub-sections are identified with '.'
+            characters
+        level
+            Current level of the hierarchy
+        """
+        indent = " " * 2 * level  # indentation
+        text = f"{indent}[{name}]\n"  # section heading
+
+        # Process general parameters before sections (sub configs)
+        items = [(k, v) for k, v in sorted(self.__dict__.items())
+                 if not isinstance(v, Config)]
+        for key, value in items:
+            text += indent  # Add indentation
+
+            # Different simple parameter formats for TOML
+            if isinstance(value, str) and "'" not in value:
+                text += f"{key}='{value}'\n"
+            elif isinstance(value, str):
+                text += f'{key}="{value}"\n'
+            elif isinstance(value, bool):
+                text += f"{key}={str(value).lower()}\n"
             else:
-                print("  " * level + f"{k} = {v}")
+                text += f"{key}={value}\n"
+
+        if len(items) > 0:
+            text += "\n"
+
+        # Next process sections (sub configs)
+        items = [(k, v) for k, v in sorted(self.__dict__.items())
+                 if isinstance(v, Config)]
+        for key, value in items:
+            text += indent  # Add indentation
+            text += value.toml_dumps(name=".".join((name, key)), level=level + 1)
+
+        if level == 0:
+            text = text.rstrip("\n") + "\n"  # Remove multiple terminal newlines
+        return text
+
+    def pprint_toml(self):
+        """Pretty print in TOML format."""
+        print(self.toml_dumps())
 
 
 # dummy placeholder object

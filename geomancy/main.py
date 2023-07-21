@@ -17,6 +17,9 @@ from .checks import CheckBase
 logger = logging.getLogger(__name__)  # Create a default logger
 config = Config()  # Set up config defaults for the CLI
 
+# Set current version
+config.VERSION = get_version()
+
 # Default paths for checks files
 config.CLI.CHECKS_PATHS = [".geomancer.toml", "geomancer.toml"]
 
@@ -138,6 +141,8 @@ def action_check(args: argparse.Namespace) -> t.Union[bool, None]:
 
 def action_config(args) -> bool:
     """Handle execution of the 'config' sub-command"""
+    config.pprint_toml()
+    return True
 
 
 def main_cli():
