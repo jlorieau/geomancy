@@ -1,6 +1,7 @@
 """Messages for the command-line interface"""
 import sys
 import os
+import textwrap
 
 from ..config import Parameter
 
@@ -73,6 +74,17 @@ class Term:
     def REVERSE(self):
         return self.ansi_codes["REVERSE"] if self.use_color else ""
 
+    def fmt(self, text: str, color: str, end: str = "\n", level: int = 0):
+        """Formats the text string as needed for messages"""
+        text_lines = textwrap.wrap(
+            f"{text}{end}",
+            initial_indent=" " * 2 * level if self.use_level else "",
+            subsequent_indent=" " * 4 * level if self.use_level else " " * 2,
+            tabsize=4,
+        )
+        text = "\n".join(text_lines)
+        return f"{color}{text}{self.RESET}{end}"
+
     def p_h1(self, msg: str, end: str = "\n", level: int = 0):
         """Print a heading (level 1)"""
         # Format the message
@@ -83,23 +95,19 @@ class Term:
 
     def p_bold(self, msg: str, end: str = "\n", level: int = 0):
         """Print a message in bold"""
-        start = "  " * level if self.use_level else ""
-        sys.stdout.write(f"{start}{self.BOLD}{msg.strip()}{self.RESET}{end}")
+        sys.stdout.write(self.fmt(msg, self.BOLD, end, level))
 
     def p_pass(self, msg: str, end: str = "\n", level: int = 0):
         """Print a message for a passed test"""
-        start = "  " * level if self.use_level else ""
-        sys.stdout.write(f"{start}{self.GREEN}✔ {msg.strip()}{self.RESET}{end}")
+        sys.stdout.write(self.fmt(f"✔ {msg}", self.GREEN, end, level))
 
     def p_fail(self, msg: str, end: str = "\n", level: int = 0):
         """Print a message for a failed test"""
-        start = "  " * level if self.use_level else ""
-        sys.stderr.write(f"{start}{self.RED}✖ {msg.strip()}{self.RESET}{end}")
+        sys.stderr.write(self.fmt(f"✖ {msg}", self.RED, end, level))
 
     def p_warn(self, msg: str, end: str = "\n", level: int = 0):
         """Print a message for a warning"""
-        start = "  " * level if self.use_level else ""
-        sys.stderr.write(f"{start}{self.YELLOW}! {msg.strip()}{self.RESET}{end}")
+        sys.stderr.write(self.fmt(f"! {msg}", self.YELLOW, end, level))
 
 
 term = Term()
