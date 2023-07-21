@@ -4,6 +4,7 @@ Abstract base class for checks
 import typing as t
 
 from ..config import Parameter
+from ..cli import term
 
 __all__ = ("CheckBase",)
 
@@ -35,6 +36,9 @@ class CheckBase:
     # The maximum recursion depth of the load function
     max_level = Parameter("CHECKBASE.MAX_LEVEL", default=10)
 
+    # Whether to print headings for every CheckBase
+    print_heading = Parameter("CHECKBASE.PRINT_HEADING", default=True)
+
     def __init__(
         self,
         name: str,
@@ -62,8 +66,13 @@ class CheckBase:
     def __repr__(self):
         return f"{self.__class__.__name__}({self.name})"
 
-    def check(self) -> bool:
+    def check(self, level: int = 0) -> bool:
         """Performs the checks and sub-checks.
+
+        Parameters
+        ----------
+        level
+            The current depth level of the check
 
         Returns
         -------
@@ -71,8 +80,16 @@ class CheckBase:
             True if the check and all sub-checks passed
             False if the check or any sub-checked failed
         """
+        # Print a heading
+        if self.print_heading:
+            if level == 0:
+                # Top level heading
+                term.p_h1(self.name, level=level)
+            else:
+                term.p_bold(self.name, level=level)
+
         # Run all subchecks
-        return all(sub.check() for sub in self.sub_checks)
+        return all(sub.check(level=level + 1) for sub in self.sub_checks)
 
     def flatten(self) -> t.List["CheckBase"]:
         """Return a flattened list of this check (first item) and all

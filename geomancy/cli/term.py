@@ -23,16 +23,19 @@ class Term:
         "REVERSE": "\033[;7m",
     }
 
+    # Whether to use the level parameters to add spacing
+    use_level = Parameter("TERM.USE_LEVEL", default=True)
+
     # Whether to use color
-    use_color = Parameter("Term.use_color", default=True)
+    use_color = Parameter("TERM.USE_COLOR", default=True)
 
     # Maximum allowed number of characters per line
-    max_width = Parameter("Term.max_width", default=80)
+    max_width = Parameter("TERM.MAX_WIDTH", default=80)
 
     @property
     def width(self):
         """The current width of the termina"""
-        return os.get_terminal_size()
+        return os.get_terminal_size().columns
 
     @property
     def RED(self):
@@ -70,28 +73,33 @@ class Term:
     def REVERSE(self):
         return self.ansi_codes["REVERSE"] if self.use_color else ""
 
-    def p_header(self, msg: str, end: str = "\n"):
-        """Print a heading"""
-        msg = msg.strip() + " "
+    def p_h1(self, msg: str, end: str = "\n", level: int = 0):
+        """Print a heading (level 1)"""
+        # Format the message
         term_width = min(self.width, self.max_width)
+        msg = "{:=^{length}s}".format(" " + msg.strip() + " ", length=term_width)
 
-        sys.stdout.write(f"{self.MAGENTA}{msg:=<{term_width - 1}}{self.RESET}{end}")
+        sys.stdout.write(f"{self.BOLD}{msg}{self.RESET}{end}")
 
-    def p_pass(self, msg: str, end: str = "\n"):
-        """Print a message for a passed test"""
-        sys.stdout.write(f"  {self.GREEN}✔ {msg.strip()}{self.RESET}{end}")
-
-    def p_fail(self, msg: str, end: str = "\n"):
-        """Print a message for a failed test"""
-        sys.stderr.write(f"  {self.RED}✖ {msg.strip()}{self.RESET}{end}")
-
-    def p_bold(self, msg: str, end: str = "\n"):
+    def p_bold(self, msg: str, end: str = "\n", level: int = 0):
         """Print a message in bold"""
-        sys.stdout.write(f"  {self.BOLD}  {msg.strip()}{self.RESET}{end}")
+        start = "  " * level if self.use_level else ""
+        sys.stdout.write(f"{start}{self.BOLD}{msg.strip()}{self.RESET}{end}")
 
-    def p_warn(self, msg: str, end: str = "\n"):
+    def p_pass(self, msg: str, end: str = "\n", level: int = 0):
+        """Print a message for a passed test"""
+        start = "  " * level if self.use_level else ""
+        sys.stdout.write(f"{start}{self.GREEN}✔ {msg.strip()}{self.RESET}{end}")
+
+    def p_fail(self, msg: str, end: str = "\n", level: int = 0):
+        """Print a message for a failed test"""
+        start = "  " * level if self.use_level else ""
+        sys.stderr.write(f"{start}{self.RED}✖ {msg.strip()}{self.RESET}{end}")
+
+    def p_warn(self, msg: str, end: str = "\n", level: int = 0):
         """Print a message for a warning"""
-        sys.stderr.write(f"  {self.YELLOW}! {msg.strip()}{self.RESET}{end}")
+        start = "  " * level if self.use_level else ""
+        sys.stderr.write(f"{start}{self.YELLOW}! {msg.strip()}{self.RESET}{end}")
 
 
 term = Term()

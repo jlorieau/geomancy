@@ -77,7 +77,7 @@ class CheckEnv(CheckBase):
         else:
             return value
 
-    def check(self) -> bool:
+    def check(self, level: int = 0) -> bool:
         """Check the environment variable value."""
         # Substitute environment variables, if needed
         variable_name = self.variable_name
@@ -86,23 +86,23 @@ class CheckEnv(CheckBase):
         # Make sure the environment variable exists.
         if variable_value is None:
             msg = self.msg.format(variable_name=variable_name, status="missing")
-            term.p_fail(msg)
+            term.p_fail(msg, level=level)
             return False
 
         # Check that the variable has a non-zero value
         if variable_value == "":
             msg = self.msg.format(variable_name=variable_name, status="empty string")
-            term.p_fail(msg)
+            term.p_fail(msg, level=level)
             return False
 
         # Check the regex, if specified
         if isinstance(self.regex, str) and re.match(self.regex, variable_value) is None:
             status = "value does not match regex " "'{regex}'".format(regex=self.regex)
             msg = self.msg.format(variable_name=variable_name, status=status)
-            term.p_fail(msg)
+            term.p_fail(msg, level=level)
             return False
 
         # All checks passed!
         msg = self.msg.format(variable_name=variable_name, status="passed")
-        term.p_pass(msg)
+        term.p_pass(msg, level=level)
         return True
