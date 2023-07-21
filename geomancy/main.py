@@ -8,6 +8,7 @@ import typing as t
 import argparse
 import logging
 from pathlib import Path
+import tomllib
 
 from . import get_version, __description__
 from .config import Config
@@ -95,7 +96,7 @@ def setup_logger(debug: bool = False):
     logger.addHandler(sh)
 
 
-def get_checks(args: argparse.Namespace, required: bool = True) -> t.List["Path"]:
+def get_checks(args: argparse.Namespace, required: bool = True) -> t.List["CheckBase"]:
     """Retrieve the list of parsed checks files from the given parsed
     arguments
 
@@ -120,7 +121,26 @@ def get_checks(args: argparse.Namespace, required: bool = True) -> t.List["Path"
         logger.error(f"Could not find a checks file")
         exit(1)
 
-    return checks_files
+    # Convert the checks_files into root checks
+    checks = []
+    for checks_file in checks_files:
+        # Parse the file by filetype
+        if checks_file.suffix in (".toml",):
+            with open(checks_file, "rb") as f:
+                d = tomllib.load(f)
+        else:
+            continue
+
+        # Load config section, if available
+        config_section = d.pop("config", None)
+        if isinstance(config_section, dict):
+            config.load(config_section)
+
+        # Load the rest into a root CheckBase
+        check = CheckBase.load(d, name=str(checks_file))
+        checks.append(check)
+
+    return checks
 
 
 def main_cli():
@@ -132,5 +152,9 @@ def main_cli():
     setup_logger(debug=args.debug)
     logger.debug(f"CLI parsed args: {args}")
 
-    # Work on the checks files
+    # Get the checks
     checks = get_checks(args)
+
+    # Run the checks
+    for check in checks:
+        check.check()
