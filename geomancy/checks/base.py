@@ -3,7 +3,9 @@ Abstract base class for checks
 """
 import typing as t
 
-__all__ = ('CheckBase',)
+from ..config import Parameter
+
+__all__ = ("CheckBase",)
 
 
 class CheckBase:
@@ -16,13 +18,13 @@ class CheckBase:
     value: t.Any
 
     # Description of the check
-    desc: str = ''
+    desc: str = ""
 
     # The check (and sub-checks) are enabled
     enabled: bool = True
 
     # The message to print during the check. {STATUS} is substituted
-    msg: str = ''
+    msg: str = ""
 
     # Alternative names for the class
     aliases: t.Optional[t.Tuple[str, ...]] = None
@@ -30,16 +32,20 @@ class CheckBase:
     # A list of sub checks
     sub_checks: list
 
-    def __init__(self,
-                 name: str,
-                 value: t.Any = None,
-                 desc: str = '',
-                 sub_checks: t.Optional[list['CheckBase', ...]] = None):
+    # The maximum recursion depth of the load function
+    max_level = Parameter("CHECKBASE.MAX_LEVEL", default=10)
+
+    def __init__(
+        self,
+        name: str,
+        value: t.Any = None,
+        desc: str = "",
+        sub_checks: t.Optional[list["CheckBase", ...]] = None,
+    ):
         # Make sure the sub_checks are checks
         if sub_checks is not None:
             msg = "All sub-checkers must be instances of CheckBase"
-            assert all(isinstance(check, CheckBase)
-                       for check in sub_checks), msg
+            assert all(isinstance(check, CheckBase) for check in sub_checks), msg
         else:
             sub_checks = []
 
@@ -68,7 +74,7 @@ class CheckBase:
         # Run all subchecks
         return all(sub.check() for sub in self.sub_checks)
 
-    def flatten(self) -> t.List['CheckBase']:
+    def flatten(self) -> t.List["CheckBase"]:
         """Return a flattened list of this check (first item) and all
         sub checks."""
         flattened = [self]
@@ -98,3 +104,84 @@ class CheckBase:
                 d[alias] = cls_type
 
         return d
+
+    @classmethod
+    def load(
+        cls, d: dict, name: str, level: int = 1, max_level: t.Optional[int] = None
+    ) -> t.Union["CheckBase", None]:
+        """Load checks from a dict.
+
+        Parameters
+        ----------
+        d
+            The dict with checks to load
+        name
+            The name of the returned check instance
+        level
+            The current recursion depth of this load
+        max_level
+            The maximum recursion depth allowed
+
+        Returns
+        -------
+        root_check
+            The loaded root CheckBase instance
+        """
+        # Check that the maximum recursion level hasn't been reached
+        max_level = max_level if max_level is not None else cls.max_level
+
+        if level >= max_level:
+            msg = f"Parsing level {level} exceed the maximum level of {max_level}"
+            raise NotImplementedError(msg)
+
+        # Get a listing of the available Check types
+        check_types = cls.types_dict()
+
+        # See if the dict has keys that reference Check types
+        matching_keys = [k for k in d.keys() if k in check_types]
+
+        if len(matching_keys) > 1:
+            msg = f"More than 1 check type specified: {matching_keys}"
+            raise NotImplementedError(msg)
+
+        # Parse the check if a single check was given
+        if len(matching_keys) == 1:
+            # Get the check class
+            check_type = matching_keys[0]
+            matching_cls = check_types[check_type]
+
+            # Get the value for the check
+            value = d[check_type]
+
+            # Get the other kwargs
+            kwargs = {k: v for k, v in d.items() if k != check_type}
+
+            # Create and return the check_type
+            return matching_cls(name, value, **kwargs)
+
+        # Otherwise, try parsing the sub_checks
+        items = d.items()
+        found_checks = []  # Values parsed into CheckBase objects
+        other_d = dict()  # All other values
+        for key, value in items:
+            if not isinstance(value, dict):
+                other_d[key] = value
+                continue
+
+            return_value = cls.load(
+                d=value, name=key, level=level + 1, max_level=max_level
+            )
+
+            # Replace the value withe CheckBase instance, if it was parsed correctly
+            # Otherwise, just place it in the parsed_dict.
+            if isinstance(return_value, CheckBase):
+                found_checks.append(return_value)
+            else:
+                other_d[key] = value
+
+        # No sub-checks found; nothing else to do
+        if len(found_checks) == 0:
+            return None
+
+        # Create a check grouping, first, by parsing the other arguments
+        return CheckBase(name=name, sub_checks=found_checks, **other_d)
