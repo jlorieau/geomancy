@@ -1,4 +1,9 @@
 [config]
+# see `geo --config` for all options
+VERSION='0.1.0a'
+
+  [config.CHECKBASE]
+  ENV_SUBSTITUTE_DEFAULT=true
 
 [checks.Environment]
 desc = "Check environment variables common to all development environments"
