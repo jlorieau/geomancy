@@ -21,7 +21,7 @@ config = Config()  # Set up config defaults for the CLI
 config.VERSION = get_version()
 
 # Default paths for checks files
-config.CLI.CHECKS_PATHS = [".geomancy.toml", "geomancy.toml"]
+config.CLI.CHECKS_PATHS = ["pyproject.toml", ".geomancy.toml", "geomancy.toml"]
 
 # Default paths for settings
 config.CLI.SETTINGS_PATHS = ["{HOME}/.geomancerrc"]
@@ -126,14 +126,20 @@ def action_check(args: argparse.Namespace) -> t.Union[bool, None]:
         else:
             continue
 
+        # pyproject.toml files have their items placed under the [tool.geomancy]
+        # section
+        if checks_file.name == "pyproject.toml":
+            d = d.get('tool', dict()).get('geomancy', dict())
+
         # Load config section, if available
         config_section = d.pop("config", None)
         if isinstance(config_section, dict):
-            config.load(config_section)
+            config.update(config_section)
 
         # Load the rest into a root CheckBase
         check = CheckBase.load(d, name=str(checks_file))
-        checks.append(check)
+        if check is not None:
+            checks.append(check)
 
     # Run the checks
     return all(check.check() for check in checks)
