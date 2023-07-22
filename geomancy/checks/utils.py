@@ -6,14 +6,15 @@ __all__ = ('sub_env',)
 
 def sub_env(obj):
     """Substitutes environment variables of the form {VARIABLE_NAME} in
-    strings"""
+    strings.
+    """
     if isinstance(obj, str):
         try:
             # Substitute environment variables
             return obj.format(**os.environ)
         except KeyError:
-            # Could find the environment variable; return unchanged
-            return obj
+            # Could find the environment variable; return None
+            return None
     elif hasattr(obj, "__iter__"):
         # Iterate over items to substitute environment variables
         o_type = type(obj)
