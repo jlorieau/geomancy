@@ -10,10 +10,12 @@ def test_sub_env():
     with MonkeyPatch.context() as mp:
         mp.setenv("VAR1", "variable1")
         mp.setenv("VAR2", "variable2")
+        mp.delenv("MISSING", raising=False)
 
         # Test with strings
         assert sub_env("{VAR1}") == "variable1"
         assert sub_env("{VAR2}") == "variable2"
+        assert sub_env("{MISSING}") == "{MISSING}"
 
         # Test with tuples
         assert sub_env(("{VAR1}", "{VAR2}")) == ("variable1", "variable2")
