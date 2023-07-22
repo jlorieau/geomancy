@@ -36,7 +36,10 @@ class Term:
     @property
     def width(self):
         """The current width of the terminal"""
-        return os.get_terminal_size().columns
+        try:
+            return os.get_terminal_size().columns
+        except OSError:
+            return self.max_width
 
     @property
     def RED(self):
