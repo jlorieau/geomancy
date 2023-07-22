@@ -10,30 +10,15 @@ from ..cli import term
 
 
 class CheckEnv(CheckBase):
-    """Check the current environment variables.
-
-    Notes
-    -----
-    This function can substitute variable names and values with other
-    environment variables, which is common with environment variables.
-
-    e.g. With the following environment variables:
-    ENV=DEV
-    DEPLOYMENT_DEV=passed
-
-    The user could use the variable name 'DEPLOYMENT_{ENV}' to match
-    'DEPLOYMENT_DEV'.
-    """
-
-    value: str
+    """Check the current environment variables."""
 
     # (Optional) regex to match the environment variable value
     regex: t.Optional[t.Tuple[str, ...]] = None
 
     # The message for checking environment variables
-    msg: str = Parameter(
+    msg = Parameter(
         "CHECKENV.MSG",
-        default="Check environment variable " "'{name}'...{status}.",
+        default="Check environment variable '{name}'...{status}.",
     )
 
     # Alternative names for the class
