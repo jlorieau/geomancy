@@ -30,9 +30,6 @@ class Term:
     # Whether to use color
     use_color = Parameter("TERM.USE_COLOR", default=True)
 
-    # Exit the program when encountering a fail
-    exit_on_fail = Parameter("TERM.EXIT_ON_FAIL", default=True)
-
     # Maximum allowed number of characters per line
     max_width = Parameter("TERM.MAX_WIDTH", default=80)
 
@@ -107,8 +104,6 @@ class Term:
     def p_fail(self, msg: str, end: str = "\n", level: int = 0):
         """Print a message for a failed test"""
         sys.stderr.write(self.fmt(f"✖ {msg}", self.RED, end, level))
-        if self.exit_on_fail:
-            exit(1)
 
     def p_warn(self, msg: str, end: str = "\n", level: int = 0):
         """Print a message for a warning"""
