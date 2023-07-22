@@ -2,11 +2,9 @@
 Checks for environment variables
 """
 import typing as t
-import os
 import re
 
 from .base import CheckBase
-from .utils import sub_env
 from ..config import Parameter
 from ..cli import term
 
@@ -41,12 +39,7 @@ class CheckEnv(CheckBase):
     # Alternative names for the class
     aliases = ("checkEnv",)
 
-    def __init__(
-        self,
-        *args,
-        regex: t.Optional[str] = None,
-        **kwargs
-    ):
+    def __init__(self, *args, regex: t.Optional[str] = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.regex = regex
 
