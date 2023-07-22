@@ -21,7 +21,7 @@ config = Config()  # Set up config defaults for the CLI
 config.VERSION = get_version()
 
 # Default paths for checks files
-config.CLI.CHECKS_PATHS = [".geomancer.toml", "geomancer.toml"]
+config.CLI.CHECKS_PATHS = [".geomancy.toml", "geomancy.toml"]
 
 # Default paths for settings
 config.CLI.SETTINGS_PATHS = ["{HOME}/.geomancerrc"]
