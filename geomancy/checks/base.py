@@ -19,7 +19,7 @@ class CheckBase:
     """Check base class and grouper"""
 
     # Value for the check to check
-    _value: t.Any
+    _value: str
 
     # Description of the check
     desc: str = ""
@@ -56,7 +56,7 @@ class CheckBase:
     def __init__(
         self,
         name: str,
-        value: t.Any = None,
+        value: t.Optional[str] = None,
         desc: str = "",
         env_substitute: t.Optional[bool] = None,
         sub_checks: t.Optional[list["CheckBase", ...]] = None,
@@ -89,11 +89,15 @@ class CheckBase:
     @property
     def value(self) -> t.Any:
         """Check's value with optional environment substitution"""
-        return sub_env(self._value) if self.env_substitute else self._value
+        if self.env_substitute and self._value is not None:
+            subbed = sub_env(self._value)
+            return subbed if subbed is not None else self._value
+        else:
+            return self._value
 
     @value.setter
     def value(self, v):
-        self._value = v
+        self._value = str(v) if v is not None else None
 
     def check(self, level: int = 0) -> bool:
         """Performs the checks and sub-checks.

@@ -5,6 +5,7 @@ import typing as t
 import re
 
 from .base import CheckBase
+from .utils import sub_env
 from ..config import Parameter
 from ..cli import term
 
@@ -32,7 +33,7 @@ class CheckEnv(CheckBase):
         """Check the environment variable value."""
         # Substitute environment variables, if needed
         name = self.name
-        value = self.value
+        value = sub_env(self._value) if self._value is not None else None
 
         # Make sure the environment variable exists.
         if value is None:
