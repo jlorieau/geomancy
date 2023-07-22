@@ -2,5 +2,6 @@
 
 from .base import CheckBase, CheckException
 from .env import CheckEnv
+from .path import CheckPath
 
-__all__ = ("CheckBase", "CheckException", "CheckEnv")
+__all__ = ("CheckBase", "CheckException", "CheckEnv", "CheckPath")
