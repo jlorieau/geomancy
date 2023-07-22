@@ -8,14 +8,15 @@ from ..config import Parameter
 from ..cli import term
 
 
-__all__ = ("CheckBase",)
+__all__ = ("CheckBase", "CheckException")
+
+
+class CheckException(Exception):
+    """Exception raised when an error is encountered in the setup of a check."""
 
 
 class CheckBase:
     """Check base class and grouper"""
-
-    # Name of the check
-    _name: str
 
     # Value for the check to check
     _value: t.Any
@@ -41,8 +42,7 @@ class CheckBase:
     env_substitute: bool
 
     # The default value for env_substitute
-    env_substitute_default = Parameter("CHECKBASE.ENV_SUBSTITUTE_DEFAULT",
-                                       default=True)
+    env_substitute_default = Parameter("CHECKBASE.ENV_SUBSTITUTE_DEFAULT", default=True)
 
     # Stop evaluating checks after first fail
     stop_on_first = Parameter("CHECKBASE.STOP_ON_FIRST", default=True)
@@ -72,8 +72,11 @@ class CheckBase:
         self.name = name
         self.value = value
         self.desc = desc
-        self.env_substitute = (env_substitute if env_substitute is not None else
-                               self.env_substitute_default)
+        self.env_substitute = (
+            env_substitute
+            if env_substitute is not None
+            else self.env_substitute_default
+        )
         self.sub_checks = list(sub_checks) if sub_checks is not None else []
 
         # Check attributes
@@ -82,15 +85,6 @@ class CheckBase:
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.name})"
-
-    @property
-    def name(self) -> str:
-        """Check's name with optional environment substitution"""
-        return sub_env(self._name) if self.env_substitute else self._name
-
-    @name.setter
-    def name(self, value):
-        self._name = value
 
     @property
     def value(self) -> t.Any:
