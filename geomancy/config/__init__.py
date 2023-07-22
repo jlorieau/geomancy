@@ -1,2 +1,4 @@
 """Instance-wide configuration"""
-from .config import Config, Parameter
+from .config import ConfigException, Config, Parameter
+
+__all__ = (ConfigException, Config, Parameter)
