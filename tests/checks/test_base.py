@@ -59,8 +59,8 @@ def test_check_base_load_nested():
     d = {
         "Environment": {
             "desc": "Environment checks",
-            "checkPath": {"checkDummy": "VAR1", "desc": "Check VAR2"},
-            "checkTerm": {"checkDummy": "VAR2", "desc": "Check VAR2"},
+            "Path": {"checkDummy": "VAR1", "desc": "Check VAR2"},
+            "Term": {"checkDummy": "VAR2", "desc": "Check VAR2"},
         }
     }
 
@@ -84,8 +84,8 @@ def test_check_base_load_nested():
     # Validate check names
     assert flattened[0].name == "base check"
     assert flattened[1].name == "Environment"
-    assert flattened[2].name == "checkPath"
-    assert flattened[3].name == "checkTerm"
+    assert flattened[2].name == "Path"
+    assert flattened[3].name == "Term"
 
     # Validate check values
     assert flattened[0].value is None
