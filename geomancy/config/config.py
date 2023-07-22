@@ -2,8 +2,15 @@
 import typing as t
 from threading import Lock
 from pathlib import Path
-import textwrap
+from collections.abc import Mapping
+import re
 import tomllib
+
+__all__ = ("ConfigException", "Config", "Parameter")
+
+
+class ConfigException(Exception):
+    """An exception raised in validating or modifying the config"""
 
 
 class ConfigMeta(type):
@@ -31,6 +38,9 @@ class Config(metaclass=ConfigMeta):
     # The thread lock
     _lock: Lock = Lock()
 
+    # The regex to validate key names
+    key_regex = re.compile(r"^[_A-Za-z][_A-Za-z0-9]*$")
+
     def __new__(cls, root: bool = True):
         # Create the singleton instance if it hasn't been created
         if cls._instance is None:
@@ -57,6 +67,7 @@ class Config(metaclass=ConfigMeta):
 
     def __getattribute__(self, key):
         """Get attributes Config with support for attribute nesting"""
+        Config.validate(key)
         try:
             return super().__getattribute__(key)
         except AttributeError:
@@ -67,11 +78,62 @@ class Config(metaclass=ConfigMeta):
 
     def __setattr__(self, key, value):
         """Set attributes in the Config"""
+        Config.validate(key)
         super().__setattr__(key, value)
 
     def __len__(self):
         """The number of items in this Config"""
         return len(self.__dict__)
+
+    @classmethod
+    def validate(cls, key):
+        """Ensure that the given key is valid"""
+        if not cls.key_regex.match(key):
+            raise ConfigException(
+                f"The key '{key}' is not valid. "
+                f"Must match the pattern: '{cls.key_regex.pattern}'"
+            )
+
+    def update(self, updates: Mapping) -> None:
+        """Recursively update config with values from a dict.
+
+        Parameters
+        ----------
+        updates
+            The dict with values to recursively update
+
+        Raises
+        ------
+        ConfigException
+            Raised when the updates include a change that would replace a
+            sub-config (subsection) that includes parameters with a single
+            parameter.
+
+        Notes
+        -----
+        - This function operates recursively to update sub-config (subsection)
+          objects
+        - This function does not allow a sub-config (subsection) to be replaced
+          or truncated by a parameter. This will raise a ConfigException.
+        - This function is not atomic. If a ConfigException is raised partway
+          through the update, this config will only be partially updated.
+        """
+        for k, v in updates.items():
+            current_value = getattr(self, k)  # get the current value or sub_config
+
+            if isinstance(v, Mapping):
+                # Use the corresponding update function. ex: dict
+                current_value.update(v)
+            elif isinstance(v, Config):
+                current_value.update(v.__dict__)
+            elif isinstance(current_value, Config) and len(current_value.__dict__) > 0:
+                # In this case, the update value 'v' is a simple parameter but the
+                # current_value is a sub-config with items in it. This is not allowed.
+                raise ConfigException(
+                    f"Cannot replace config section '{k}' with a parameter '{v}'"
+                )
+            else:
+                setattr(self, k, v)
 
     @classmethod
     def load(cls, d: dict, root=True) -> "Config":
@@ -148,8 +210,11 @@ class Config(metaclass=ConfigMeta):
         text = f"{indent}[{name}]\n"  # section heading
 
         # Process general parameters before sections (sub configs)
-        items = [(k, v) for k, v in sorted(self.__dict__.items())
-                 if not isinstance(v, Config)]
+        items = [
+            (k, v)
+            for k, v in sorted(self.__dict__.items())
+            if not isinstance(v, Config)
+        ]
         for key, value in items:
             text += indent  # Add indentation
 
@@ -167,8 +232,9 @@ class Config(metaclass=ConfigMeta):
             text += "\n"
 
         # Next process sections (sub configs)
-        items = [(k, v) for k, v in sorted(self.__dict__.items())
-                 if isinstance(v, Config)]
+        items = [
+            (k, v) for k, v in sorted(self.__dict__.items()) if isinstance(v, Config)
+        ]
         for key, value in items:
             text += indent  # Add indentation
             text += value.toml_dumps(name=".".join((name, key)), level=level + 1)

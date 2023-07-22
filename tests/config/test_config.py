@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from geomancy.config.config import Config, Parameter
+from geomancy.config.config import ConfigException, Config, Parameter
 
 
 @pytest.fixture
@@ -12,6 +12,20 @@ def reset_config():
     # noinspection PyProtectedMember
     if Config._instance is not None:
         Config._instance = None
+
+
+def test_config_allowed_keys(reset_config):
+    """Tests allowed key for Config entries"""
+    config = Config()
+    valid_keys = ("test1", "TEST1", "TEST_1", "_TEST1")
+    invalid_keys = ("test 1", " test1", "test.1")
+
+    for key in valid_keys:
+        setattr(config, key, "value")
+
+    for key in invalid_keys:
+        with pytest.raises(ConfigException):
+            setattr(config, key, "value")
 
 
 def test_config_getset(reset_config):
@@ -145,7 +159,45 @@ def test_config_nested(reset_config):
     assert a.attribute2 == 4
 
 
-def test_toml_parsing(reset_config):
+def test_config_recursive_update(reset_config):
+    """Test the recursive update"""
+    values = {
+        "section1": {"subsection1": 1, "subsection2": 2},
+        "section2": 3,
+        "section3": 4,
+    }
+    updates = {
+        "section1": {"subsection2": -2},
+        "section2": -3,
+        "section4": {"subsection4": 5},
+    }
+    bad_updates = {"section1": 0}  # Replace a section with a value
+
+    # Create and check the reference config
+    config = Config.load(values)
+
+    assert config.section1.subsection1 == 1
+    assert config.section1.subsection2 == 2
+    assert config.section2 == 3
+    assert config.section3 == 4
+
+    # Introduce updates and check new values
+    config.update(updates)
+
+    assert config.section1.subsection1 == 1
+    assert config.section1.subsection2 == -2  # new value
+    assert config.section2 == -3  # new value
+    assert config.section3 == 4
+    assert config.section4.subsection4 == 5  # new section
+
+    # Try a bad update that eliminates a section
+    with pytest.raises(ConfigException):
+        config.update(bad_updates)
+
+    assert config.section1.subsection1 == 1  # config remains
+
+
+def test_config_toml_parsing(reset_config):
     """Test Config with the parsing of TOML strings and files"""
     # Load the toml file
     filename = Path(__file__).parent / "config1.toml"
