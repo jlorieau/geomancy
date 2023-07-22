@@ -129,7 +129,7 @@ def action_check(args: argparse.Namespace) -> t.Union[bool, None]:
         # pyproject.toml files have their items placed under the [tool.geomancy]
         # section
         if checks_file.name == "pyproject.toml":
-            d = d.get('tool', dict()).get('geomancy', dict())
+            d = d.get("tool", dict()).get("geomancy", dict())
 
         # Load config section, if available
         config_section = d.pop("config", None)
@@ -151,10 +151,10 @@ def action_config(args) -> bool:
     return True
 
 
-def main_cli():
+def main_cli(args: t.Optional[t.List[str]] = None):
     # Parse the CLI arguments
     parser = setup_parser()
-    args = parser.parse_args()  # parse root parser args
+    args = parser.parse_args(args)  # parse root parser args
 
     # Setup the default logger
     setup_logging(debug=args.debug)
@@ -164,6 +164,10 @@ def main_cli():
     if args.config:
         action_config(args)
         exit(0)
+
+    # Process the --disable-color flag
+    if args.disable_color:
+        config.TERM.USE_COLOR = False
 
     # Process the checks
     result = action_check(args)
