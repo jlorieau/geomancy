@@ -44,6 +44,9 @@ class CheckBase:
     env_substitute_default = Parameter("CHECKBASE.ENV_SUBSTITUTE_DEFAULT",
                                        default=True)
 
+    # Stop evaluating checks after first fail
+    stop_on_first = Parameter("CHECKBASE.STOP_ON_FIRST", default=True)
+
     # The maximum recursion depth of the load function
     max_level = Parameter("CHECKBASE.MAX_LEVEL", default=10)
 
@@ -120,8 +123,13 @@ class CheckBase:
             else:
                 term.p_bold(self.name, level=level)
 
-        # Run all subchecks
-        return all(sub.check(level=level + 1) for sub in self.sub_checks)
+        # Run all sub-checks
+        passed = True
+        for sub_check in self.sub_checks:
+            passed &= sub_check.check(level=level + 1)
+            if not passed and self.stop_on_first:
+                break
+        return passed
 
     def flatten(self) -> t.List["CheckBase"]:
         """Return a flattened list of this check (first item) and all
