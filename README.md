@@ -20,13 +20,12 @@ $ geo examples/geomancy.toml
 ## Usage
 1. Create a file containing checks. Either
 
-   - Create a ``.geomancy.toml`` file with checks in the project root. See the
-      ``examples`` directory for examples.
+   - ``.geomancy.toml``in the project root. See the ``examples`` directory for
+     examples.
 
    or
 
-   - Add the checks to a ``pyproject.toml`` file using the section heading
-     ``[tool.geomancy]``.
+   - ``pyproject.toml`` with check in the ``[tool.geomancy]`` section.
 
 2. Run the geo
 
@@ -40,22 +39,17 @@ $ geo examples/geomancy.toml
 
 Tests the existence and, optional, the value of an environment variable.
 
-__aliases__: ``checkEnv``, ``CheckEnv``
-
-#### Required
-
-- __value__: An environment variable name wrapped in curly braces for
-  substitution
-
-#### Optional
-- __desc__: The description for the test
-
-- __regex__: A regular expression to test against the environment variable value
+| name      | description                                                                                                                  |
+|:----------|:-----------------------------------------------------------------------------------------------------------------------------|
+| checkEnv  | Environment variable to check, wrapped in curly braces for substitution. <br>__aliases__: ``checkEnv``, ``CheckEnv``         |
+| desc      | _(Optional)_ The description for the test                                                                                    |
+| regex     | _(Optional)_ A regular expression to test against the environment variable value                                             |
 
 #### Example
 
 ```toml
-[checks.Environment.Path]
-    desc = "Paths to search for executables"
-    checkEnv = "{PATH}"
+[checks.Environment.Username]
+desc = "The current username"
+checkEnv = "{USER}"
+regex = "[a-z_][a-z0-9_-]*[$]?"
 ```
