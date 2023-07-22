@@ -35,7 +35,7 @@ $ geo examples/geomancy.toml
 
 ## Format
 
-### checkEnv: Environment variables
+### checkEnv
 
 Tests the existence and, optionally, the value of an environment variable.
 
@@ -45,7 +45,7 @@ Tests the existence and, optionally, the value of an environment variable.
 | desc      | _(Optional)_ The description for the test                                                                                    |
 | regex     | _(Optional)_ A regular expression to test against the environment variable value                                             |
 
-#### Example
+##### Example
 
 ```toml
 [checks.Environment.Username]
@@ -54,7 +54,7 @@ checkEnv = "{USER}"
 regex = "[a-z_][a-z0-9_-]*[$]?"
 ```
 
-### checkPath: Paths
+### checkPath
 
 Tests the existence and type of a path.
 
@@ -64,7 +64,7 @@ Tests the existence and type of a path.
 | desc      | _(Optional)_ The description for the test                                                                                                      |
 | path_type | _(Optional)_ Check whether the path corresponds to a valid ``'file'`` or ``'dir'``.                                                            |
 
-#### Example
+##### Example
 
 ```toml
 [checks.Environment.Pyproject]
