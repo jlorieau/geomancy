@@ -1,0 +1,18 @@
+[tool.geomancy.config]
+# see `geo --config` for all options
+VERSION='0.1.0a'
+
+  [tool.geomancy.config.CHECKBASE]
+  ENV_SUBSTITUTE_DEFAULT=true
+
+[tool.geomancy.checks.Environment]
+desc = "Check environment variables common to all development environments"
+
+    [tool.geomancy.checks.Environment.Path]
+    desc = "Paths to search for executables"
+    checkEnv = "{PATH}"
+
+    [tool.geomancy.checks.Environment.Username]
+    desc = "The current username"
+    checkEnv = "{USER}"
+    regex = "[a-z_][a-z0-9_-]*[$]?"
