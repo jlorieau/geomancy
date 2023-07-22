@@ -1,5 +1,5 @@
 """
-Checks environment variables
+Checks for environment variables
 """
 import typing as t
 import os
@@ -32,15 +32,10 @@ class CheckEnv(CheckBase):
     # (Optional) regex to match the environment variable value
     regex: t.Optional[t.Tuple[str, ...]] = None
 
-    # If True (default), environment variables in variable_name or
-    # variable_value are substituted with the values of other environment
-    # variables.
-    env_substitute: bool = Parameter("CHECKENV.ENV_SUBSTITUTE", default=True)
-
     # The message for checking environment variables
     msg: str = Parameter(
         "CHECKENV.MSG",
-        default="Check environment variable " "'{variable_name}'...{status}.",
+        default="Check environment variable " "'{name}'...{status}.",
     )
 
     # Alternative names for the class
@@ -50,59 +45,37 @@ class CheckEnv(CheckBase):
         self,
         *args,
         regex: t.Optional[str] = None,
-        env_substitute: t.Optional[bool] = None,
         **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.regex = regex
 
-        if isinstance(env_substitute, bool):
-            self.env_substitute = env_substitute
-
-    @property
-    def variable_name(self) -> str:
-        """The name of the environment variable with environment variable
-        substitution"""
-        return sub_env(self.value) if self.env_substitute else self.value
-
-    @variable_name.setter
-    def variable_name(self, value: str) -> None:
-        self.value = value
-
-    @property
-    def variable_value(self) -> t.Union[None, str]:
-        value = os.environ.get(self.variable_name, None)
-        if value is not None and self.env_substitute:
-            return sub_env(value)
-        else:
-            return value
-
     def check(self, level: int = 0) -> bool:
         """Check the environment variable value."""
         # Substitute environment variables, if needed
-        variable_name = self.variable_name
-        variable_value = self.variable_value
+        name = self.name
+        value = self.value
 
         # Make sure the environment variable exists.
-        if variable_value is None:
-            msg = self.msg.format(variable_name=variable_name, status="missing")
+        if value is None:
+            msg = self.msg.format(name=name, status="missing")
             term.p_fail(msg, level=level)
             return False
 
         # Check that the variable has a non-zero value
-        if variable_value == "":
-            msg = self.msg.format(variable_name=variable_name, status="empty string")
+        if value == "":
+            msg = self.msg.format(name=name, status="empty string")
             term.p_fail(msg, level=level)
             return False
 
         # Check the regex, if specified
-        if isinstance(self.regex, str) and re.match(self.regex, variable_value) is None:
+        if isinstance(self.regex, str) and re.match(self.regex, value) is None:
             status = "value does not match regex " "'{regex}'".format(regex=self.regex)
-            msg = self.msg.format(variable_name=variable_name, status=status)
+            msg = self.msg.format(name=name, status=status)
             term.p_fail(msg, level=level)
             return False
 
         # All checks passed!
-        msg = self.msg.format(variable_name=variable_name, status="passed")
+        msg = self.msg.format(name=name, status="passed")
         term.p_pass(msg, level=level)
         return True

@@ -3,8 +3,10 @@ Abstract base class for checks
 """
 import typing as t
 
+from .utils import sub_env
 from ..config import Parameter
 from ..cli import term
+
 
 __all__ = ("CheckBase",)
 
@@ -13,25 +15,34 @@ class CheckBase:
     """Check base class and grouper"""
 
     # Name of the check
-    name: str
+    _name: str
 
     # Value for the check to check
-    value: t.Any
+    _value: t.Any
 
     # Description of the check
     desc: str = ""
 
-    # The check (and sub-checks) are enabled
-    enabled: bool = True
-
     # The message to print during the check. {STATUS} is substituted
     msg: str = ""
+
+    # A list of sub checks
+    sub_checks: list
 
     # Alternative names for the class
     aliases: t.Optional[t.Tuple[str, ...]] = None
 
-    # A list of sub checks
-    sub_checks: list
+    # The check (and sub-checks) are enabled
+    enabled: bool = True
+
+    # If True (default), environment variables in variable_name or
+    # variable_value are substituted with the values of other environment
+    # variables.
+    env_substitute: bool
+
+    # The default value for env_substitute
+    env_substitute_default = Parameter("CHECKBASE.ENV_SUBSTITUTE_DEFAULT",
+                                       default=True)
 
     # The maximum recursion depth of the load function
     max_level = Parameter("CHECKBASE.MAX_LEVEL", default=10)
@@ -44,6 +55,7 @@ class CheckBase:
         name: str,
         value: t.Any = None,
         desc: str = "",
+        env_substitute: t.Optional[bool] = None,
         sub_checks: t.Optional[list["CheckBase", ...]] = None,
     ):
         # Make sure the sub_checks are checks
@@ -57,6 +69,8 @@ class CheckBase:
         self.name = name
         self.value = value
         self.desc = desc
+        self.env_substitute = (env_substitute if env_substitute is not None else
+                               self.env_substitute_default)
         self.sub_checks = list(sub_checks) if sub_checks is not None else []
 
         # Check attributes
@@ -65,6 +79,24 @@ class CheckBase:
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.name})"
+
+    @property
+    def name(self) -> str:
+        """Check's name with optional environment substitution"""
+        return sub_env(self._name) if self.env_substitute else self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def value(self) -> t.Any:
+        """Check's value with optional environment substitution"""
+        return sub_env(self._value) if self.env_substitute else self._value
+
+    @value.setter
+    def value(self, v):
+        self._value = v
 
     def check(self, level: int = 0) -> bool:
         """Performs the checks and sub-checks.

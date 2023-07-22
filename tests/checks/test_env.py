@@ -8,31 +8,30 @@ from pytest import MonkeyPatch
 from geomancy.checks import CheckEnv
 
 
-def test_check_env_missing(variable_name='missingVariable'):
+def test_check_env_missing():
     """Test CheckEnv for a missing environment variable"""
-    assert variable_name not in os.environ
+    with MonkeyPatch.context() as mp:
+        mp.delenv("MISSING", raising=False)
+        check = CheckEnv(name='missing', value='{MISSING}')
+        assert not check.check()
 
-    check = CheckEnv(name='missing', value=variable_name)
-    assert not check.check()
 
-
-def test_check_env_present(variable_name='PATH'):
+def test_check_env_present():
     """Test CheckEnv for a present environment variable"""
-    assert variable_name in os.environ
+    with MonkeyPatch.context() as mp:
+        mp.setenv("PRESENT", "VALUE")
 
-    check = CheckEnv(name='present', value=variable_name)
-    assert check.check()
+        check = CheckEnv(name='PRESENT', value="{PRESENT}")
+        assert check.name == "PRESENT"
+        assert check.value == "VALUE"
+        assert check.check()
 
 
 def test_check_env_name_substitution(variable_name='VARIABLE_NAME',
                                      variable_value='PATH'):
     """Test CheckEnv with substituting variable names with environment
     variables"""
-    # Make sure the variable name isn't in the environment already
-    assert variable_name not in os.environ
-    assert '{' + variable_name + '}' not in os.environ
-
-    # Set the VariableName envinronment variable to be the name of another
+    # Set the VariableName environment variable to be the name of another
     # environment variable that exists
     with MonkeyPatch.context() as mp:
         mp.setenv(variable_name, variable_value)
@@ -43,8 +42,8 @@ def test_check_env_name_substitution(variable_name='VARIABLE_NAME',
                          value='{' + variable_name + '}')
 
         # Check that the subsitution is correct
-        assert check.variable_name == 'PATH'
-        assert check.value == '{' + variable_name + '}'  # hidden var
+        assert check.name == "substitution"
+        assert check._value == '{' + variable_name + '}'  # hidden var
 
         assert check.check()
 
@@ -60,7 +59,7 @@ def test_check_env_regex(variable_name='VARIABLE_NAME',
         mp.setenv(variable_name, variable_value)
 
         # The regex should match
-        check1 = CheckEnv(name='regex1', value=variable_name,
+        check1 = CheckEnv(name='regex1', value='{' + variable_name + '}',
                           regex=regex)
         assert check1.check()
 
@@ -69,7 +68,7 @@ def test_check_env_regex(variable_name='VARIABLE_NAME',
         mp.setenv(variable_name, '!' + variable_value + '!')
 
         # The regex should not match
-        check2 = CheckEnv(name='regex2', value=variable_name,
+        check2 = CheckEnv(name='regex2', value='{' + variable_name + '}',
                           regex=regex)
         assert not check2.check()
 

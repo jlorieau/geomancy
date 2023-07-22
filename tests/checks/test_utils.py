@@ -15,7 +15,7 @@ def test_sub_env():
         # Test with strings
         assert sub_env("{VAR1}") == "variable1"
         assert sub_env("{VAR2}") == "variable2"
-        assert sub_env("{MISSING}") == "{MISSING}"
+        assert sub_env("{MISSING}") is None
 
         # Test with tuples
         assert sub_env(("{VAR1}", "{VAR2}")) == ("variable1", "variable2")
