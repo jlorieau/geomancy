@@ -79,8 +79,8 @@ The following is the same check group, but in abbreviated format.
 [checks.ChecksFile]
     condition = "any"
 
-    Geomancy = {checkPath = "examples/geomancy.toml", type="file"}
-    Pyproject = {checkPath = "examples/pyproject.toml", type="file"}
+    Geomancy = {checkPath = "examples/geomancy.toml", type = "file"}
+    Pyproject = {checkPath = "examples/pyproject.toml", type = "file"}
 ```
 
 ### Checks
