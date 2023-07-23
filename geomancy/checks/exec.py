@@ -22,7 +22,7 @@ class CheckExec(CheckBase):
     # The message for checking environment variables
     msg = Parameter(
         "CHECKEXEC.MSG",
-        default="Check executable '{check.value}'...",
+        default="Check executable '{check.raw_value}'...",
     )
 
     # Alternative names for the class
