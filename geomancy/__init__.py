@@ -4,7 +4,7 @@ from . import checks, cli, config
 __description__ = "Geomancy validates deployment and development environments"
 
 # Project version
-__version__ = (0, 3, 0, "a")  # Major, minor, patch, stage
+__version__ = (0, 4, 0, "a")  # Major, minor, patch, stage
 
 
 def get_version(version=__version__):
