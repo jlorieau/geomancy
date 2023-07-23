@@ -4,7 +4,7 @@ import os
 import operator
 import re
 
-__all__ = ("sub_env",)
+__all__ = ("sub_env", "version_to_tuple", "name_and_version")
 
 
 def sub_env(obj):
@@ -25,6 +25,42 @@ def sub_env(obj):
         return o_type(sub_env(i) for i in items)
     else:
         return obj
+
+
+def version_to_tuple(version: str) -> t.Union[t.Tuple[int], None]:
+    """Convert a semantic version string to a tuple of integers.
+
+    Parameters
+    ----------
+    version
+        String with the version number. e.g. '1.4.3]
+
+    Returns
+    -------
+    version_tuple or None
+        Vesion in the form of a tuple of integers, or
+        None if a version couldn't be found
+
+    Notes
+    -----
+    This function ignores letters in a version. e.g. '0.4.1b' becomes (0, 4, 1)
+
+    Examples
+    --------
+    >>> version_to_tuple('26')
+    (26,)
+    >>> version_to_tuple('1.3')
+    (1, 3)
+    >>> version_to_tuple('v0.1.3')
+    (0, 1, 3)
+    >>> version_to_tuple('1.2beta')
+    (1, 2)
+    """
+    version_match = re.search(r"([\d.]{2,}|\d+)", version)  # Capture the version
+    if version_match is None:
+        return None
+    version = version_match.group().split(".")  # Split the version string at "."
+    return tuple(map(int, version))  # Convert to a tuple of ints
 
 
 def name_and_version(
@@ -90,9 +126,6 @@ def name_and_version(
         op = op_mapping[op]
 
     # Convert the version to a tuple of integers
-    if version is not None:
-        version = re.sub(r"[A-Za-z]", "", version)  # Remove letters from the version
-        version = version.split(".")  # Split the version string at "."
-        version = tuple(map(int, version))  # Convert to a tuple of ints
+    version = version_to_tuple(version) if version is not None else None
 
     return name, op, version
