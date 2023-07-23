@@ -38,7 +38,7 @@ $ geo examples/geomancy.toml
 
    or
 
-   - ``pyproject.toml`` with check in the ``[tool.geomancy]`` section.
+   - ``pyproject.toml`` with checks and config in the ``[tool.geomancy]`` section.
 
 2. Run the geo
 
