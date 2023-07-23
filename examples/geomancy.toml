@@ -16,3 +16,25 @@ desc = "Check environment variables common to all development environments"
     desc = "The current username"
     checkEnv = "{USER}"
     regex = "[a-z_][a-z0-9_-]*[$]?"
+
+[checks.Paths]
+desc = "Checks the existence of needed files and directories"
+
+    [checks.Paths.ChecksFile]
+    desc = "Checks that at least one checks file exists"
+    condition = "any"
+
+        [checks.Paths.ChecksFile.Geomancy]
+        desc = "Check for 'geomancy.toml' file"
+        checkPath = "examples/geomancy.toml"
+        type = "file"
+
+        [checks.Paths.ChecksFile.Pyproject]
+        desc = "Check for 'pyproject.toml' file"
+        checkPath = "examples/pyproject.toml"
+        type = "file"
+
+        [checks.Paths.ChecksFile.missing]
+        desc = "Check a missing file"
+        checkPath = ".missing__.txt"
+        type = "file"

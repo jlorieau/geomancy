@@ -41,6 +41,9 @@ class CheckBase:
     # variables.
     env_substitute: bool
 
+    # The condition for sub-check results to be considered a pass
+    condition: t.Callable = all
+
     # The default value for env_substitute
     env_substitute_default = Parameter("CHECKBASE.ENV_SUBSTITUTE_DEFAULT", default=True)
 
@@ -58,17 +61,10 @@ class CheckBase:
         name: str,
         value: t.Optional[str] = None,
         desc: str = "",
+        condition: t.Optional[str] = None,
         env_substitute: t.Optional[bool] = None,
         sub_checks: t.Optional[list["CheckBase", ...]] = None,
     ):
-        # Make sure the sub_checks are checks
-        if sub_checks is not None:
-            msg = "All sub-checkers must be instances of CheckBase"
-            assert all(isinstance(check, CheckBase) for check in sub_checks), msg
-        else:
-            sub_checks = []
-
-        # Set attributes
         self.name = name
         self.value = value
         self.desc = desc
@@ -78,6 +74,18 @@ class CheckBase:
             else self.env_substitute_default
         )
         self.sub_checks = list(sub_checks) if sub_checks is not None else []
+
+        # Make sure the condition values are allowed
+        if condition is None:
+            pass
+        elif condition in ("all", "All", "ALL"):
+            self.condition = all
+        elif condition in ("any", "Any", "ANY"):
+            self.condition = any
+        else:
+            raise CheckException(
+                f"The condition '{condition}' should be either 'all' or 'any'."
+            )
 
         # Check attributes
         msg = "All sub-checks should be instances of CheckBase"
@@ -122,12 +130,14 @@ class CheckBase:
                 term.p_bold(self.name, level=level)
 
         # Run all sub-checks
-        passed = True
+        passes = []
         for sub_check in self.sub_checks:
-            passed &= sub_check.check(level=level + 1)
+            passed = sub_check.check(level=level + 1)
+            passes.append(passed)
+
             if not passed and self.stop_on_first:
                 break
-        return passed
+        return self.condition(passes)
 
     def flatten(self) -> t.List["CheckBase"]:
         """Return a flattened list of this check (first item) and all
