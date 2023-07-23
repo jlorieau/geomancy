@@ -9,7 +9,7 @@ from .utils import sub_env
 from ..config import Parameter
 from ..cli import Term
 
-__all__ = ("CheckBase", "CheckException")
+__all__ = ("CheckBase", "CheckException", "CheckResult")
 
 
 class CheckException(Exception):
