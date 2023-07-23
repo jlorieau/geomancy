@@ -8,6 +8,10 @@ Currently, ``geomancy`` can check that:
 - [file and directory paths](#checkpath) exist
 - [executables](#checkexec) are available and, optionally, of the correct version
 - [check grouping](#check-groups) and conditional evaluation
+- supports setting values with environment variable substitution.
+  ex: ``checkPath: {HOME}/.geomancy.toml``
+
+The following is an example ``geomancy`` run with an example checks file.
 
 ```shell
 $ geo examples/geomancy.toml
@@ -25,11 +29,6 @@ $ geo examples/geomancy.toml
 [✔]     Check executable 'python3>=3.11'...passed
 ========================= 11 checks passed in 0.00s ======================
 ```
-
-## Features
-- Checks local environment: environment variables
-- Environment variable substitution in values and parameters
-- Grouping and nesting of checks
 
 ## Usage
 1. Create a file containing checks. Either
