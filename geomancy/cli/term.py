@@ -3,6 +3,7 @@ import typing as t
 import sys
 import os
 import textwrap
+from types import MappingProxyType
 from abc import ABC, abstractmethod
 
 from ..config import Parameter, ConfigException
@@ -28,6 +29,9 @@ class Term(ABC):
 
     # Other names for the concrete classes
     aliases: t.Tuple[str] = ()
+
+    # Default formatting options to append to a
+    format_kwargs = MappingProxyType({"end": "\n", "color": 0, "level": 0})
 
     # Whether to use the level parameters to add spacing
     use_level = Parameter("TERM.USE_LEVEL", default=True)
@@ -86,24 +90,58 @@ class Term(ABC):
         return self.ansi_codes["REVERSE"] if self.use_color else ""
 
     @abstractmethod
-    def p_h1(self, msg: str, status: str = "", end: str = "\n", level: int = 0) -> None:
+    def p_h1(self, msg: str, **kwargs) -> None:
+        """Print a heading (level 1)
+
+        Parameters
+        ----------
+        msg
+            The message to print
+        kwargs
+            Options in formatting the printout. Options must be kwargs.
+            See :attr:`format_kwargs`
+        """
         return None
 
     @abstractmethod
-    def p_h2(self, msg: str, status: str = "", end: str = "\n", level: int = 0) -> None:
+    def p_h2(self, msg: str, **kwargs) -> None:
+        """Print a heading (level 2)
+
+        Parameters
+        ----------
+        msg
+            The message to print
+        kwargs
+            Options in formatting the printout. Options must be kwargs.
+            See :attr:`format_kwargs`
+        """
         return None
 
     @abstractmethod
-    def p_pass(
-        self, msg: str, status: str = "", end: str = "\n", level: int = 0
-    ) -> None:
-        return None
+    def p_pass(self, msg: str, **kwargs) -> None:
+        """Print a passed check message
+
+        Parameters
+        ----------
+        msg
+            The message to print
+        kwargs
+            Options in formatting the printout. Options must be kwargs.
+            See :attr:`format_kwargs`
+        """
 
     @abstractmethod
-    def p_fail(
-        self, msg: str, status: str = "", end: str = "\n", level: int = 0
-    ) -> None:
-        return None
+    def p_fail(self, msg: str, **kwargs) -> None:
+        """Print a heading (level 1)
+
+        Parameters
+        ----------
+        msg
+            The message to print
+        kwargs
+            Options in formatting the printout. Options must be kwargs.
+            See :attr:`format_kwargs`
+        """
 
     @classmethod
     def get(cls):
@@ -126,16 +164,18 @@ class FullTerm(Term):
 
     aliases = ("full", "Full", "FULL")
 
-    def fmt(
-        self,
-        msg: str,
-        status: str = "",
-        start: str = "",
-        end: str = "\n",
-        level: int = 0,
-        color: str = "",
-    ):
+    format_kwargs = MappingProxyType(
+        {"status": "", "start": "", "end": "\n", "color": "", "level": 0}
+    )
+
+    def fmt(self, msg: str, **kwargs):
         """Formats the text string as needed for messages"""
+        status = kwargs.get("status", self.format_kwargs["status"])
+        start = kwargs.get("start", self.format_kwargs["start"])
+        end = kwargs.get("end", self.format_kwargs["end"])
+        color = kwargs.get("color", self.format_kwargs["color"])
+        level = kwargs.get("level", self.format_kwargs["level"])
+
         # Substitute text without ANSI codes
         text = f"{msg}{status}"
 
@@ -181,8 +221,10 @@ class FullTerm(Term):
         # Color the status
         return text
 
-    def p_h1(self, msg: str, status: str = "", end: str = "\n", level: int = 0):
+    def p_h1(self, msg: str, **kwargs):
         """Print a heading (level 1)"""
+        end = kwargs.get("end", self.format_kwargs["end"])
+
         # Format the message
         if self.max_width is not None:
             term_width = min(self.width, self.max_width)
@@ -192,22 +234,26 @@ class FullTerm(Term):
 
         sys.stdout.write(f"{self.BOLD}{msg}{self.RESET}{end}")
 
-    def p_h2(self, msg: str, status: str = "", end: str = "\n", level: int = 0):
-        """Print a heading (level 1)"""
-        sys.stdout.write(self.fmt(msg, status, "✔", end, level, self.BOLD))
+    def p_h2(self, msg: str, **kwargs):
+        kwargs["color"] = kwargs.get("color", "") + self.BOLD
+        sys.stdout.write(self.fmt(msg, **kwargs))
 
-    def p_bold(self, msg: str, status: str = "", end: str = "\n", level: int = 0):
-        """Print a message in bold"""
-        sys.stdout.write(self.fmt(msg, status, "✔", end, level, self.BOLD))
+    def p_bold(self, msg: str, **kwargs):
+        kwargs["color"] = kwargs.get("color", "") + self.BOLD
+        sys.stdout.write(self.fmt(msg, **kwargs))
 
-    def p_pass(self, msg: str, status: str = "", end: str = "\n", level: int = 0):
-        """Print a message for a passed test"""
-        sys.stdout.write(self.fmt(msg, status, "✔", end, level, self.GREEN))
+    def p_pass(self, msg: str, **kwargs):
+        kwargs["color"] = kwargs.get("color", self.format_kwargs["color"]) + self.GREEN
+        kwargs["start"] = kwargs.get("start", "✔")
+        sys.stdout.write(self.fmt(msg, **kwargs))
 
-    def p_fail(self, msg: str, status: str = "", end: str = "\n", level: int = 0):
-        """Print a message for a failed test"""
-        sys.stdout.write(self.fmt(msg, status, "✖", end, level, self.RED))
+    def p_fail(self, msg: str, **kwargs):
+        kwargs["color"] = kwargs.get("color", self.format_kwargs["color"]) + self.RED
+        kwargs["start"] = kwargs.get("start", "✖")
+        sys.stdout.write(self.fmt(msg, **kwargs))
 
-    def p_warn(self, msg: str, status: str = "", end: str = "\n", level: int = 0):
+    def p_warn(self, msg: str, **kwargs):
         """Print a message for a warning"""
-        sys.stdout.write(self.fmt(msg, status, "!", end, level, self.YELLOW))
+        kwargs["color"] = kwargs.get("color", self.format_kwargs["color"]) + self.YELLOW
+        kwargs["start"] = kwargs.get("start", "!")
+        sys.stdout.write(self.fmt(msg, **kwargs))
