@@ -129,10 +129,11 @@ class Term(ABC):
             Options in formatting the printout. Options must be kwargs.
             See :attr:`format_kwargs`
         """
+        return None
 
     @abstractmethod
     def p_fail(self, msg: str, **kwargs) -> None:
-        """Print a heading (level 1)
+        """Print a failed check messagd
 
         Parameters
         ----------
@@ -142,9 +143,24 @@ class Term(ABC):
             Options in formatting the printout. Options must be kwargs.
             See :attr:`format_kwargs`
         """
+        return None
+
+    @abstractmethod
+    def p_warn(self, msg: str, **kwargs) -> None:
+        """Print a warned check messagd
+
+        Parameters
+        ----------
+        msg
+            The message to print
+        kwargs
+            Options in formatting the printout. Options must be kwargs.
+            See :attr:`format_kwargs`
+        """
+        return None
 
     @classmethod
-    def get(cls):
+    def get(cls) -> "Term":
         """Get the currently configured terminal"""
         term_subclasses = cls.__subclasses__()
         matching_term = [
@@ -222,12 +238,12 @@ class FullTerm(Term):
             )
 
             # Add the colored start
-            text = (
-                f"[{color_check}{check}{self.RESET}] {color_msg}{text}{self.RESET}{end}"
-            )
+            check_str = f"[{color_check}{check}{self.RESET}] " if check else "    "
+            text = f"{check_str}{color_msg}{text}{self.RESET}{end}"
 
         else:
-            text = f"[{check}] {text}{end}"
+            check_str = f"[{check}] " if check else "    "
+            text = f"{check_str}{text}{end}"
 
         # Color the status
         return text
@@ -246,31 +262,29 @@ class FullTerm(Term):
         sys.stdout.write(f"{self.BOLD}{msg}{self.RESET}{end}")
 
     def p_h2(self, msg: str, **kwargs):
-        kwargs["color_msg"] = kwargs.get("color_msg", "") + self.BOLD
-        sys.stdout.write(self.fmt(msg, **kwargs))
-
-    def p_bold(self, msg: str, **kwargs):
-        kwargs["color"] = kwargs.get("color", "") + self.BOLD
+        fmt = self.format_kwargs
+        kwargs.setdefault("color_msg", fmt["color_status"] + self.BOLD)
+        kwargs.setdefault("check", "")
         sys.stdout.write(self.fmt(msg, **kwargs))
 
     def p_pass(self, msg: str, **kwargs):
-        kwargs["color_status"] = (
-            kwargs.get("color_status", self.format_kwargs["color_status"]) + self.GREEN
-        )
-        kwargs["check"] = kwargs.get("check", "✔")
+        fmt = self.format_kwargs
+        kwargs.setdefault("color_check", fmt["color_check"] + self.GREEN)
+        kwargs.setdefault("color_status", fmt["color_status"] + self.GREEN)
+        kwargs.setdefault("check", "✔")
         sys.stdout.write(self.fmt(msg, **kwargs))
 
     def p_fail(self, msg: str, **kwargs):
-        kwargs["color_status"] = (
-            kwargs.get("color_status", self.format_kwargs["color_status"]) + self.RED
-        )
-        kwargs["check"] = kwargs.get("check", "✖")
+        fmt = self.format_kwargs
+        kwargs.setdefault("color_check", fmt["color_check"] + self.RED)
+        kwargs.setdefault("color_status", fmt["color_status"] + self.RED)
+        kwargs.setdefault("check", "✖")
         sys.stdout.write(self.fmt(msg, **kwargs))
 
     def p_warn(self, msg: str, **kwargs):
         """Print a message for a warning"""
-        kwargs["color_status"] = (
-            kwargs.get("color_status", self.format_kwargs["color_status"]) + self.YELLOW
-        )
-        kwargs["check"] = kwargs.get("check", "!")
+        fmt = self.format_kwargs
+        kwargs.setdefault("color_check", fmt["color_check"] + self.YELLOW)
+        kwargs.setdefault("color_status", fmt["color_status"] + self.YELLOW)
+        kwargs.setdefault("check", "!")
         sys.stdout.write(self.fmt(msg, **kwargs))
