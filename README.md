@@ -75,7 +75,7 @@ checkExec = "ls"
 ```toml
 [checks.Executables.Python]
 desc = "Python interpreter (version 3.11 or higher)"
-checkExec = "python>=3.11"
+checkExec = "python3>=3.11"
 ```
 
 ### checkPath

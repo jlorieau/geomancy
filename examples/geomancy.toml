@@ -44,4 +44,4 @@ desc = "Check the availability of commands and their versions"
 
     [checks.Executables.Python]
     desc = "Python interpreter"
-    checkExec = "python>=3.11"
+    checkExec = "python3>=3.11"
