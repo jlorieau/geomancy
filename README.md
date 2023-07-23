@@ -37,7 +37,7 @@ $ geo examples/geomancy.toml
 
 ### checkEnv
 
-Tests the existence and, optionally, the value of an environment variable.
+Check the existence and, optionally, the value of an environment variable.
 
 | name      | description                                                                                                                  |
 |:----------|:-----------------------------------------------------------------------------------------------------------------------------|
@@ -45,7 +45,7 @@ Tests the existence and, optionally, the value of an environment variable.
 | desc      | _(Optional)_ The description for the test                                                                                    |
 | regex     | _(Optional)_ A regular expression to test against the environment variable value                                             |
 
-##### Example
+##### Examples
 
 ```toml
 [checks.Environment.Username]
@@ -54,9 +54,33 @@ checkEnv = "{USER}"
 regex = "[a-z_][a-z0-9_-]*[$]?"
 ```
 
+### checkExec
+
+Check the existence and, optionally, the version of available executables or
+commands.
+
+| name      | description                                                                                    |
+|:----------|:-----------------------------------------------------------------------------------------------|
+| checkExec | Executable to check with optional version check. <br>__aliases__: ``checkExec``, ``CheckExec`` |
+| desc      | _(Optional)_ The description for the test                                                      |
+
+##### Examples
+
+```toml
+[checks.Executables.Python]
+desc = "List files"
+checkExec = "ls"
+```
+
+```toml
+[checks.Executables.Python]
+desc = "Python interpreter (version 3.11 or higher)"
+checkExec = "python>=3.11"
+```
+
 ### checkPath
 
-Tests the existence and type of a path.
+Check the existence and type of a path.
 
 | name      | description                                                                                                                                    |
 |:----------|:-----------------------------------------------------------------------------------------------------------------------------------------------|
@@ -64,7 +88,7 @@ Tests the existence and type of a path.
 | desc      | _(Optional)_ The description for the test                                                                                                      |
 | path_type | _(Optional)_ Check whether the path corresponds to a valid ``'file'`` or ``'dir'``.                                                            |
 
-##### Example
+##### Examples
 
 ```toml
 [checks.Environment.Pyproject]
