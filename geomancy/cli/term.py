@@ -263,28 +263,28 @@ class FullTerm(Term):
 
     def p_h2(self, msg: str, **kwargs):
         fmt = self.format_kwargs
-        kwargs.setdefault("color_msg", fmt["color_status"] + self.BOLD)
+        kwargs.setdefault("color_msg", self.BOLD)
         kwargs.setdefault("check", "")
         sys.stdout.write(self.fmt(msg, **kwargs))
 
     def p_pass(self, msg: str, **kwargs):
         fmt = self.format_kwargs
-        kwargs.setdefault("color_check", fmt["color_check"] + self.GREEN)
-        kwargs.setdefault("color_status", fmt["color_status"] + self.GREEN)
+        kwargs.setdefault("color_check", self.GREEN)
+        kwargs.setdefault("color_status", self.GREEN)
         kwargs.setdefault("check", "✔")
         sys.stdout.write(self.fmt(msg, **kwargs))
 
     def p_fail(self, msg: str, **kwargs):
         fmt = self.format_kwargs
-        kwargs.setdefault("color_check", fmt["color_check"] + self.RED)
-        kwargs.setdefault("color_status", fmt["color_status"] + self.RED)
+        kwargs.setdefault("color_check", self.RED)
+        kwargs.setdefault("color_status", self.RED)
         kwargs.setdefault("check", "✖")
         sys.stdout.write(self.fmt(msg, **kwargs))
 
     def p_warn(self, msg: str, **kwargs):
         """Print a message for a warning"""
         fmt = self.format_kwargs
-        kwargs.setdefault("color_check", fmt["color_check"] + self.YELLOW)
-        kwargs.setdefault("color_status", fmt["color_status"] + self.YELLOW)
+        kwargs.setdefault("color_check", self.YELLOW)
+        kwargs.setdefault("color_status", self.YELLOW)
         kwargs.setdefault("check", "!")
         sys.stdout.write(self.fmt(msg, **kwargs))
