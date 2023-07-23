@@ -3,6 +3,7 @@ Abstract base class for checks
 """
 import typing as t
 from collections import namedtuple
+from time import process_time
 
 from .utils import sub_env
 from ..config import Parameter
@@ -151,11 +152,13 @@ class CheckBase:
         """
         term = Term.get()
 
-        # Print a heading
+        # Print a heading and start timer
         msg = self.msg.format(self=self)
+        start_time = None
         if level == 0:
             # Top level heading
             term.p_h1(msg=msg, level=level)
+            start_time = process_time()
         elif self.is_collection:
             # Collection checks print right away since we don't need to wait to
             # see the results of "check" for sub_checks
@@ -206,6 +209,21 @@ class CheckBase:
             else:
                 # If the sub-check failed and this check failed, then it's a fail.
                 term.p_fail(msg=result.msg, status=result.status, level=level + 1)
+
+        # Print terminal information if this is the root check
+        if level == 0:
+            msg = f"{self.count} checks {'passed' if passed else 'failed'}"
+
+            # Add timing info, if available
+            if start_time is not None:
+                total_time = process_time() - start_time
+                msg += f" in {total_time:.2f}s"
+
+            # Determine the message color
+            color_msg = term.BOLD + term.GREEN if passed else term.BOLD + term.RED
+
+            # Print the message
+            term.p_h1(msg, color_msg=color_msg)
 
         return CheckResult(passed=passed, msg="", status="")
 
