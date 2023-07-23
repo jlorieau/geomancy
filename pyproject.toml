@@ -11,6 +11,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
     "Development Status :: 4 - Beta"
     ]
 dynamic = ["version", "description"]
