@@ -67,7 +67,7 @@ commands.
 ##### Examples
 
 ```toml
-[checks.Executables.Python]
+[checks.Executables.Ls]
 desc = "List files"
 checkExec = "ls"
 ```
