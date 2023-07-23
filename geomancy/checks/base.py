@@ -33,7 +33,7 @@ class CheckBase:
     msg: str = "{self.name}...{status}"
 
     # A list of sub checks
-    sub_checks: list
+    sub_checks: t.List["CheckBase"]
 
     # Alternative names for the class
     aliases: t.Optional[t.Tuple[str, ...]] = None
@@ -106,6 +106,19 @@ class CheckBase:
     def value(self, v):
         self._value = str(v) if v is not None else None
 
+    @property
+    def is_collection(self) -> bool:
+        """Evaluate whether this is a collection check--i.e. it's only a check that
+        holds other check groups (BaseCheck instances).
+
+        Collection checks have headings that are printed before the results of the
+        sub-checks are evaluated.
+        """
+        collection_clses = (CheckBase,)
+        return self.__class__ in collection_clses and all(
+            sub.__class__ in (CheckBase,) for sub in self.sub_checks
+        )
+
     def check(self, level: int = 0) -> CheckResult:
         """Performs the checks and sub-checks.
 
@@ -125,6 +138,10 @@ class CheckBase:
         if level == 0:
             # Top level heading
             term.p_h1(msg=self.name, level=level)
+        elif self.is_collection:
+            # Collection checks print right away since we don't need to wait to
+            # see the results of "check" for sub_checks
+            term.p_h2(msg=self.name, level=level)
 
         # Run all sub-checks
         results = []
@@ -136,9 +153,9 @@ class CheckBase:
         passed = self.condition(result.passed for result in results)
 
         # Print this check's results
-        if passed:
+        if passed and not self.is_collection:
             term.p_pass(msg=self.name, level=level, color_msg=term.BOLD)
-        else:
+        elif not passed and not self.is_collection:
             term.p_fail(msg=self.name, level=level, color_msg=term.BOLD)
 
         for result in results:
@@ -155,7 +172,7 @@ class CheckBase:
                 # If the sub-check failed and this check failed, then it's a fail.
                 term.p_fail(msg=result.msg, status=result.status, level=level + 1)
 
-        return CheckResult(passed=passed)
+        return CheckResult(passed=passed, msg="", status="")
 
     def flatten(self) -> t.List["CheckBase"]:
         """Return a flattened list of this check (first item) and all
