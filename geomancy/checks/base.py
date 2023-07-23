@@ -23,8 +23,8 @@ CheckResult = namedtuple("CheckResult", "passed msg status", defaults=("", ""))
 class CheckBase:
     """Check base class and grouper"""
 
-    # Value for the check to check
-    _value: str
+    # Unprocessed value for the check
+    raw_value: str
 
     # Description of the check
     desc: str = ""
@@ -114,15 +114,15 @@ class CheckBase:
     @property
     def value(self) -> t.Any:
         """Check's value with optional environment substitution"""
-        if self.env_substitute and self._value is not None:
-            subbed = sub_env(self._value)
-            return subbed if subbed is not None else self._value
+        if self.env_substitute and self.raw_value is not None:
+            subbed = sub_env(self.raw_value)
+            return subbed if subbed is not None else self.raw_value
         else:
-            return self._value
+            return self.raw_value
 
     @value.setter
     def value(self, v):
-        self._value = str(v) if v is not None else None
+        self.raw_value = str(v) if v is not None else None
 
     @property
     def is_collection(self) -> bool:

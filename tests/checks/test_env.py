@@ -43,7 +43,7 @@ def test_check_env_name_substitution(
 
         # Check that the subsitution is correct
         assert check.name == "substitution"
-        assert check._value == "{" + variable_name + "}"  # hidden var
+        assert check.raw_value == "{" + variable_name + "}"  # hidden var
 
         assert check.check().passed
 
