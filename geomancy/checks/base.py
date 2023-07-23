@@ -135,11 +135,11 @@ class CheckBase:
         # Determine if this check passed based on the condition
         passed = self.condition(result.passed for result in results)
 
-        # Print the sub-check results
+        # Print this check's results
         if passed:
-            term.p_pass(msg=self.name, level=level)
+            term.p_pass(msg=self.name, level=level, color_msg=term.BOLD)
         else:
-            term.p_fail(msg=self.name, level=level)
+            term.p_fail(msg=self.name, level=level, color_msg=term.BOLD)
 
         for result in results:
             if result.msg == "":

@@ -165,33 +165,42 @@ class FullTerm(Term):
     aliases = ("full", "Full", "FULL")
 
     format_kwargs = MappingProxyType(
-        {"status": "", "start": "", "end": "\n", "color": "", "level": 0}
+        {
+            "status": "",  # Status string. e.g. "passed"
+            "check": "✔",  # Use this character for the check. e.g. ""
+            "end": "\n",  # Terminate the message with this character
+            "color_check": "",  # Color to use for the check
+            "color_msg": "",  # Color to use for the message
+            "color_status": "",  # Color to use for status message
+            "level": 0,  # Indentation level of the statement
+        }
     )
 
     def fmt(self, msg: str, **kwargs):
         """Formats the text string as needed for messages"""
         status = kwargs.get("status", self.format_kwargs["status"])
-        start = kwargs.get("start", self.format_kwargs["start"])
+        check = kwargs.get("check", self.format_kwargs["check"])
         end = kwargs.get("end", self.format_kwargs["end"])
-        color = kwargs.get("color", self.format_kwargs["color"])
+        color_check = kwargs.get("color_check", self.format_kwargs["color_check"])
+        color_msg = kwargs.get("color_msg", self.format_kwargs["color_msg"])
+        color_status = kwargs.get("color_status", self.format_kwargs["color_status"])
         level = kwargs.get("level", self.format_kwargs["level"])
 
         # Substitute text without ANSI codes
         text = f"{msg}{status}"
 
         # Wrap string (without ANSI codes)
-        # The first 4 characters are for the status checkbox from the start
-        # string--e.g. "[✔] "
-        start_len = len(start) + 3 if len(start) > 0 else 4
+        # The first 4 characters are for the status checkbox--e.g. "[✔] "
+        check_len = len(check) + 3 if len(check) > 0 else 4
 
         # subsequent indenting comes from the level
         if self.use_level:
             level = level + 1
-            initial_indent = " " * (2 * level - start_len)
+            initial_indent = " " * (2 * level - check_len)
             subsequent_indent = " " * 2 * level
         else:
             initial_indent = ""
-            subsequent_indent = " " * start_len
+            subsequent_indent = " " * check_len
 
         # Wrap the text without ANSI codes
         text_lines = textwrap.wrap(
@@ -207,16 +216,18 @@ class FullTerm(Term):
             # Replace the colored status at the end
             status_len = len(status)
             text = (
-                f"{text[:-status_len]}{color}{status}{self.RESET}"
+                f"{text[:-status_len]}{color_status}{status}{self.RESET}"
                 if status_len > 0
-                else f"{text}{color}{self.RESET}"
+                else f"{text}{color_status}{self.RESET}"
             )
 
             # Add the colored start
-            text = f"[{color}{start}{self.RESET}] {text}{end}"
+            text = (
+                f"[{color_check}{check}{self.RESET}] {color_msg}{text}{self.RESET}{end}"
+            )
 
         else:
-            text = f"[{start}] {text}{end}"
+            text = f"[{check}] {text}{end}"
 
         # Color the status
         return text
@@ -235,7 +246,7 @@ class FullTerm(Term):
         sys.stdout.write(f"{self.BOLD}{msg}{self.RESET}{end}")
 
     def p_h2(self, msg: str, **kwargs):
-        kwargs["color"] = kwargs.get("color", "") + self.BOLD
+        kwargs["color_msg"] = kwargs.get("color_msg", "") + self.BOLD
         sys.stdout.write(self.fmt(msg, **kwargs))
 
     def p_bold(self, msg: str, **kwargs):
@@ -243,17 +254,23 @@ class FullTerm(Term):
         sys.stdout.write(self.fmt(msg, **kwargs))
 
     def p_pass(self, msg: str, **kwargs):
-        kwargs["color"] = kwargs.get("color", self.format_kwargs["color"]) + self.GREEN
-        kwargs["start"] = kwargs.get("start", "✔")
+        kwargs["color_status"] = (
+            kwargs.get("color_status", self.format_kwargs["color_status"]) + self.GREEN
+        )
+        kwargs["check"] = kwargs.get("check", "✔")
         sys.stdout.write(self.fmt(msg, **kwargs))
 
     def p_fail(self, msg: str, **kwargs):
-        kwargs["color"] = kwargs.get("color", self.format_kwargs["color"]) + self.RED
-        kwargs["start"] = kwargs.get("start", "✖")
+        kwargs["color_status"] = (
+            kwargs.get("color_status", self.format_kwargs["color_status"]) + self.RED
+        )
+        kwargs["check"] = kwargs.get("check", "✖")
         sys.stdout.write(self.fmt(msg, **kwargs))
 
     def p_warn(self, msg: str, **kwargs):
         """Print a message for a warning"""
-        kwargs["color"] = kwargs.get("color", self.format_kwargs["color"]) + self.YELLOW
-        kwargs["start"] = kwargs.get("start", "!")
+        kwargs["color_status"] = (
+            kwargs.get("color_status", self.format_kwargs["color_status"]) + self.YELLOW
+        )
+        kwargs["check"] = kwargs.get("check", "!")
         sys.stdout.write(self.fmt(msg, **kwargs))
