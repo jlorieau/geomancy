@@ -18,7 +18,7 @@ class CheckEnv(CheckBase):
     # The message for checking environment variables
     msg = Parameter(
         "CHECKENV.MSG",
-        default="Check environment variable '{name}'...{status}.",
+        default="Check environment variable '{name}'...",
     )
 
     # Alternative names for the class
@@ -50,4 +50,4 @@ class CheckEnv(CheckBase):
             passed = True
 
         msg = self.msg.format(name=self.name, status=status)
-        return CheckResult(passed=passed, msg=msg)
+        return CheckResult(passed=passed, msg=msg, status=status)

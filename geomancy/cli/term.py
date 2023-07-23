@@ -36,7 +36,7 @@ class Term(ABC):
     use_color = Parameter("TERM.USE_COLOR", default=True)
 
     # Maximum allowed number of characters per line
-    max_width = Parameter("TERM.MAX_WIDTH", default=80)
+    max_width = Parameter("TERM.MAX_WIDTH", default=None)
 
     # Default terminal to use
     default = Parameter("TERM.DEFAULT", default="full")
@@ -47,7 +47,7 @@ class Term(ABC):
         try:
             return os.get_terminal_size().columns
         except OSError:
-            return self.max_width
+            return self.max_width or 80
 
     @property
     def RED(self):
@@ -86,19 +86,23 @@ class Term(ABC):
         return self.ansi_codes["REVERSE"] if self.use_color else ""
 
     @abstractmethod
-    def p_h1(self, msg: str, end: str = "\n", level: int = 0) -> None:
+    def p_h1(self, msg: str, status: str = "", end: str = "\n", level: int = 0) -> None:
         return None
 
     @abstractmethod
-    def p_h2(self, msg: str, end: str = "\n", level: int = 0) -> None:
+    def p_h2(self, msg: str, status: str = "", end: str = "\n", level: int = 0) -> None:
         return None
 
     @abstractmethod
-    def p_pass(self, msg: str, end: str = "\n", level: int = 0) -> None:
+    def p_pass(
+        self, msg: str, status: str = "", end: str = "\n", level: int = 0
+    ) -> None:
         return None
 
     @abstractmethod
-    def p_fail(self, msg: str, end: str = "\n", level: int = 0) -> None:
+    def p_fail(
+        self, msg: str, status: str = "", end: str = "\n", level: int = 0
+    ) -> None:
         return None
 
     @classmethod
@@ -123,45 +127,87 @@ class FullTerm(Term):
     aliases = ("full", "Full", "FULL")
 
     def fmt(
-        self, text: str, color: str, start: str = "", end: str = "\n", level: int = 0
+        self,
+        msg: str,
+        status: str = "",
+        start: str = "",
+        end: str = "\n",
+        level: int = 0,
+        color: str = "",
     ):
         """Formats the text string as needed for messages"""
-        prepend = len(start)
-        initial_indent = " " * (2 * level + prepend)
-        subsequent_indent = " " * (4 * level + prepend)
+        # Substitute text without ANSI codes
+        text = f"{msg}{status}"
+
+        # Wrap string (without ANSI codes)
+        # The first 4 characters are for the status checkbox from the start
+        # string--e.g. "[✔] "
+        start_len = len(start) + 3 if len(start) > 0 else 4
+
+        # subsequent indenting comes from the level
+        if self.use_level:
+            level = level + 1
+            initial_indent = " " * (2 * level - start_len)
+            subsequent_indent = " " * 2 * level
+        else:
+            initial_indent = ""
+            subsequent_indent = " " * start_len
+
+        # Wrap the text without ANSI codes
         text_lines = textwrap.wrap(
-            f"{text}{end}",
-            initial_indent=initial_indent if self.use_level else "",
-            subsequent_indent=subsequent_indent if self.use_level else " " * 2,
+            text,
+            initial_indent=initial_indent,
+            subsequent_indent=subsequent_indent,
             tabsize=4,
         )
         text = "\n".join(text_lines)
-        return f"{color}{start}{text}{self.RESET}{end}"
 
-    def p_h1(self, msg: str, end: str = "\n", level: int = 0):
+        # Add the ANSI codes to the wrapped string
+        if self.use_color:
+            # Replace the colored status at the end
+            status_len = len(status)
+            text = (
+                f"{text[:-status_len]}{color}{status}{self.RESET}"
+                if status_len > 0
+                else f"{text}{color}{self.RESET}"
+            )
+
+            # Add the colored start
+            text = f"[{color}{start}{self.RESET}] {text}{end}"
+
+        else:
+            text = f"[{start}] {text}{end}"
+
+        # Color the status
+        return text
+
+    def p_h1(self, msg: str, status: str = "", end: str = "\n", level: int = 0):
         """Print a heading (level 1)"""
         # Format the message
-        term_width = min(self.width, self.max_width)
+        if self.max_width is not None:
+            term_width = min(self.width, self.max_width)
+        else:
+            term_width = self.width
         msg = "{:=^{length}s}".format(" " + msg.strip() + " ", length=term_width)
 
         sys.stdout.write(f"{self.BOLD}{msg}{self.RESET}{end}")
 
-    def p_h2(self, msg: str, end: str = "\n", level: int = 0):
+    def p_h2(self, msg: str, status: str = "", end: str = "\n", level: int = 0):
         """Print a heading (level 1)"""
-        return self.p_bold(msg, end, level)
+        sys.stdout.write(self.fmt(msg, status, "✔", end, level, self.BOLD))
 
-    def p_bold(self, msg: str, end: str = "\n", level: int = 0):
+    def p_bold(self, msg: str, status: str = "", end: str = "\n", level: int = 0):
         """Print a message in bold"""
-        sys.stdout.write(self.fmt(msg, self.BOLD, "", end, level))
+        sys.stdout.write(self.fmt(msg, status, "✔", end, level, self.BOLD))
 
-    def p_pass(self, msg: str, end: str = "\n", level: int = 0):
+    def p_pass(self, msg: str, status: str = "", end: str = "\n", level: int = 0):
         """Print a message for a passed test"""
-        sys.stdout.write(self.fmt(f"{msg}", self.GREEN, "[✔]", end, level))
+        sys.stdout.write(self.fmt(msg, status, "✔", end, level, self.GREEN))
 
-    def p_fail(self, msg: str, end: str = "\n", level: int = 0):
+    def p_fail(self, msg: str, status: str = "", end: str = "\n", level: int = 0):
         """Print a message for a failed test"""
-        sys.stderr.write(self.fmt(f"{msg}", self.RED, "[✖]", end, level))
+        sys.stdout.write(self.fmt(msg, status, "✖", end, level, self.RED))
 
-    def p_warn(self, msg: str, end: str = "\n", level: int = 0):
+    def p_warn(self, msg: str, status: str = "", end: str = "\n", level: int = 0):
         """Print a message for a warning"""
-        sys.stderr.write(self.fmt(f"{msg}", self.YELLOW, "[!]", end, level))
+        sys.stdout.write(self.fmt(msg, status, "!", end, level, self.YELLOW))

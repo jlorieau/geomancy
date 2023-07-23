@@ -18,7 +18,7 @@ class CheckPath(CheckBase):
     type_options = (None, "dir", "file")
 
     # The message for checking environment variables
-    msg = Parameter("CHECKPATH.MSG", default="Check path '{name}'...{status}.")
+    msg = Parameter("CHECKPATH.MSG", default="Check path '{name}'...")
 
     # Alternative names for the class
     aliases = ("checkPath",)
@@ -49,4 +49,4 @@ class CheckPath(CheckBase):
             passed = True
 
         msg = self.msg.format(name=self.name, status=status)
-        return CheckResult(passed=passed, msg=msg)
+        return CheckResult(passed=passed, msg=msg, status=status)

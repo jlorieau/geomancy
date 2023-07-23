@@ -17,7 +17,7 @@ class CheckException(Exception):
 
 
 # Storage class for the results of checks
-CheckResult = namedtuple("CheckResult", "passed msg", defaults=("",))
+CheckResult = namedtuple("CheckResult", "passed msg status", defaults=("", ""))
 
 
 class CheckBase:
@@ -54,9 +54,6 @@ class CheckBase:
 
     # The maximum recursion depth of the load function
     max_level = Parameter("CHECKBASE.MAX_LEVEL", default=10)
-
-    # Whether to print headings for every CheckBase
-    print_heading = Parameter("CHECKBASE.PRINT_HEADING", default=True)
 
     def __init__(
         self,
@@ -125,12 +122,9 @@ class CheckBase:
         term = Term.get()
 
         # Print a heading
-        if self.print_heading:
-            if level == 0:
-                # Top level heading
-                term.p_h1(self.name, level=level)
-            else:
-                term.p_bold(self.name, level=level)
+        if level == 0:
+            # Top level heading
+            term.p_h1(msg=self.name, level=level)
 
         # Run all sub-checks
         results = []
@@ -142,19 +136,24 @@ class CheckBase:
         passed = self.condition(result.passed for result in results)
 
         # Print the sub-check results
+        if passed:
+            term.p_pass(msg=self.name, level=level)
+        else:
+            term.p_fail(msg=self.name, level=level)
+
         for result in results:
             if result.msg == "":
                 # This result has already been handled and printed
                 continue
             elif result.passed:
-                term.p_pass(result.msg, level=level + 1)
+                term.p_pass(msg=result.msg, status=result.status, level=level + 1)
             elif passed:
                 # If the sub-check failed but this check passed, then it's a
                 # warning.
-                term.p_warn(result.msg, level=level + 1)
+                term.p_warn(msg=result.msg, status=result.status, level=level + 1)
             else:
                 # If the sub-check failed and this check failed, then it's a fail.
-                term.p_fail(result.msg, level=level + 1)
+                term.p_fail(msg=result.msg, status=result.status, level=level + 1)
 
         return CheckResult(passed=passed)
 
