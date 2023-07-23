@@ -73,6 +73,16 @@ The following is a check group ``ChecksFile`` with 2 checks, ``Geomancy`` and
     type = "file"
 ```
 
+The following is the same check group, but in abbreviated format.
+
+```toml
+[checks.ChecksFile]
+    condition = "any"
+
+    Geomancy = {checkPath = "examples/geomancy.toml", type="file"}
+    Pyproject = {checkPath = "examples/pyproject.toml", type="file"}
+```
+
 ### Checks
 
 #### checkEnv
