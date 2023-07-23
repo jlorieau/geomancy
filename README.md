@@ -3,6 +3,11 @@
 The ``geomancy`` tool makes it easy to check and validate environments, such
 as development, testing and production.
 
+Currently, ``geomancy`` can check that:
+- environment variables are properly set
+- file and directory paths exist
+- executables are available and, optionally, of the correct version
+
 ```shell
 $ geo examples/geomancy.toml
 ========================= examples/geomancy.toml =========================
