@@ -38,3 +38,10 @@ desc = "Checks the existence of needed files and directories"
         desc = "Check a missing file"
         checkPath = ".missing__.txt"
         type = "file"
+
+[checks.Executables]
+desc = "Check the availability of commands and their versions"
+
+    [checks.Executables.Python]
+    desc = "Python interpreter"
+    checkExec = "python>=3.11"
