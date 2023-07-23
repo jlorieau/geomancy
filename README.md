@@ -1,13 +1,8 @@
 # geomancy
 
-.. image:: https://img.shields.io/pypi/v/geomancy.svg
-    :target: https://pypi.org/project/geomancy/
-
-.. image:: https://img.shields.io/pypi/pyversions/geomancy.svg
-    :target: https://pypi.org/project/geomancy/
-
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/psf/black
+[![pypi version](https://img.shields.io/pypi/v/geomancy.svg)](https://pypi.org/project/geomancy/)
+[![python versions](https://img.shields.io/pypi/pyversions/geomancy.svg)](https://pypi.org/project/geomancy/)
+[![Black formatting](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 The ``geomancy`` tool makes it easy to check and validate environments, such
 as development, testing and production.
@@ -148,7 +143,7 @@ Check the existence and type of a path.
 
 | name      | description                                                                                                                                    |
 |:----------|:-----------------------------------------------------------------------------------------------------------------------------------------------|
-| checkPath | Path to check, which may include environment varaibles wrapped in curly braces for substitution. <br>__aliases__: ``checkPath``, ``CheckPath`` |
+| checkPath | Path to check, which may include environment variables wrapped in curly braces for substitution. <br>__aliases__: ``checkPath``, ``CheckPath`` |
 | desc      | _(Optional)_ The description for the check                                                                                                     |
 | type      | _(Optional)_ Additionally check whether the path corresponds to a valid ``'file'`` or ``'dir'``.                                               |
 
