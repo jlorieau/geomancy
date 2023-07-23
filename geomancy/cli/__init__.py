@@ -1,3 +1,3 @@
-from .term import term
+from .term import Term
 
-__all__ = (term,)
+__all__ = (Term,)

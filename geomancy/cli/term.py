@@ -1,15 +1,17 @@
-"""Messages for the command-line interface"""
+"""Terminal messages for the command-line interface"""
+import typing as t
 import sys
 import os
 import textwrap
+from abc import ABC, abstractmethod
 
-from ..config import Parameter
+from ..config import Parameter, ConfigException
 
-__all__ = ("term",)
+__all__ = ("Term",)
 
 
-class Term:
-    """Terminal settings"""
+class Term(ABC):
+    """Manage terminal settings and output"""
 
     # Default ANSI codes for color
     ansi_codes = {
@@ -24,6 +26,9 @@ class Term:
         "REVERSE": "\033[;7m",
     }
 
+    # Other names for the concrete classes
+    aliases: t.Tuple[str] = ()
+
     # Whether to use the level parameters to add spacing
     use_level = Parameter("TERM.USE_LEVEL", default=True)
 
@@ -32,6 +37,9 @@ class Term:
 
     # Maximum allowed number of characters per line
     max_width = Parameter("TERM.MAX_WIDTH", default=80)
+
+    # Default terminal to use
+    default = Parameter("TERM.DEFAULT", default="full")
 
     @property
     def width(self):
@@ -77,16 +85,58 @@ class Term:
     def REVERSE(self):
         return self.ansi_codes["REVERSE"] if self.use_color else ""
 
-    def fmt(self, text: str, color: str, end: str = "\n", level: int = 0):
+    @abstractmethod
+    def p_h1(self, msg: str, end: str = "\n", level: int = 0) -> None:
+        return None
+
+    @abstractmethod
+    def p_h2(self, msg: str, end: str = "\n", level: int = 0) -> None:
+        return None
+
+    @abstractmethod
+    def p_pass(self, msg: str, end: str = "\n", level: int = 0) -> None:
+        return None
+
+    @abstractmethod
+    def p_fail(self, msg: str, end: str = "\n", level: int = 0) -> None:
+        return None
+
+    @classmethod
+    def get(cls):
+        """Get the currently configured terminal"""
+        term_subclasses = cls.__subclasses__()
+        matching_term = [
+            subclass for subclass in term_subclasses if cls.default in subclass.aliases
+        ]
+        if len(matching_term) == 0:
+            raise ConfigException(
+                f"Could not find a terminal with name '{cls.default}'"
+            )
+        else:
+            subclass = matching_term[0]
+            return subclass()
+
+
+class FullTerm(Term):
+    """A terminal within printing full information"""
+
+    aliases = ("full", "Full", "FULL")
+
+    def fmt(
+        self, text: str, color: str, start: str = "", end: str = "\n", level: int = 0
+    ):
         """Formats the text string as needed for messages"""
+        prepend = len(start)
+        initial_indent = " " * (2 * level + prepend)
+        subsequent_indent = " " * (4 * level + prepend)
         text_lines = textwrap.wrap(
             f"{text}{end}",
-            initial_indent=" " * 2 * level if self.use_level else "",
-            subsequent_indent=" " * 4 * level if self.use_level else " " * 2,
+            initial_indent=initial_indent if self.use_level else "",
+            subsequent_indent=subsequent_indent if self.use_level else " " * 2,
             tabsize=4,
         )
         text = "\n".join(text_lines)
-        return f"{color}{text}{self.RESET}{end}"
+        return f"{color}{start}{text}{self.RESET}{end}"
 
     def p_h1(self, msg: str, end: str = "\n", level: int = 0):
         """Print a heading (level 1)"""
@@ -96,21 +146,22 @@ class Term:
 
         sys.stdout.write(f"{self.BOLD}{msg}{self.RESET}{end}")
 
+    def p_h2(self, msg: str, end: str = "\n", level: int = 0):
+        """Print a heading (level 1)"""
+        return self.p_bold(msg, end, level)
+
     def p_bold(self, msg: str, end: str = "\n", level: int = 0):
         """Print a message in bold"""
-        sys.stdout.write(self.fmt(msg, self.BOLD, end, level))
+        sys.stdout.write(self.fmt(msg, self.BOLD, "", end, level))
 
     def p_pass(self, msg: str, end: str = "\n", level: int = 0):
         """Print a message for a passed test"""
-        sys.stdout.write(self.fmt(f"✔ {msg}", self.GREEN, end, level))
+        sys.stdout.write(self.fmt(f"{msg}", self.GREEN, "[✔]", end, level))
 
     def p_fail(self, msg: str, end: str = "\n", level: int = 0):
         """Print a message for a failed test"""
-        sys.stderr.write(self.fmt(f"✖ {msg}", self.RED, end, level))
+        sys.stderr.write(self.fmt(f"{msg}", self.RED, "[✖]", end, level))
 
     def p_warn(self, msg: str, end: str = "\n", level: int = 0):
         """Print a message for a warning"""
-        sys.stderr.write(self.fmt(f"! {msg}", self.YELLOW, end, level))
-
-
-term = Term()
+        sys.stderr.write(self.fmt(f"{msg}", self.YELLOW, "[!]", end, level))

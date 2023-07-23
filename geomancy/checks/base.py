@@ -6,7 +6,7 @@ from collections import namedtuple
 
 from .utils import sub_env
 from ..config import Parameter
-from ..cli import term
+from ..cli import Term
 
 
 __all__ = ("CheckBase", "CheckException")
@@ -122,6 +122,8 @@ class CheckBase:
         result
             The result of the check
         """
+        term = Term.get()
+
         # Print a heading
         if self.print_heading:
             if level == 0:
