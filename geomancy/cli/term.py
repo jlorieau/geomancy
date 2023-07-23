@@ -250,6 +250,7 @@ class FullTerm(Term):
 
     def p_h1(self, msg: str, **kwargs):
         """Print a heading (level 1)"""
+        color_msg = kwargs.get("color_msg", self.BOLD)
         end = kwargs.get("end", self.format_kwargs["end"])
 
         # Format the message
@@ -259,7 +260,7 @@ class FullTerm(Term):
             term_width = self.width
         msg = "{:=^{length}s}".format(" " + msg.strip() + " ", length=term_width)
 
-        sys.stdout.write(f"{self.BOLD}{msg}{self.RESET}{end}")
+        sys.stdout.write(f"{color_msg}{msg}{self.RESET}{end}")
 
     def p_h2(self, msg: str, **kwargs):
         fmt = self.format_kwargs
