@@ -43,15 +43,47 @@ $ geo examples/geomancy.toml
 
 ## Format
 
-### checkEnv
+### Check Groups
+
+Check groups are sections which contain one or more sub-checks.
+
+| name      | description                                                                                                                                     |
+|:----------|:------------------------------------------------------------------------------------------------------------------------------------------------|
+| desc      | _(Optional)_ The description for the check section                                                                                              |
+| condition | _(Optional)_ Either ``'all'`` to require that all sub-checks pass or ``'any'`` to require that only one sub-check passes.<br>Default: ``'all'`` |
+
+##### Examples
+
+The following is a check group ``ChecksFile`` with 2 checks, ``Geomancy`` and
+``Pyproject``.
+
+```toml
+[checks.ChecksFile]
+    desc = "Checks that at least one checks file exists"
+    condition = "any"
+
+    [checks.ChecksFile.Geomancy]
+    desc = "Check for 'geomancy.toml' file"
+    checkPath = "examples/geomancy.toml"
+    type = "file"
+
+    [checks.ChecksFile.Pyproject]
+    desc = "Check for 'pyproject.toml' file"
+    checkPath = "examples/pyproject.toml"
+    type = "file"
+```
+
+### Checks
+
+#### checkEnv
 
 Check the existence and, optionally, the value of an environment variable.
 
-| name      | description                                                                                                                  |
-|:----------|:-----------------------------------------------------------------------------------------------------------------------------|
-| checkEnv  | Environment variable to check, wrapped in curly braces for substitution. <br>__aliases__: ``checkEnv``, ``CheckEnv``         |
-| desc      | _(Optional)_ The description for the test                                                                                    |
-| regex     | _(Optional)_ A regular expression to test against the environment variable value                                             |
+| name      | description                                                                                                          |
+|:----------|:---------------------------------------------------------------------------------------------------------------------|
+| checkEnv  | Environment variable to check, wrapped in curly braces for substitution. <br>__aliases__: ``checkEnv``, ``CheckEnv`` |
+| desc      | _(Optional)_ The description for the check                                                                           |
+| regex     | _(Optional)_ A regular expression to check against the environment variable value                                    |
 
 ##### Examples
 
@@ -62,15 +94,15 @@ checkEnv = "{USER}"
 regex = "[a-z_][a-z0-9_-]*[$]?"
 ```
 
-### checkExec
+#### checkExec
 
 Check the existence and, optionally, the version of available executables or
 commands.
 
-| name      | description                                                                                    |
-|:----------|:-----------------------------------------------------------------------------------------------|
-| checkExec | Executable to check with optional version check. <br>__aliases__: ``checkExec``, ``CheckExec`` |
-| desc      | _(Optional)_ The description for the test                                                      |
+| name      | description                                                                                                                                   |
+|:----------|:----------------------------------------------------------------------------------------------------------------------------------------------|
+| checkExec | Executable to check. Additionally, an optional version check can be added with a test operator. <br>__aliases__: ``checkExec``, ``CheckExec`` |
+| desc      | _(Optional)_ The description for the check                                                                                                    |
 
 ##### Examples
 
@@ -86,15 +118,15 @@ desc = "Python interpreter (version 3.11 or higher)"
 checkExec = "python3>=3.11"
 ```
 
-### checkPath
+#### checkPath
 
 Check the existence and type of a path.
 
 | name      | description                                                                                                                                    |
 |:----------|:-----------------------------------------------------------------------------------------------------------------------------------------------|
 | checkPath | Path to check, which may include environment varaibles wrapped in curly braces for substitution. <br>__aliases__: ``checkPath``, ``CheckPath`` |
-| desc      | _(Optional)_ The description for the test                                                                                                      |
-| path_type | _(Optional)_ Check whether the path corresponds to a valid ``'file'`` or ``'dir'``.                                                            |
+| desc      | _(Optional)_ The description for the check                                                                                                     |
+| type      | _(Optional)_ Additionally check whether the path corresponds to a valid ``'file'`` or ``'dir'``.                                               |
 
 ##### Examples
 
