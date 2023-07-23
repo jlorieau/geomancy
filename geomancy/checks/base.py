@@ -8,7 +8,6 @@ from .utils import sub_env
 from ..config import Parameter
 from ..cli import Term
 
-
 __all__ = ("CheckBase", "CheckException")
 
 
@@ -29,8 +28,8 @@ class CheckBase:
     # Description of the check
     desc: str = ""
 
-    # The message to print during the check. {status} is substituted
-    msg: str = "{self.name}...{status}"
+    # The message to print during the check.
+    msg: str = "{self.name}"
 
     # A list of sub checks
     sub_checks: t.List["CheckBase"]
@@ -93,6 +92,24 @@ class CheckBase:
     def __repr__(self):
         return f"{self.__class__.__name__}({self.name})"
 
+    def __len__(self):
+        """The number of sub-checks"""
+        return len(self.sub_checks)
+
+    @property
+    def count(self, all: bool = True) -> int:
+        """The number of sub-checks
+
+        Parameters
+        ----------
+        all
+            If True, count all the immediate and nested level sub-checks.
+            If False, only count the immediate level sub-checks.
+        """
+        # flatten() returns this check, so the count is subtracted by 1 to only
+        # count sub-checks
+        return len(self.flatten()) - 1 if all else len(self.sub_checks)
+
     @property
     def value(self) -> t.Any:
         """Check's value with optional environment substitution"""
@@ -135,13 +152,19 @@ class CheckBase:
         term = Term.get()
 
         # Print a heading
+        msg = self.msg.format(self=self)
         if level == 0:
             # Top level heading
-            term.p_h1(msg=self.name, level=level)
+            term.p_h1(msg=msg, level=level)
         elif self.is_collection:
             # Collection checks print right away since we don't need to wait to
             # see the results of "check" for sub_checks
-            term.p_h2(msg=self.name, level=level)
+            term.p_h2(
+                msg=msg,
+                level=level,
+                status=f" ({self.count} checks)",
+                color_status=term.RESET,
+            )
 
         # Run all sub-checks
         results = []
@@ -154,9 +177,21 @@ class CheckBase:
 
         # Print this check's results
         if passed and not self.is_collection:
-            term.p_pass(msg=self.name, level=level, color_msg=term.BOLD)
+            term.p_pass(
+                msg=msg,
+                level=level,
+                color_msg=term.BOLD,
+                status=f" ({self.count} checks)",
+                color_status=term.RESET,
+            )
         elif not passed and not self.is_collection:
-            term.p_fail(msg=self.name, level=level, color_msg=term.BOLD)
+            term.p_fail(
+                msg=msg,
+                level=level,
+                color_msg=term.BOLD,
+                status=f" ({self.count} checks)",
+                color_status=term.RESET,
+            )
 
         for result in results:
             if result.msg == "":
