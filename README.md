@@ -5,11 +5,19 @@ as development, testing and production.
 
 ```shell
 $ geo examples/geomancy.toml
-============================ examples/geomancy.toml ============================
-  checks
-    Environment
-      ✔ Check environment variable 'Path'...passed.
-      ✔ Check environment variable 'Username'...passed.
+========================= examples/geomancy.toml =========================
+    checks (10 checks)
+[✔]   Environment (2 checks)
+[✔]     Check environment variable '{PATH}'...passed
+[✔]     Check environment variable '{USER}'...passed
+      Paths (4 checks)
+[✔]     ChecksFile (3 checks)
+[✔]       Check path 'examples/geomancy.toml'...passed
+[✔]       Check path 'examples/pyproject.toml'...passed
+[!]       Check path '.missing__.txt'...missing
+[✔]   Executables (1 checks)
+[✔]     Check executable 'python3>=3.11'...passed
+========================= 11 checks passed in 0.00s ======================
 ```
 
 ## Features
@@ -20,7 +28,7 @@ $ geo examples/geomancy.toml
 ## Usage
 1. Create a file containing checks. Either
 
-   - ``.geomancy.toml``in the project root. See the ``examples`` directory for
+   - ``.geomancy.toml`` in the project root. See the ``examples`` directory for
      examples.
 
    or
