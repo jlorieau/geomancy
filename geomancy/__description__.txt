@@ -1,0 +1,1 @@
+Geomancy validates deployment and development environments

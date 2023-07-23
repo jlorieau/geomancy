@@ -10,9 +10,11 @@ import logging
 from pathlib import Path
 import tomllib
 
-from . import get_version, __description__
+from . import get_version
 from .config import Config
 from .checks import CheckBase
+
+__description__ = (Path(__file__).parent / "__description__.txt").read_text().strip()
 
 logger = logging.getLogger(__name__)  # Create a default logger
 config = Config()  # Set up config defaults for the CLI

@@ -1,8 +1,5 @@
 from . import checks, cli, config
 
-# Project description
-__description__ = "Geomancy validates deployment and development environments"
-
 # Project version
 __version__ = (0, 6, 0, "b")  # Major, minor, patch, stage
 

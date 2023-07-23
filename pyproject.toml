@@ -25,7 +25,7 @@ dev = [
 
 [tool.setuptools.dynamic]
 version = {attr = "geomancy.__version__"}
-description = {attr = "geomancy.__description__"}
+description = {file = "geomancy/__description__.txt"}
 
 [project.scripts]
 geo = "geomancy.main:main_cli"
