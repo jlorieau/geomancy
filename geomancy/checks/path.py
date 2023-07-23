@@ -4,9 +4,8 @@ Checks for paths
 import typing as t
 from pathlib import Path
 
-from .base import CheckBase, CheckException
+from .base import CheckBase, CheckException, CheckResult
 from ..config import Parameter
-from ..cli import term
 
 
 class CheckPath(CheckBase):
@@ -33,7 +32,7 @@ class CheckPath(CheckBase):
             )
         self.type = type
 
-    def check(self, level: int = 0) -> bool:
+    def check(self, level: int = 0) -> CheckResult:
         """Check paths"""
         passed = False
         value = self.value
@@ -49,8 +48,5 @@ class CheckPath(CheckBase):
             status = "passed"
             passed = True
 
-        if passed:
-            term.p_pass(self.msg.format(name=self.name, status=status), level=level)
-        else:
-            term.p_fail(self.msg.format(name=self.name, status=status), level=level)
-        return passed
+        msg = self.msg.format(name=self.name, status=status)
+        return CheckResult(passed=passed, msg=msg)

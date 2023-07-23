@@ -4,10 +4,9 @@ Checks for environment variables
 import typing as t
 import re
 
-from .base import CheckBase
+from .base import CheckBase, CheckResult
 from .utils import sub_env
 from ..config import Parameter
-from ..cli import term
 
 
 class CheckEnv(CheckBase):
@@ -29,32 +28,26 @@ class CheckEnv(CheckBase):
         super().__init__(*args, **kwargs)
         self.regex = regex
 
-    def check(self, level: int = 0) -> bool:
+    def check(self, level: int = 0) -> CheckResult:
         """Check the environment variable value."""
         # Substitute environment variables, if needed
         name = self.name
         value = sub_env(self._value) if self._value is not None else None
+        passed = False
 
-        # Make sure the environment variable exists.
         if value is None:
-            msg = self.msg.format(name=name, status="missing")
-            term.p_fail(msg, level=level)
-            return False
-
-        # Check that the variable has a non-zero value
-        if value == "":
-            msg = self.msg.format(name=name, status="empty string")
-            term.p_fail(msg, level=level)
-            return False
-
-        # Check the regex, if specified
-        if isinstance(self.regex, str) and re.match(self.regex, value) is None:
+            # If the value is None, the environment variable doesn't exist.
+            status = "missing"
+        elif value == "":
+            # An empty string environment variable is considered not set
+            status = "empty string"
+        elif isinstance(self.regex, str) and re.match(self.regex, value) is None:
+            # Check the regex, if specified
             status = "value does not match regex " "'{regex}'".format(regex=self.regex)
-            msg = self.msg.format(name=name, status=status)
-            term.p_fail(msg, level=level)
-            return False
+        else:
+            # All checks passed!
+            status = "passed"
+            passed = True
 
-        # All checks passed!
-        msg = self.msg.format(name=name, status="passed")
-        term.p_pass(msg, level=level)
-        return True
+        msg = self.msg.format(name=self.name, status=status)
+        return CheckResult(passed=passed, msg=msg)

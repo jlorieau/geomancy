@@ -2,6 +2,7 @@
 Abstract base class for checks
 """
 import typing as t
+from collections import namedtuple
 
 from .utils import sub_env
 from ..config import Parameter
@@ -15,6 +16,10 @@ class CheckException(Exception):
     """Exception raised when an error is encountered in the setup of a check."""
 
 
+# Storage class for the results of checks
+CheckResult = namedtuple("CheckResult", "passed msg", defaults=("",))
+
+
 class CheckBase:
     """Check base class and grouper"""
 
@@ -24,8 +29,8 @@ class CheckBase:
     # Description of the check
     desc: str = ""
 
-    # The message to print during the check. {STATUS} is substituted
-    msg: str = ""
+    # The message to print during the check. {status} is substituted
+    msg: str = "{self.name}...{status}"
 
     # A list of sub checks
     sub_checks: list
@@ -46,9 +51,6 @@ class CheckBase:
 
     # The default value for env_substitute
     env_substitute_default = Parameter("CHECKBASE.ENV_SUBSTITUTE_DEFAULT", default=True)
-
-    # Stop evaluating checks after first fail
-    stop_on_first = Parameter("CHECKBASE.STOP_ON_FIRST", default=True)
 
     # The maximum recursion depth of the load function
     max_level = Parameter("CHECKBASE.MAX_LEVEL", default=10)
@@ -107,7 +109,7 @@ class CheckBase:
     def value(self, v):
         self._value = str(v) if v is not None else None
 
-    def check(self, level: int = 0) -> bool:
+    def check(self, level: int = 0) -> CheckResult:
         """Performs the checks and sub-checks.
 
         Parameters
@@ -117,9 +119,8 @@ class CheckBase:
 
         Returns
         -------
-        passed
-            True if the check and all sub-checks passed
-            False if the check or any sub-checked failed
+        result
+            The result of the check
         """
         # Print a heading
         if self.print_heading:
@@ -130,14 +131,30 @@ class CheckBase:
                 term.p_bold(self.name, level=level)
 
         # Run all sub-checks
-        passes = []
+        results = []
         for sub_check in self.sub_checks:
-            passed = sub_check.check(level=level + 1)
-            passes.append(passed)
+            result = sub_check.check(level=level + 1)
+            results.append(result)
 
-            if not passed and self.stop_on_first:
-                break
-        return self.condition(passes)
+        # Determine if this check passed based on the condition
+        passed = self.condition(result.passed for result in results)
+
+        # Print the sub-check results
+        for result in results:
+            if result.msg == "":
+                # This result has already been handled and printed
+                continue
+            elif result.passed:
+                term.p_pass(result.msg, level=level + 1)
+            elif passed:
+                # If the sub-check failed but this check passed, then it's a
+                # warning.
+                term.p_warn(result.msg, level=level + 1)
+            else:
+                # If the sub-check failed and this check failed, then it's a fail.
+                term.p_fail(result.msg, level=level + 1)
+
+        return CheckResult(passed=passed)
 
     def flatten(self) -> t.List["CheckBase"]:
         """Return a flattened list of this check (first item) and all

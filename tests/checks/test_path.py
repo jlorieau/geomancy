@@ -16,7 +16,7 @@ def test_check_path_missing():
     check = CheckPath("missing", missing_path)
     assert check.name == "missing"
     assert check.value == missing_path
-    assert not check.check()
+    assert not check.check().passed
 
 
 @pytest.mark.parametrize("path_type", (None, "file", "dir", "nonsense"))
@@ -38,17 +38,17 @@ def test_check_path_file_type(tmp_path, path_type):
         check = CheckPath(name="PathCheck", value=tmp_file, type=path_type)
 
     if path_type in (None, "file"):
-        assert check.check()
+        assert check.check().passed
     else:
-        assert not check.check()
+        assert not check.check().passed
 
     # Switch to the directory, and the check conditions change
     check.value = tmp_dir
 
     if path_type in (None, "dir"):
-        assert check.check()
+        assert check.check().passed
     else:
-        assert not check.check()
+        assert not check.check().passed
 
 
 def test_check_path_env_substitution(tmp_path):
@@ -58,7 +58,6 @@ def test_check_path_env_substitution(tmp_path):
     tmp_file = tmp_path / ENV / "exists.txt"
     tmp_file.parent.mkdir()
     tmp_file.touch()
-    sub_path = tmp_file.relative_to(tmp_path)
 
     path = tmp_path / "{ENV}" / "exists.txt"
     assert "{ENV}" in str(path)  # not substituted yet
@@ -70,10 +69,10 @@ def test_check_path_env_substitution(tmp_path):
         # The variable doesn't exist so the check should fail
         check = CheckPath(name="PathEnvVariable", value=path)
         assert "{ENV}" in check.value  # Not substituted yet
-        assert not check.check()
+        assert not check.check().passed
 
         # Set the ENV variable, and it should now work
         mp.setenv("ENV", ENV)
         assert "{ENV}" not in check.value  # Substituted
         assert ENV in check.value
-        assert check.check()
+        assert check.check().passed
