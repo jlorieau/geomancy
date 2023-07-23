@@ -1,5 +1,14 @@
 # geomancy
 
+.. image:: https://img.shields.io/pypi/v/geomancy.svg
+    :target: https://pypi.org/project/geomancy/
+
+.. image:: https://img.shields.io/pypi/pyversions/geomancy.svg
+    :target: https://pypi.org/project/geomancy/
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
+
 The ``geomancy`` tool makes it easy to check and validate environments, such
 as development, testing and production.
 
