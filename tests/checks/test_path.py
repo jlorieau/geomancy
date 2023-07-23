@@ -32,10 +32,10 @@ def test_check_path_file_type(tmp_path, path_type):
     # Create the check with an existing file
     if path_type == "nonsense":
         with pytest.raises(CheckException):
-            CheckPath(name="PathCheck", value=tmp_file, path_type=path_type)
+            CheckPath(name="PathCheck", value=tmp_file, type=path_type)
         return None
     else:
-        check = CheckPath(name="PathCheck", value=tmp_file, path_type=path_type)
+        check = CheckPath(name="PathCheck", value=tmp_file, type=path_type)
 
     if path_type in (None, "file"):
         assert check.check()

@@ -13,10 +13,10 @@ class CheckPath(CheckBase):
     """Check paths for valid files and directories"""
 
     # (Optional) the type of path expected
-    path_type: t.Optional[str] = None
+    type: t.Optional[str] = None
 
     # The valid values of path types
-    path_type_options = (None, "dir", "file")
+    type_options = (None, "dir", "file")
 
     # The message for checking environment variables
     msg = Parameter("CHECKPATH.MSG", default="Check path '{name}'...{status}.")
@@ -24,14 +24,14 @@ class CheckPath(CheckBase):
     # Alternative names for the class
     aliases = ("checkPath",)
 
-    def __init__(self, *args, path_type: t.Optional[str] = None, **kwargs):
+    def __init__(self, *args, type: t.Optional[str] = None, **kwargs):
         super().__init__(*args, **kwargs)
-        if path_type not in self.path_type_options:
+        if type not in self.type_options:
             raise CheckException(
-                f"Path type '{path_type}' must be one of: "
-                f"{tuple(opt for opt in self.path_type_options if opt is not None)}"
+                f"Path type '{type}' must be one of: "
+                f"{tuple(opt for opt in self.type_options if opt is not None)}"
             )
-        self.path_type = path_type
+        self.type = type
 
     def check(self, level: int = 0) -> bool:
         """Check paths"""
@@ -41,9 +41,9 @@ class CheckPath(CheckBase):
 
         if not path.exists():
             status = "missing"
-        elif self.path_type == "dir" and not path.is_dir():
+        elif self.type == "dir" and not path.is_dir():
             status = "not dir"
-        elif self.path_type == "file" and not path.is_file():
+        elif self.type == "file" and not path.is_file():
             status = "not file"
         else:
             status = "passed"
