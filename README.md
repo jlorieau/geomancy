@@ -1,6 +1,6 @@
 # geomancy
 
-The ``geomancy`` a tool makes it easy to check and validate environments, such
+The ``geomancy`` tool makes it easy to check and validate environments, such
 as development, testing and production.
 
 ```shell
