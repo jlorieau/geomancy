@@ -30,7 +30,7 @@ class CheckBase:
     desc: str = ""
 
     # The message to print during the check.
-    msg: str = "{self.name}"
+    msg: str = "{check.name}"
 
     # A list of sub checks
     sub_checks: t.List["CheckBase"]
@@ -153,7 +153,7 @@ class CheckBase:
         term = Term.get()
 
         # Print a heading and start timer
-        msg = self.msg.format(self=self)
+        msg = self.msg.format(check=self)
         start_time = None
         if level == 0:
             # Top level heading

@@ -18,7 +18,7 @@ class CheckEnv(CheckBase):
     # The message for checking environment variables
     msg = Parameter(
         "CHECKENV.MSG",
-        default="Check environment variable '{self.raw_value}'...",
+        default="Check environment variable '{check.raw_value}'...",
     )
 
     # Alternative names for the class
@@ -31,7 +31,6 @@ class CheckEnv(CheckBase):
     def check(self, level: int = 0) -> CheckResult:
         """Check the environment variable value."""
         # Substitute environment variables, if needed
-        name = self.name
         value = sub_env(self.raw_value) if self.raw_value is not None else None
         passed = False
 
@@ -49,5 +48,5 @@ class CheckEnv(CheckBase):
             status = "passed"
             passed = True
 
-        msg = self.msg.format(self=self, status=status)
+        msg = self.msg.format(check=self, status=status)
         return CheckResult(passed=passed, msg=msg, status=status)
