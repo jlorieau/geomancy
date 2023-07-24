@@ -13,10 +13,7 @@ __all__ = ("CheckExec",)
 
 
 class CheckExec(CheckVersion):
-    """Check for the presence and version of executables
-
-    Notes
-    """
+    """Check for the presence and version of executables"""
 
     # The message for checking environment variables
     msg = Parameter(
