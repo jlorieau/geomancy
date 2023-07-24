@@ -50,9 +50,11 @@ class CheckBase(ABC):
 
     # The condition for children results to be considered a pass
     condition: t.Callable = all
+    condition_aliases = ("condition", "subchecks")  # other names for variable
 
     # The default value for env_substitute
     env_substitute_default = Parameter("CHECKBASE.ENV_SUBSTITUTE_DEFAULT", default=True)
+    env_substitute_aliases = ("env_substitute",)  # other names for variable
 
     # The maximum recursion depth of the load function
     max_level = Parameter("CHECKBASE.MAX_LEVEL", default=10)
@@ -71,9 +73,9 @@ class CheckBase(ABC):
         self.children = list(children) if children is not None else []
 
         # Parse kwargs, which may use different aliases
-        condition = pop_first(kwargs, "condition", "subchecks", default=None)
+        condition = pop_first(kwargs, *self.condition_aliases, default=None)
         self.env_substitute = (
-            pop_first(kwargs, "env_substitute", default=None)
+            pop_first(kwargs, *self.env_substitute_aliases, default=None)
             or self.env_substitute_default
         )
 
