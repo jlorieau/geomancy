@@ -62,22 +62,20 @@ class CheckBase(ABC):
         name: str,
         value: t.Optional[str] = None,
         desc: str = "",
-        env_substitute: t.Optional[bool] = None,
         children: t.Optional[list["CheckBase", ...]] = None,
         **kwargs,
     ):
         self.name = name
         self.value = value
         self.desc = desc
-        self.env_substitute = (
-            env_substitute
-            if env_substitute is not None
-            else self.env_substitute_default
-        )
         self.children = list(children) if children is not None else []
 
         # Parse kwargs, which may use different aliases
-        condition = pop_first(kwargs, "condition", default=None)
+        condition = pop_first(kwargs, "condition", "subchecks", default=None)
+        self.env_substitute = (
+            pop_first(kwargs, "env_substitute", default=None)
+            or self.env_substitute_default
+        )
 
         # Make sure the condition values are allowed
         if condition is None:
