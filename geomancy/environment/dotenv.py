@@ -36,7 +36,7 @@ def parse_dotenv_str(
         Try substituting environment variable values in the form of '${NAME}'
         or '{NAME}' if available in the environment
     load
-        Parsed values are loaded in the environment
+        Whether to load parsed values in the environment
     """
     # Strip comments (everything after #, but not \#
     string = comment_re.sub(r"\1", string)
