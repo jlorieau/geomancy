@@ -1,4 +1,4 @@
-![geomancy](https://github.com/jlorieau/geomancy/tree/main/assets/geomancy_logo.svg)
+![geomancy](https://raw.githubusercontent.com/jlorieau/geomancy/main/assets/geomancy_logo.svg)
 
 
 [![pypi version](https://img.shields.io/pypi/v/geomancy.svg)](https://pypi.org/project/geomancy/)
