@@ -71,7 +71,7 @@ Check groups are sections which contain one or more child checks.
 | desc      | _(Optional)_ The description for the check section                                                                                                                            |
 | subchecks | _(Optional)_ Either ``'all'`` to require that all sub-checks pass or ``'any'`` to require that only one sub-check passes.<br>Default: ``'all'``<br>__aliases__: ``condition`` |
 
-##### Examples
+#### Examples
 
 The following is a check group ``ChecksFile`` with 2 checks, ``Geomancy`` and
 ``Pyproject``.
@@ -102,9 +102,7 @@ Geomancy = {checkPath = "examples/geomancy.toml", type = "file"}
 Pyproject = {checkPath = "examples/pyproject.toml", type = "file"}
 ```
 
-### Checks
-
-#### checkEnv
+### checkEnv
 
 Check the existence and, optionally, the value of an environment variable.
 
@@ -114,7 +112,7 @@ Check the existence and, optionally, the value of an environment variable.
 | desc      | _(Optional)_ The description for the check                                                                           |
 | regex     | _(Optional)_ A regular expression to check against the environment variable value                                    |
 
-##### Examples
+#### Examples
 
 ```toml
 [checks.Environment.Username]
@@ -123,7 +121,7 @@ checkEnv = "{USER}"
 regex = "[a-z_][a-z0-9_-]*[$]?"
 ```
 
-#### checkExec
+### checkExec
 
 Check the existence and, optionally, the version of available executables or
 commands.
@@ -133,7 +131,7 @@ commands.
 | checkExec | Executable to check. Additionally, an optional version check can be added with a test operator. <br>__aliases__: ``checkExec``, ``CheckExec`` |
 | desc      | _(Optional)_ The description for the check                                                                                                    |
 
-##### Examples
+#### Examples
 
 ```toml
 [checks.Executables.Ls]
@@ -147,7 +145,7 @@ desc = "Python interpreter (version 3.11 or higher)"
 checkExec = "python3>=3.11"
 ```
 
-#### checkPath
+### checkPath
 
 Check the existence and type of a path.
 
@@ -157,7 +155,7 @@ Check the existence and type of a path.
 | desc      | _(Optional)_ The description for the check                                                                                                     |
 | type      | _(Optional)_ Additionally check whether the path corresponds to a valid ``'file'`` or ``'dir'``.                                               |
 
-##### Examples
+#### Examples
 
 ```toml
 [checks.Environment.Pyproject]
@@ -166,7 +164,7 @@ checkPath = "./pyproject.toml"
 path_type = "file"
 ```
 
-#### checkPythonPkg
+### checkPythonPkg
 
 Checks whether the python package is installed and, optionally, check its
 version.
@@ -175,6 +173,9 @@ version.
 |:-------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | checkPythonPackage | Python package to check. Additionally, an optional version check can be added with a test operator. <br>__aliases__: ``checkPythonPkg``, ``CheckPythonPkg``, ``checkPythonPackage``, ``CheckPythonPackage``  |
 | desc               | _(Optional)_ The description for the check                                                                                                                                                                   |
+
+
+#### Examples
 
 ```toml
 [checks.PythonPackages.geomancy]
