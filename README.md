@@ -54,12 +54,12 @@ $ geo examples/geomancy.toml
 
 ### Check Groups
 
-Check groups are sections which contain one or more sub-checks.
+Check groups are sections which contain one or more child checks.
 
-| name      | description                                                                                                                                     |
-|:----------|:------------------------------------------------------------------------------------------------------------------------------------------------|
-| desc      | _(Optional)_ The description for the check section                                                                                              |
-| condition | _(Optional)_ Either ``'all'`` to require that all sub-checks pass or ``'any'`` to require that only one sub-check passes.<br>Default: ``'all'`` |
+| name      | description                                                                                                                                                                   |
+|:----------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| desc      | _(Optional)_ The description for the check section                                                                                                                            |
+| subchecks | _(Optional)_ Either ``'all'`` to require that all sub-checks pass or ``'any'`` to require that only one sub-check passes.<br>Default: ``'all'``<br>__aliases__: ``condition`` |
 
 ##### Examples
 
@@ -69,7 +69,7 @@ The following is a check group ``ChecksFile`` with 2 checks, ``Geomancy`` and
 ```toml
 [checks.ChecksFile]
 desc = "Checks that at least one checks file exists"
-condition = "any"
+subchecks = "any"
 
     [checks.ChecksFile.Geomancy]
     desc = "Check for 'geomancy.toml' file"
@@ -86,7 +86,7 @@ The following is the same check group, but in abbreviated format.
 
 ```toml
 [checks.ChecksFile]
-condition = "any"
+subchecks = "any"
 
 Geomancy = {checkPath = "examples/geomancy.toml", type = "file"}
 Pyproject = {checkPath = "examples/pyproject.toml", type = "file"}

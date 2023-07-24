@@ -22,7 +22,7 @@ desc = "Checks the existence of needed files and directories"
 
     [checks.Paths.ChecksFile]
     desc = "Checks that at least one checks file exists"
-    condition = "any"
+    subchecks = "any"
 
         [checks.Paths.ChecksFile.Geomancy]
         desc = "Check for 'geomancy.toml' file"
