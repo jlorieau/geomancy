@@ -349,6 +349,13 @@ class CheckBase(ABC):
 class CheckVersion(CheckBase):
     """An abstract Check for package and program versions"""
 
+    # If true, the result of get_current_version must not be None
+    # Set to True if get_current_version should return a version if the command
+    # or package exists
+    # Set to False if get_current_version may not be able to return the
+    # version, even if the command or package is installed or present
+    require_current_version: bool = True
+
     @property
     def value(
         self,
@@ -377,6 +384,8 @@ class CheckVersion(CheckBase):
         passed = False
 
         if name is None:
+            status = "missing"
+        elif self.require_current_version and current_version is None:
             status = "missing"
         else:
             if version is not None and current_version is None:

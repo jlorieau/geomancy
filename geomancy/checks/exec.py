@@ -15,6 +15,10 @@ __all__ = ("CheckExec",)
 class CheckExec(CheckVersion):
     """Check for the presence and version of executables"""
 
+    # The executable may exist and be installed, but get_current_version
+    # may not be able to identify the current version
+    require_current_version = False
+
     # The message for checking environment variables
     msg = Parameter(
         "CHECKEXEC.MSG",
@@ -43,6 +47,7 @@ class CheckExec(CheckVersion):
         CheckVersion.value.fset(self, v)
 
     def get_current_version(self) -> t.Union[None, t.Tuple[int]]:
+        """Try to get the version tuple for the executable."""
         cmd_name, op, version = self.value
 
         if cmd_name is None:  # command not found
