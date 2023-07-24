@@ -6,7 +6,7 @@ import sys
 import subprocess
 import re
 
-from .base import CheckVersion
+from .version import CheckVersion
 from .utils import version_to_tuple
 from ..config import Parameter
 
