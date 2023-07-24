@@ -13,17 +13,17 @@ checking environments that use the [12-factor](http://12factor.net/) principles.
 
 Currently, ``geomancy`` can:
 
-- check environment variables are properly set and, optionally, check that they
-  have valid values ([checkEnv](#checkenv))
-- check file and directory path existence ([checkPath](#checkpath))
-- check executables are available and, optionally, have the minimum or correct
-  versions ([checkPath](#checkexec))
-- check python packages are availabile and, optionally, have the minimum or
-  correct versions ([checkPythonPkg](#checkpythonpkg))
-- group checks with conditional (all or any) pass criteria
-  ([groups of checks](#check-groups))
-- subsitute parameter values from environment variables.
-  ex: ``checkPath: {HOME}/.geomancy.toml``
+- __Environment variables__. Check environment variables are properly set and,
+optionally, check that they have valid values ([checkEnv](#checkenv))
+- __Paths__. Check file and directory path existence ([checkPath](#checkpath))
+- __Executables__. Check executables are available and, optionally, have the
+  minimum or correct versions ([checkExec](#checkexec))
+- __Python Packages__. Check python packages are availabile and, optionally,
+  have the minimum or correct versions ([checkPythonPkg](#checkpythonpkg))
+- __Group Checks__. Nested group checks with conditional (all or any) pass
+  criteria ([groups of checks](#check-groups))
+- __Environment Substitution__. Subsitute parameter values from environment
+  variables. ex: ``checkPath: {HOME}/.geomancy.toml``
 
 The following is an example ``geomancy`` run with an example checks file.
 
