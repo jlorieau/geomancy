@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/jlorieau/geomancy/main/assets/geomancy_logo.svg" alt="geomancy" height="150" />
+<img src="https://raw.githubusercontent.com/jlorieau/geomancy/main/assets/geomancy_logo.svg" alt="geomancy" height="120" />
 
 [![pypi version](https://img.shields.io/pypi/v/geomancy.svg)](https://pypi.org/project/geomancy/)
 [![python versions](https://img.shields.io/pypi/pyversions/geomancy.svg)](https://pypi.org/project/geomancy/)
