@@ -143,6 +143,10 @@ def action_check(args: argparse.Namespace) -> t.Union[bool, None]:
         if check is not None:
             checks.append(check)
 
+    # Create a root check, if there are a lot of checks
+    if len(checks) > 1:
+        checks = [CheckBase(name="Multiple files", sub_checks=checks)]
+
     # Run the checks
     return all(check.check() for check in checks)
 
