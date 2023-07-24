@@ -7,12 +7,22 @@
 The ``geomancy`` tool makes it easy to check and validate environments, such
 as development, testing and production.
 
-Currently, ``geomancy`` can check:
-- [environment variables](#checkenv) are properly set
-- [file and directory paths](#checkpath) exist
-- [executables](#checkexec) are available and, optionally, of the correct version
-- [groups of checks](#check-groups) with conditional evaluation
-- parameter values with substitution of environment variables.
+Environment checks and tests are helpful for testing external dependencies,
+like LaTeX, remote dependencies, like AWS buckets or SSM parameters, or for
+checking environments that use the [12-factor](http://12factor.net/) principles.
+
+Currently, ``geomancy`` can:
+
+- check environment variables are properly set and, optionally, check that they
+  have valid values ([checkEnv](#checkenv))
+- check file and directory path existence ([checkPath](#checkpath))
+- check executables are available and, optionally, have the minimum or correct
+  versions ([checkPath](#checkexec))
+- check python packages are availabile and, optionally, have the minimum or
+  correct versions ([checkPythonPkg](#checkpythonpkg))
+- group checks with conditional (all or any) pass criteria
+  ([groups of checks](#check-groups))
+- subsitute parameter values from environment variables.
   ex: ``checkPath: {HOME}/.geomancy.toml``
 
 The following is an example ``geomancy`` run with an example checks file.
