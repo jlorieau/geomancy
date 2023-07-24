@@ -261,7 +261,6 @@ class CheckBase(ABC):
                 assert alias not in d, f"Duplicate alias name '{alias}'"
 
                 d[alias] = cls_type
-        print(d)
         return d
 
     @classmethod
