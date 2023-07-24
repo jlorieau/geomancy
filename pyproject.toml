@@ -16,6 +16,13 @@ classifiers = [
     ]
 dynamic = ["version", "description"]
 
+[tool.setuptools]
+packages = ["geomancy"]
+
+[tool.setuptools.dynamic]
+version = {attr = "geomancy.__version__"}
+description = {file = "geomancy/__description__.txt"}
+
 [project.optional-dependencies]
 dev = [
     "pytest>=7.4",
@@ -23,10 +30,6 @@ dev = [
     "black[d]",
     "build"
     ]
-
-[tool.setuptools.dynamic]
-version = {attr = "geomancy.__version__"}
-description = {file = "geomancy/__description__.txt"}
 
 [project.scripts]
 geo = "geomancy.main:main_cli"
