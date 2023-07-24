@@ -54,11 +54,12 @@ def test_parse_dotenv_str_no_sub():
     assert parse("CACHE_DIR=${PWD}/cache") == {"CACHE_DIR": "${PWD}/cache"}
 
 
-def test_parse_dotenv_str_with_sub():
-    """Test the parse_dotenv_str function with substitution"""
+@pytest.mark.parametrize("load", (True, False))
+def test_parse_dotenv_str_with_sub(load):
+    """Test the parse_dotenv_str function with substitution and loading"""
 
     def parse(string):
-        return parse_dotenv_str(string, substitute=True, load=True)
+        return parse_dotenv_str(string, substitute=True, load=load)
 
     with pytest.MonkeyPatch.context() as mp:
         mp.delenv("EMAIL_ADDRESS", raising=False)  # Remove env variable
@@ -69,8 +70,11 @@ def test_parse_dotenv_str_with_sub():
             "EMAIL_ADDRESS": "{USER}@example.org".format(**os.environ)
         }
 
-        # The value is loaded in the environment
-        assert "EMAIL_ADDRESS" in os.environ
+        # The value may be loaded in the environment
+        if load:
+            assert "EMAIL_ADDRESS" in os.environ
+        else:
+            assert "EMAIL_ADDRESS" not in os.environ
 
     # Try for a missing variable. It just isn't substituted
     with pytest.MonkeyPatch.context() as mp:
