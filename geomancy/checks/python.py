@@ -8,6 +8,7 @@ import re
 
 from .base import CheckVersion
 from .utils import version_to_tuple
+from ..config import Parameter
 
 __all__ = ("CheckPythonPackage",)
 
@@ -23,6 +24,12 @@ class CheckPythonPackage(CheckVersion):
 
     # The results of pip freeze
     pip_freeze: t.Union[str, None]
+
+    # The message for checking python packages
+    msg = Parameter(
+        "CHECKPYTHONPACKAGE.MSG",
+        default="Check python package '{check.raw_value}'...",
+    )
 
     aliases = ("checkPythonPackage", "checkPythonPkg", "CheckPythonPkg")
 

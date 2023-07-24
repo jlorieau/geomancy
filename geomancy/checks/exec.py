@@ -19,7 +19,7 @@ class CheckExec(CheckVersion):
     # may not be able to identify the current version
     require_current_version = False
 
-    # The message for checking environment variables
+    # The message for checking executables
     msg = Parameter(
         "CHECKEXEC.MSG",
         default="Check executable '{check.raw_value}'...",
