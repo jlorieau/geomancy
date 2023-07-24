@@ -169,10 +169,10 @@ path_type = "file"
 Checks whether the python package is installed and, optionally, check its
 version.
 
-| name               | description                                                                                                                                                                                                  |
-|:-------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| checkPythonPackage | Python package to check. Additionally, an optional version check can be added with a test operator. <br>__aliases__: ``checkPythonPkg``, ``CheckPythonPkg``, ``checkPythonPackage``, ``CheckPythonPackage``  |
-| desc               | _(Optional)_ The description for the check                                                                                                                                                                   |
+| name           | description                                                                                                                                                                                                  |
+|:---------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| checkPythonPkg | Python package to check. Additionally, an optional version check can be added with a test operator. <br>__aliases__: ``checkPythonPkg``, ``CheckPythonPkg``, ``checkPythonPackage``, ``CheckPythonPackage``  |
+| desc           | _(Optional)_ The description for the check                                                                                                                                                                   |
 
 
 #### Examples
