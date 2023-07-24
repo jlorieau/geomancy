@@ -35,10 +35,14 @@ class CheckPythonPackage(CheckVersion):
             return None
 
         # Method 1 -- try pip freeze
-        # First, try loading the freeze
+        # First, try loading the freeze.
         if self.use_pip_freeze and not hasattr(self, "pip_freeze"):
+            # "pip list" is used instead of "pip freeze" because "pip list"
+            # will not show paths--just package names--for packages installed
+            # from a local repository
             proc = subprocess.run(
-                args=(python, "-m", "pip", "freeze"), capture_output=True
+                args=(python, "-m", "pip", "list", "--format=freeze"),
+                capture_output=True,
             )
 
             if proc.returncode != 0:
