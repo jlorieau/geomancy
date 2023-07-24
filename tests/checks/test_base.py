@@ -14,9 +14,9 @@ def test_check_base_flatten():
     # Create a CheckBase tree
     sub11 = CheckBase(name="sub11")
     sub12 = CheckBase(name="sub12")
-    sub1 = CheckBase(name="sub1", sub_checks=[sub11, sub12])
+    sub1 = CheckBase(name="sub1", children=[sub11, sub12])
     sub2 = CheckBase(name="sub2")
-    root = CheckBase(name="root", sub_checks=[sub1, sub2])
+    root = CheckBase(name="root", children=[sub1, sub2])
 
     # Check the flattened tree
     flattened = root.flatten()
@@ -93,8 +93,8 @@ def test_check_base_load_nested():
     assert flattened[2].value == "VAR1"
     assert flattened[3].value == "VAR2"
 
-    # Validate sub_check entries
-    assert flattened[0].sub_checks == [flattened[1]]
-    assert flattened[1].sub_checks == [flattened[2], flattened[3]]
-    assert flattened[2].sub_checks == []
-    assert flattened[3].sub_checks == []
+    # Validate children entries
+    assert flattened[0].children == [flattened[1]]
+    assert flattened[1].children == [flattened[2], flattened[3]]
+    assert flattened[2].children == []
+    assert flattened[3].children == []

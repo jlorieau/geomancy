@@ -6,6 +6,8 @@ import re
 
 __all__ = ("all_subclasses", "sub_env", "version_to_tuple", "name_and_version")
 
+__missing__ = object()  # used an argument for missing values
+
 
 def all_subclasses(cls) -> t.List[t.Type]:
     """Retrieve all subclasses, sub-subclasses and so on for a class
@@ -51,6 +53,72 @@ def sub_env(obj):
         return o_type(sub_env(i) for i in items)
     else:
         return obj
+
+
+def pop_first(d: dict, *keys, del_remaining: bool = True, default: t.Any = __missing__):
+    """Pop the first key found in the dict.
+
+    Parameters
+    ----------
+    d
+        The dict to search for keys to pop
+    *keys
+        The list of keys to search
+    del_remaining
+        Delete the remaining keys from the dict
+    default
+        Return this value if a key isn't found. If not specified, a KeyError
+        is raised
+
+    Returns
+    -------
+    value
+        The value for the first matching key
+
+    Raises
+    ------
+    KeyError
+        If none of the keys were found and a default wasn't found
+
+    Examples
+    --------
+    >>> pop_first({'a': 1, 'b': 2, 'c': 3}, 'b', 'a')
+    2
+    >>> pop_first({'a': 1, 'b': 2, 'c': 3}, 'a', 'b')
+    1
+    >>> pop_first({'a': 1, 'b': 2, 'c': 3}, 'e', default='missing')
+    'missing'
+    >>> d = {'a1': 1, 'a2': 2, 'b': 3}
+    >>> pop_first(d, 'a1', 'a2')
+    1
+    >>> print(d)
+    {'b': 3}
+    >>> pop_first(d, 'a1')
+    Traceback (most recent call last):
+        ...
+    KeyError: "Could not find any of the keys: ('a1',)"
+    """
+    value = __missing__
+
+    # Find the first key
+    for key in keys:
+        value = d.pop(key, __missing__)
+        if value is not __missing__:
+            break
+
+    # Del remaining
+    if del_remaining:
+        extra_keys = [key for key in keys if key in d]
+        for k in extra_keys:
+            del d[k]
+
+    # Return a value or raise an exception
+    if value is not __missing__:
+        return value
+    elif default is not __missing__:
+        return default
+    else:
+        raise KeyError(f"Could not find any of the keys: {keys}")
 
 
 def version_to_tuple(version: str) -> t.Union[t.Tuple[int], None]:

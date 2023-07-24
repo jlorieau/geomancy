@@ -7,7 +7,7 @@ from inspect import isabstract
 from collections import namedtuple
 from time import process_time
 
-from .utils import sub_env, all_subclasses
+from .utils import sub_env, all_subclasses, pop_first
 from ..config import Parameter
 from ..cli import Term
 
@@ -34,13 +34,13 @@ class CheckBase(ABC):
     # The message to print during the check.
     msg: str = "{check.name}"
 
-    # A list of sub checks
-    sub_checks: t.List["CheckBase"]
+    # A list of children checks
+    children: t.List["CheckBase"]
 
     # Alternative names for the class
     aliases: t.Optional[t.Tuple[str, ...]] = None
 
-    # The check (and sub-checks) are enabled
+    # This check (and children) are enabled
     enabled: bool = True
 
     # If True (default), environment variables in variable_name or
@@ -48,7 +48,7 @@ class CheckBase(ABC):
     # variables.
     env_substitute: bool
 
-    # The condition for sub-check results to be considered a pass
+    # The condition for children results to be considered a pass
     condition: t.Callable = all
 
     # The default value for env_substitute
@@ -62,9 +62,9 @@ class CheckBase(ABC):
         name: str,
         value: t.Optional[str] = None,
         desc: str = "",
-        condition: t.Optional[str] = None,
         env_substitute: t.Optional[bool] = None,
-        sub_checks: t.Optional[list["CheckBase", ...]] = None,
+        children: t.Optional[list["CheckBase", ...]] = None,
+        **kwargs,
     ):
         self.name = name
         self.value = value
@@ -74,7 +74,10 @@ class CheckBase(ABC):
             if env_substitute is not None
             else self.env_substitute_default
         )
-        self.sub_checks = list(sub_checks) if sub_checks is not None else []
+        self.children = list(children) if children is not None else []
+
+        # Parse kwargs, which may use different aliases
+        condition = pop_first(kwargs, "condition", default=None)
 
         # Make sure the condition values are allowed
         if condition is None:
@@ -89,29 +92,29 @@ class CheckBase(ABC):
             )
 
         # Check attributes
-        msg = "All sub-checks should be instances of CheckBase"
-        assert all(isinstance(sc, CheckBase) for sc in self.sub_checks), msg
+        msg = "All children should be instances of CheckBase"
+        assert all(isinstance(sc, CheckBase) for sc in self.children), msg
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.name})"
 
     def __len__(self):
-        """The number of sub-checks"""
-        return len(self.sub_checks)
+        """The number of children"""
+        return len(self.children)
 
     @property
     def count(self, all: bool = True) -> int:
-        """The number of sub-checks
+        """The number of children
 
         Parameters
         ----------
         all
-            If True, count all the immediate and nested level sub-checks.
-            If False, only count the immediate level sub-checks.
+            If True, count all the immediate and nested level children.
+            If False, only count the immediate level children.
         """
         # flatten() returns this check, so the count is subtracted by 1 to only
         # count sub-checks
-        return len(self.flatten()) - 1 if all else len(self.sub_checks)
+        return len(self.flatten()) - 1 if all else len(self.children)
 
     @property
     def value(self) -> t.Any:
@@ -128,19 +131,19 @@ class CheckBase(ABC):
 
     @property
     def is_collection(self) -> bool:
-        """Evaluate whether this is a collection check--i.e. it's only a check that
-        holds other check groups (BaseCheck instances).
+        """Evaluate whether this is a collection check--i.e. it's only a
+        check that holds other check groups (BaseCheck instances).
 
-        Collection checks have headings that are printed before the results of the
-        sub-checks are evaluated.
+        Collection checks have headings that are printed before the results of
+        the children are evaluated.
         """
         collection_clses = (CheckBase,)
         return self.__class__ in collection_clses and all(
-            sub.__class__ in (CheckBase,) for sub in self.sub_checks
+            child.__class__ in (CheckBase,) for child in self.children
         )
 
     def check(self, level: int = 0) -> CheckResult:
-        """Performs the checks and sub-checks.
+        """Performs the checks of this check and of children.
 
         Parameters
         ----------
@@ -163,7 +166,7 @@ class CheckBase(ABC):
             start_time = process_time()
         elif self.is_collection:
             # Collection checks print right away since we don't need to wait to
-            # see the results of "check" for sub_checks
+            # see the results of "check" for children
             term.p_h2(
                 msg=msg,
                 level=level,
@@ -171,10 +174,10 @@ class CheckBase(ABC):
                 color_status=term.RESET,
             )
 
-        # Run all sub-checks
+        # Run all children checks
         results = []
-        for sub_check in self.sub_checks:
-            result = sub_check.check(level=level + 1)
+        for child in self.children:
+            result = child.check(level=level + 1)
             results.append(result)
 
         # Determine if this check passed based on the condition
@@ -205,11 +208,12 @@ class CheckBase(ABC):
             elif result.passed:
                 term.p_pass(msg=result.msg, status=result.status, level=level + 1)
             elif passed:
-                # If the sub-check failed but this check passed, then it's a
-                # warning.
+                # If the child check failed but this check passed, then it's a
+                # warning
                 term.p_warn(msg=result.msg, status=result.status, level=level + 1)
             else:
-                # If the sub-check failed and this check failed, then it's a fail.
+                # If the child check failed and this check failed, then it's a
+                # fail
                 term.p_fail(msg=result.msg, status=result.status, level=level + 1)
 
         # Print terminal information if this is the root check
@@ -230,17 +234,17 @@ class CheckBase(ABC):
         return CheckResult(passed=passed, msg="", status="")
 
     def flatten(self) -> t.List["CheckBase"]:
-        """Return a flattened list of this check (first item) and all
-        sub checks."""
+        """Return a flattened list of this check (first item) and children
+        checks"""
         flattened = [self]
-        for sub_check in self.sub_checks:
-            flattened += sub_check.flatten()
+        for child in self.children:
+            flattened += child.flatten()
         return flattened
 
     @classmethod
     def types_dict(cls) -> t.Dict[str, t.Type]:
-        """Return all the types and subtypes of Checks in a dict."""
-        # Retrieve the base class (BaseCheck) and subclasses
+        """Return all the instantiatable CheckBase types in a dict."""
+        # Retrieve the base class (BaseCheck) and children classes
         cls_types = [cls] + list(all_subclasses(cls))
 
         # Create a dict with the class name string (key) and the class type
@@ -317,7 +321,7 @@ class CheckBase(ABC):
             # Create and return the check_type
             return matching_cls(name, value, **kwargs)
 
-        # Otherwise, try parsing the sub_checks
+        # Otherwise, try parsing the children
         items = d.items()
         found_checks = []  # Values parsed into CheckBase objects
         other_d = dict()  # All other values
@@ -337,9 +341,9 @@ class CheckBase(ABC):
             else:
                 other_d[key] = value
 
-        # No sub-checks found; nothing else to do
+        # No child checks found; nothing else to do
         if len(found_checks) == 0:
             return None
 
         # Create a check grouping, first, by parsing the other arguments
-        return CheckBase(name=name, sub_checks=found_checks, **other_d)
+        return CheckBase(name=name, children=found_checks, **other_d)
