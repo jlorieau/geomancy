@@ -150,7 +150,7 @@ def version_to_tuple(version: str) -> t.Union[t.Tuple[int], None]:
     >>> version_to_tuple('1.2beta')
     (1, 2)
     """
-    version_match = re.search(r"([\d.]{2,}|\d+)", version)  # Capture the version
+    version_match = re.search(r"([\d\.]{2,}|\d+)", version)  # Capture the version
     if version_match is None:
         return None
     version = version_match.group().split(".")  # Split the version string at "."
@@ -193,9 +193,9 @@ def name_and_version(
     """
 
     m = re.search(
-        r"([\w.\-_]+)"  # match package name
+        r"([\w\.\-_]+)"  # match package name
         r"\s*(==|>=|<=|>|<|!=)?\s*"  # operator
-        r"([\d\w.]+)?",  # version number
+        r"([\d\w\.]+)?",  # version number
         string,
     )
 
