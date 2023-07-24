@@ -214,7 +214,7 @@ class CheckBase(ABC):
 
         # Print terminal information if this is the root check
         if level == 0:
-            msg = f"{self.count} checks {'passed' if passed else 'failed'}"
+            msg = f"{'PASSED' if passed else 'FAILED'}. {self.count} checks"
 
             # Add timing info, if available
             if start_time is not None:
