@@ -1,6 +1,8 @@
 """Test dotenv functions, regexes and utilities"""
 import os
 
+import pytest
+
 from geomancy.environment.dotenv import parse_dotenv_str
 
 
@@ -51,6 +53,29 @@ def test_parse_dotenv_str_no_sub():
     # slashes
     assert parse("CACHE_DIR=${PWD}/cache") == {"CACHE_DIR": "${PWD}/cache"}
 
-    # assert get_match("EMAIL=${USER}@example.org") == {
-    #     "EMAIL": "{USER}@example.org".format(**os.environ)
-    # }  # simple substitution
+
+def test_parse_dotenv_str_with_sub():
+    """Test the parse_dotenv_str function with substitution"""
+
+    def parse(string):
+        return parse_dotenv_str(string, substitute=True, load=True)
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.delenv("EMAIL_ADDRESS", raising=False)  # Remove env variable
+        assert "EMAIL_ADDRESS" not in os.environ
+
+        # Simple assignment of the value
+        assert parse("EMAIL_ADDRESS=${USER}@example.org") == {
+            "EMAIL_ADDRESS": "{USER}@example.org".format(**os.environ)
+        }
+
+        # The value is loaded in the environment
+        assert "EMAIL_ADDRESS" in os.environ
+
+    # Try for a missing variable. It just isn't substituted
+    with pytest.MonkeyPatch.context() as mp:
+        mp.delenv("MISSING", raising=False)  # Temporarily remove env variable
+
+        assert parse("EMAIL=${MISSING}@example.org") == {
+            "EMAIL": "${MISSING}@example.org"
+        }
