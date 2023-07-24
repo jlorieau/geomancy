@@ -4,7 +4,33 @@ import os
 import operator
 import re
 
-__all__ = ("sub_env", "version_to_tuple", "name_and_version")
+__all__ = ("all_subclasses", "sub_env", "version_to_tuple", "name_and_version")
+
+
+def all_subclasses(cls) -> t.List[t.Type]:
+    """Retrieve all subclasses, sub-subclasses and so on for a class
+
+    Parameters
+    ----------
+    cls : Type
+        The class object to inspect for subclasses.
+
+    Returns
+    -------
+    subclasses : list
+        The list of all subclasses.
+
+    Examples
+    --------
+    >>> class A(object): pass
+    >>> class B(A): pass
+    >>> class C(B): pass
+    >>> all_subclasses(A)
+    [<class 'geomancy.checks.utils.B'>, <class 'geomancy.checks.utils.C'>]
+    """
+    return cls.__subclasses__() + [
+        g for s in cls.__subclasses__() for g in all_subclasses(s)
+    ]
 
 
 def sub_env(obj):
