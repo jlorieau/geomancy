@@ -1,4 +1,4 @@
-from . import checks, cli, config
+from . import checks, cli, config, environment
 
 # Project version
 __version__ = (0, 7, 0, "b")  # Major, minor, patch, stage
