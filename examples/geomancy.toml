@@ -45,3 +45,11 @@ desc = "Check the availability of commands and their versions"
     [checks.Executables.Python]
     desc = "Python interpreter"
     checkExec = "python3>=3.11"
+
+[checks.PythonPackages]
+desc = "Check the presence and, optional, the version of python packages"
+
+    [checks.PythonPackages.geomancy]
+    desc = "Geomancy python package"
+    checkPythonPkg = "geomancy>=0.1"
+
