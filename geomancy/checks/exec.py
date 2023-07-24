@@ -3,17 +3,16 @@ Checks for executables
 """
 import typing as t
 from shutil import which
-import re
 import subprocess
 
-from .base import CheckBase, CheckResult
-from .utils import name_and_version, version_to_tuple
+from .base import CheckVersion
+from .utils import version_to_tuple
 from ..config import Parameter
 
 __all__ = ("CheckExec",)
 
 
-class CheckExec(CheckBase):
+class CheckExec(CheckVersion):
     """Check for the presence and version of executables
 
     Notes
@@ -29,64 +28,53 @@ class CheckExec(CheckBase):
     aliases = ("checkExec",)
 
     @property
-    def value(self) -> t.Any:
-        """Get the value, with parsing of versions"""
-        value = CheckBase.value.fget(self)
-        return name_and_version(value)
+    def value(
+        self,
+    ) -> t.Tuple[
+        t.Union[str, None], t.Union[t.Callable, None], t.Union[t.Tuple[int], None]
+    ]:
+        """Get the package name, comparison operator and version tuple."""
+        cmd_name, op, version = CheckVersion.value.fget(self)
+
+        # Check to see if the cmd_name exists. Returns None if it doesn't
+        cmd_name = which(cmd_name) if cmd_name is not None else cmd_name
+
+        return cmd_name, op, version
 
     @value.setter
     def value(self, v):
-        CheckBase.value.fset(self, v)
+        CheckVersion.value.fset(self, v)
 
-    def check(self, level: int = 0) -> CheckResult:
-        """Check for the executable."""
-        # Setup variables and values
-        name, op, version = self.value
-        current_version = None
-        passed = False
+    def get_current_version(self) -> t.Union[None, t.Tuple[int]]:
+        cmd_name, op, version = self.value
 
-        # See if the executable can be found
-        cmd_path = which(name)
+        if cmd_name is None:  # command not found
+            return None
 
-        # See if a version string was specified and whether it can be determined
-        if cmd_path is not None and version is not None:
-            for args in (  # Different commands to try for versions
-                (cmd_path, "-V"),
-                (cmd_path, "--version"),
-            ):
+        for args in (  # Different commands to try for versions
+            (cmd_name, "-V"),
+            (cmd_name, "--version"),
+        ):
+            try:
                 proc = subprocess.run(args, capture_output=True)
-                if proc.returncode != 0:  # Wasn't a success
-                    continue
+            except FileNotFoundError:
+                # Couldn't find the executable
+                continue
 
-                # Try to parse the current version string
-                current_version = version_to_tuple(proc.stdout.decode("UTF-8"))
-                current_version = (
-                    current_version
-                    if current_version is not None
-                    else version_to_tuple(proc.stderr.decode("UTF-8"))
-                )
+            if proc.returncode != 0:  # Wasn't a success
+                continue
 
-                if current_version is not None:
-                    # Current version found! We're done
-                    break
+            # Try to parse the current version string
+            current_version = version_to_tuple(proc.stdout.decode("UTF-8"))
+            current_version = (
+                current_version
+                if current_version is not None
+                else version_to_tuple(proc.stderr.decode("UTF-8"))
+            )
 
-        # Evaluate whether the check passed
-        if cmd_path is None:
-            status = "missing"
-        else:
-            if version is not None and current_version is None:
-                status = "present but current version unknown"
-            elif (
-                version is not None
-                and current_version is not None
-                and op is not None
-                and not op(current_version, version)
-            ):
-                status = f"version={'.'.join(map(str, current_version))}"
-            else:
-                status = "passed"
-                passed = True
+            if current_version is not None:
+                # Current version found! We're done
+                return current_version
 
-        return CheckResult(
-            passed=passed, msg=self.msg.format(check=self), status=status
-        )
+        # Not found
+        return None

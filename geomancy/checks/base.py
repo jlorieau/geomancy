@@ -2,14 +2,16 @@
 Abstract base class for checks
 """
 import typing as t
+from abc import ABC, abstractmethod
+from inspect import isabstract
 from collections import namedtuple
 from time import process_time
 
-from .utils import sub_env
+from .utils import sub_env, name_and_version, all_subclasses
 from ..config import Parameter
 from ..cli import Term
 
-__all__ = ("CheckBase", "CheckException", "CheckResult")
+__all__ = ("CheckBase", "CheckVersion", "CheckException", "CheckResult")
 
 
 class CheckException(Exception):
@@ -20,7 +22,7 @@ class CheckException(Exception):
 CheckResult = namedtuple("CheckResult", "passed msg status", defaults=("", ""))
 
 
-class CheckBase:
+class CheckBase(ABC):
     """Check base class and grouper"""
 
     # Unprocessed value for the check
@@ -236,15 +238,19 @@ class CheckBase:
         return flattened
 
     @classmethod
-    def types_dict(cls) -> t.Dict[str, type]:
+    def types_dict(cls) -> t.Dict[str, t.Type]:
         """Return all the types and subtypes of Checks in a dict."""
         # Retrieve the base class (BaseCheck) and subclasses
-        cls_types = [cls] + cls.__subclasses__()
+        cls_types = [cls] + list(all_subclasses(cls))
 
         # Create a dict with the class name string (key) and the class type
         # (value)
         d = dict()
         for cls_type in cls_types:
+            # Skip abstract classes, which can't be instantiated
+            if isabstract(cls_type):
+                continue
+
             # Add the class name directly
             d[cls_type.__name__] = cls_type
 
@@ -255,7 +261,7 @@ class CheckBase:
                 assert alias not in d, f"Duplicate alias name '{alias}'"
 
                 d[alias] = cls_type
-
+        print(d)
         return d
 
     @classmethod
@@ -338,3 +344,54 @@ class CheckBase:
 
         # Create a check grouping, first, by parsing the other arguments
         return CheckBase(name=name, sub_checks=found_checks, **other_d)
+
+
+class CheckVersion(CheckBase):
+    """An abstract Check for package and program versions"""
+
+    @property
+    def value(
+        self,
+    ) -> t.Tuple[
+        t.Union[str, None], t.Union[t.Callable, None], t.Union[t.Tuple[int], None]
+    ]:
+        """Get the package name, comparison operator and version tuple."""
+        value = CheckBase.value.fget(self)
+        name, op, version = name_and_version(value)
+        return name, op, version
+
+    @value.setter
+    def value(self, v):
+        CheckBase.value.fset(self, v)
+
+    @abstractmethod
+    def get_current_version(self) -> t.Union[None, t.Tuple[int]]:
+        """Get the current version, or None if it can't be found."""
+        return None
+
+    def check(self, level: int = 0) -> CheckResult:
+        """Check whether the current version is compatible with the version
+        specified in the value."""
+        name, op, version = self.value
+        current_version = self.get_current_version()
+        passed = False
+
+        if name is None:
+            status = "missing"
+        else:
+            if version is not None and current_version is None:
+                status = "present but current version unknown"
+            elif (
+                version is not None
+                and current_version is not None
+                and op is not None
+                and not op(current_version, version)
+            ):
+                status = f"version={'.'.join(map(str, current_version))}"
+            else:
+                status = "passed"
+                passed = True
+
+        return CheckResult(
+            passed=passed, msg=self.msg.format(check=self), status=status
+        )
