@@ -2,6 +2,7 @@
 version: '3'
 
 vars:
+    PROJECT_NAME: geomancy
     SPHINX_BUILD: sphinx-build
     SPHINX_OPTS: ""
     SPHINX_SOURCE_DIR: .
@@ -54,3 +55,11 @@ tasks:
       cmds:
           - "{{.SPHINX_BUILD}} -M clean {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} {{.SPHINX_OPTS}}"
 
+  towncrier:cmds:
+      desc: A refresher of towncrier commands
+      silent: true
+      cmds:
+          - echo "towncrier create -c {msg} {issue}.{type}.md"
+          - echo "towncrier build [--draft] --name {{.PROJECT_NAME}}"
+
+# towncrier create -c "Implement towncrier" 8.docs.md
