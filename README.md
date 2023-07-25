@@ -37,7 +37,7 @@ checking environments that use the [12-factor](http://12factor.net/) principles.
 
 ## Quickstart
 <!-- start quickstart -->
-Create a ``.geomancy.[toml](https://toml.io/en/)`` file with checks.
+Create a ``.geomancy.toml`` file with checks.
 
 ```toml
 [checks.Environment]
