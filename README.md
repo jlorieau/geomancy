@@ -99,20 +99,18 @@ $ geo
 ```
 <!-- end quickstart -->
 
-## Usage
-<!-- start usage -->
-1. Create a file containing checks. Either
+## Documentation
 
-   - ``.geomancy.toml`` in the project root. See the ``examples`` directory for
-     examples.
+For full documentation please see https://geomancy.readthedocs.io/en/latest.
 
-   or
 
-   - ``pyproject.toml`` with checks and config in the ``[tool.geomancy]`` section.
+## Bugs or Requests
+Please use the [GitHub issue tracker](https://github.com/jlorieau/geomancy/issues)
+to submit bugs or request features.
 
-2. Run the geo
+## License
 
-   ```shell
-   $ geo
-   ```
-<!-- end usage -->
+Copyright Justin Lorieau and others, 2023.
+
+Distributed under the terms of the [GPLv3 license](LICENSE.md).
+geomancy is free and open source software.
