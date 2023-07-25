@@ -24,3 +24,10 @@
 quickstart
 usage/index
 ```
+```{toctree}
+:hidden:
+:caption: Development
+:maxdepth: 1
+
+changelog
+```

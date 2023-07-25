@@ -35,6 +35,7 @@ docs = [
     "sphinx-book-theme",
     "sphinx_design>=0.4",
     "myst-parser>=2.0",
+    "towncrier",
 ]
 
 [project.scripts]
@@ -42,3 +43,43 @@ geo = "geomancy.main:main_cli"
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"
+
+[tool.towncrier]
+package = "geomancy"
+filename = "docs/changelog.md"
+directory = "changelog/"
+template = "changelog/changelog_template.jinja"
+start_string = "<!-- towncrier release notes start -->\n"
+underlines = ["", "", ""]
+title_format = "## [{version}](https://github.com/jlorieau/geomancy/tree/{version}) - {project_date}"
+issue_format = "[#{issue}](https://github.com/jlorieau/geomancy/issues/{issue})"
+
+    [[tool.towncrier.type]]
+    directory = "security"
+    name = "Security"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "removed"
+    name = "Removed"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "deprecated"
+    name = "Deprecated"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "added"
+    name = "Added"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "changed"
+    name = "Changed"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "fixed"
+    name = "Fixed"
+    showcontent = true
