@@ -14,8 +14,8 @@ env_re = re.compile(
     r"""
     ^\s*(?P<name>[a-zA-Z_]+[a-zA-Z0-9_]*)  # Variable name
     \s*=\s*  # operator to assign value
-    ((?P<quote>["|']{1,3})\s*(?P<qvalue>.+)\s*(?P=quote)|  # quoted value
-     (?P<value>[^'"]+))  # non-quoted value
+    ((?P<quote>["|']{1,3})\s*(?P<qvalue>.+?)\s*(?P=quote)|  # quoted value
+     (?P<value>[^'"\n]+))  # non-quoted value
     \s*$
     """,
     re.MULTILINE | re.VERBOSE | re.DOTALL,

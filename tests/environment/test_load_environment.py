@@ -1,5 +1,6 @@
 """Test env functions, regexes and utilities"""
 import os
+from pathlib import Path
 
 import pytest
 
@@ -65,3 +66,32 @@ def test_parse_env_str_with_sub():
     }
 
     assert parse("EMAIL=${MISSING}@example.org") == {"EMAIL": "${MISSING}@example.org"}
+
+
+def test_load_env():
+    """Test the load_env function using test.env"""
+    with pytest.MonkeyPatch.context() as mp:
+        # Clear the environment variables from 'test.env'
+        for name in ("VALUE1", "VALUE2", "VALUE3"):
+            mp.delenv(name, raising=False)
+
+        # Load the environment variables from 'test.env'
+        filepath = Path(__file__).parent / "test.env"
+        count = load_env(filepath=filepath, overwrite=False)
+
+        assert os.environ["VALUE1"] == "My Value"
+        assert os.environ["VALUE2"] == "dev"
+        assert os.environ["VALUE3"] == "my-dev"
+        assert os.environ["VALUE4"] == "A Multiline\nenvironment variable"
+        assert os.environ["VALUE5"] == "Extra endspaces removed"
+        assert count == 5
+
+        # The environment variables are already loaded, so trying so again
+        # will give a loaded count = 0 -- i.e. no variables loaded
+        count = load_env(filepath=filepath, overwrite=False)
+        assert count == 0
+
+        # Unless we put the overwrite flag, in which case the 5 variables will
+        # be overwritten
+        count = load_env(filepath=filepath, overwrite=True)
+        assert count == 5
