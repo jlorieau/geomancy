@@ -35,6 +35,7 @@ docs = [
     "sphinx-book-theme",
     "sphinx_design>=0.4",
     "myst-parser>=2.0",
+    "towncrier",
 ]
 
 [project.scripts]
@@ -42,3 +43,48 @@ geo = "geomancy.main:main_cli"
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"
+
+[tool.towncrier]
+package = "geomancy"
+filename = "docs/changelog.md"
+directory = "changelog/"
+template = "changelog/changelog_template.jinja"
+start_string = "<!-- towncrier release notes start -->\n"
+underlines = ["", "", ""]
+title_format = "## [{version}](https://github.com/jlorieau/geomancy/tree/{version}) - {project_date}"
+issue_format = "[#{issue}](https://github.com/jlorieau/geomancy/issues/{issue})"
+
+    [[tool.towncrier.type]]
+    directory = "breaking"
+    name = "Breaking Changes"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "deprecation"
+    name = "Deprecations"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "feature"
+    name = "Features"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "improvement"
+    name = "Improvements"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "bugfix"
+    name = "Bug Fixes"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "docs"
+    name = "Improved Documentation"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "trivial"
+    name = "Trivial/Internal Changes"
+    showcontent = true

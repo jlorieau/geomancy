@@ -3,7 +3,7 @@
 ## Format
 
 The checks file is formatted in [TOML](https://toml.io/en/), and it contains a
-listing of checks and, optionally, configuration options for ``geomancy`.`
+listing of checks and, optionally, configuration options for ``geomancy``.
 
 ### Filenames
 
