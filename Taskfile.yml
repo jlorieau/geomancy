@@ -47,3 +47,9 @@ tasks:
       dir: docs
       cmds:
           - "{{.SPHINX_BUILD}} -M html {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} {{.SPHINX_OPTS}}"
+
+  docs:clean:
+      desc: Clean the docs build directories
+      dir: docs
+      cmds:
+          - "{{.SPHINX_BUILD}} -M clean {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} {{.SPHINX_OPTS}}"
