@@ -1,4 +1,5 @@
-<img src="https://raw.githubusercontent.com/jlorieau/geomancy/main/assets/geomancy_logo.svg" alt="geomancy" height="120" />
+<!-- start intro -->
+![geomancy logi](https://raw.githubusercontent.com/jlorieau/geomancy/main/assets/geomancy_logo.png)
 
 [![pypi version](https://img.shields.io/pypi/v/geomancy.svg)](https://pypi.org/project/geomancy/)
 [![python versions](https://img.shields.io/pypi/pyversions/geomancy.svg)](https://pypi.org/project/geomancy/)
@@ -10,7 +11,9 @@ as development, testing and production.
 Environment checks and tests are helpful for testing external dependencies,
 like LaTeX, remote dependencies, like AWS buckets or SSM parameters, or for
 checking environments that use the [12-factor](http://12factor.net/) principles.
+<!-- end intro -->
 
+<!-- start features -->
 Currently, ``geomancy`` can:
 
 - __Environment variables__. Check environment variables are properly set and,
@@ -24,7 +27,9 @@ optionally, check that they have valid values ([checkEnv](#checkenv))
   criteria ([groups of checks](#check-groups))
 - __Environment Substitution__. Subsitute parameter values from environment
   variables. ex: ``checkPath: {HOME}/.geomancy.toml``
+<!-- end features -->
 
+<!-- start example -->
 The following is an example ``geomancy`` run with an example checks file.
 
 ```shell
@@ -43,8 +48,10 @@ $ geo examples/geomancy.toml
 [✔]     Check executable 'python3>=3.11'...passed
 ========================= 11 checks passed in 0.00s ======================
 ```
+<!-- end example -->
 
 ## Usage
+<!-- start usage -->
 1. Create a file containing checks. Either
 
    - ``.geomancy.toml`` in the project root. See the ``examples`` directory for
@@ -59,7 +66,7 @@ $ geo examples/geomancy.toml
    ```shell
    $ geo
    ```
-
+<!-- end usage -->
 ## Format
 
 ### Check Groups
