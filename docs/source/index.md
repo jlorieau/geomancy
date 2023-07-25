@@ -1,10 +1,14 @@
 
 # Geomancy
 
-
 ```{include} ../../README.md
 :start-after: <!-- start intro -->
 :end-before: <!-- end intro -->
+```
+
+```{include} ../../README.md
+:start-after: <!-- start example -->
+:end-before: <!-- end example -->
 ```
 
 ## Features
@@ -18,5 +22,5 @@
 :hidden:
 
 quickstart
-checks/index
+usage/index
 ```
