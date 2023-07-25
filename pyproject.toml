@@ -27,6 +27,9 @@ description = {file = "geomancy/__description__.txt"}
 dev = [
     "pytest>=7.4",
     "twine>=4.0",
+    "sphinx>=7.1",
+    "furo>=2023",
+    "myst-parser>=2.0",
     "black[d]",
     "build"
     ]
