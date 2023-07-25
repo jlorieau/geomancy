@@ -72,8 +72,8 @@ def test_load_env():
     """Test the load_env function using test.env"""
     with pytest.MonkeyPatch.context() as mp:
         # Clear the environment variables from 'test.env'
-        for name in ("VALUE1", "VALUE2", "VALUE3"):
-            mp.delenv(name, raising=False)
+        for i in range(1, 6):
+            mp.delenv(f"VALUE{i}", raising=False)
 
         # Load the environment variables from 'test.env'
         filepath = Path(__file__).parent / "test.env"
