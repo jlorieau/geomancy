@@ -1,5 +1,5 @@
 <!-- start intro -->
-![geomancy logo](https://raw.githubusercontent.com/jlorieau/geomancy/main/docs/_static/geomancy_logo.svg)
+<img src="https://raw.githubusercontent.com/jlorieau/geomancy/main/docs/_static/geomancy_logo.svg" alt="geomancy logo" height="120px"/>
 
 [![pypi version](https://img.shields.io/pypi/v/geomancy.svg)](https://pypi.org/project/geomancy/)
 [![python versions](https://img.shields.io/pypi/pyversions/geomancy.svg)](https://pypi.org/project/geomancy/)
@@ -19,14 +19,18 @@ checking environments that use the [12-factor](http://12factor.net/) principles.
 ``geomancy`` can:
 
 - __Environment variables__. Check environment variables are properly set and,
-optionally, check that they have valid values ([checkEnv](#checkenv))
-- __Paths__. Check file and directory path existence ([checkPath](#checkpath))
+  optionally, check that they have valid values
+  ([checkEnv](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkenv))
+- __Paths__. Check file and directory path existence
+  ([checkPath](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkpath))
 - __Executables__. Check executables are available and, optionally, have the
-  minimum or correct versions ([checkExec](#checkexec))
+  minimum or correct versions
+  ([checkExec](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkexec))
 - __Python Packages__. Check python packages are availabile and, optionally,
-  have the minimum or correct versions ([checkPythonPkg](#checkpythonpkg))
+  have the minimum or correct versions
+  ([checkPythonPkg](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkpythonpkg))
 - __Group Checks__. Nested group checks with conditional (all or any) pass
-  criteria ([groups of checks](#check-groups))
+  criteria ([groups of checks](https://geomancy.readthedocs.io/en/latest/usage/index.html#check-groups))
 - __Environment Substitution__. Subsitute parameter values from environment
   variables. ex: ``checkPath: {HOME}/.geomancy.toml``
 <!-- end features -->
