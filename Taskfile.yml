@@ -4,8 +4,8 @@ version: '3'
 vars:
     SPHINX_BUILD: sphinx-build
     SPHINX_OPTS: ""
-    SPHINX_SOURCE_DIR: source
-    SPHINX_BUILD_DIR: build
+    SPHINX_SOURCE_DIR: .
+    SPHINX_BUILD_DIR: _build
 
 tasks:
 

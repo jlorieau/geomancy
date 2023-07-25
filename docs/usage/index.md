@@ -2,6 +2,110 @@
 
 ## Format
 
+The checks file is formatted in [TOML](https://toml.io/en/), and it contains a
+listing of checks and, optionally, configuration options for ``geomancy`.`
+
+### Filenames
+
+The checks file may be a dedicated file for ``geomancy``, such as a
+``.geomancy.toml`` file or a ``geomancy.toml`` file in the project root
+directory, or it may be incorporated as part of a ``pyproject.toml`` file
+under the ``[tool.geomancy]`` section.
+
+::::{tab-set}
+
+:::{tab-item} .geomancy.toml
+```toml
+[checks.Username]
+desc = "The current username"
+checkEnv = "{USER}"
+regex = "[a-z_][a-z0-9_-]*[$]?"
+```
+:::
+
+:::{tab-item} pyproject.toml
+```toml
+[tool.geomancy.checks.Username]
+desc = "The current username"
+checkEnv = "{USER}"
+regex = "[a-z_][a-z0-9_-]*[$]?"
+```
+:::
+
+::::
+
+### Nesting and Listing Checks
+
+Checks can be grouped into sections of related checks, and the pass condition
+for child checks can be customized.
+
+::::{tab-set}
+
+:::{tab-item} .geomancy.toml
+By default, all child checks must pass for the parent check to pass.
+In this example, the parent check, ``ChecksFile``, may pass if any of the
+3 child checks pass--either ``Geomancy``, ``Pyproject`` or ``missing``. This
+condition is specified by ``subchecks = "any"`` option.
+
+```toml
+[checks.ChecksFile]
+desc = "Checks that at least one checks file exists"
+subchecks = "any"
+
+    [checks.ChecksFile.Geomancy]
+    desc = "Check for 'geomancy.toml' file"
+    checkPath = "examples/geomancy.toml"
+    type = "file"
+
+    [checks.ChecksFile.Pyproject]
+    desc = "Check for 'pyproject.toml' file"
+    checkPath = "examples/pyproject.toml"
+    type = "file"
+
+    [checks.ChecksFile.missing]
+    desc = "Check a missing file"
+    checkPath = ".missing__.txt"
+    type = "file"
+```
+:::
+
+::::
+
+### Configuration
+Checks files may optionally include configuration settings for ``geomancy``.
+These are specifid under the ``[config]`` section or the
+``[tool.geomancy.config]`` section for ``pyproject.toml`` files.
+
+::::{tab-set}
+
+:::{tab-item} .geomancy.toml
+```toml
+[config]
+  [config.CHECKBASE]
+  ENV_SUBSTITUTE_DEFAULT=true
+```
+:::
+
+:::{tab-item} pyproject.toml
+```toml
+[tool.geomancy.config]
+  [tool.geomancy.config.CHECKBASE]
+  ENV_SUBSTITUTE_DEFAULT=true
+```
+:::
+::::
+
+:::{tip}
+All configuration options and their defaults can be listed in
+[TOML](https://toml.io/en/) format using the ``geo --config`` command.
+:::
+
+
+
+## Checks
+
+The following describes the various checks and their options.
+
 ### checkEnv
 
 Check the existence and, optionally, the value of an environment variable.
