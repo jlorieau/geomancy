@@ -1,5 +1,7 @@
 """Test the main CLI entrypoint"""
 import typing as t
+from pathlib import Path
+import os
 
 import pytest
 
@@ -51,11 +53,38 @@ def test_cli_config(run, options):
     assert "[config]" in captured.out  # config output in TOML format
 
 
+@pytest.mark.parametrize("flag", ("-e", "--env"))
+def test_cli_env(run, flag, caplog):
+    """Test the -e/--env and --overwrite flags for loading environment
+    variables.
+    """
+    # running '--overwrite' without '-e/--env' gives an error
+    captured = run("--overwrite", expected_code=2)
+
+    with pytest.MonkeyPatch.context() as mp:
+        # Reset env variables
+        for i in range(1, 6):
+            mp.delenv(f"VALUE{i}", raising=False)
+
+        # running "-e/--env" should load environment variables, which are logged
+        # in debug mode
+        filepath = Path("tests") / "environment" / "test.env"
+        options = ("-d", flag, str(filepath))
+        captured = run(options)
+
+        # The variables are loaded in the current process
+        assert os.environ["VALUE1"] == "My Value"
+        assert os.environ["VALUE2"] == "dev"
+        assert os.environ["VALUE3"] == "my-dev"
+        assert os.environ["VALUE4"] == "A Multiline\nenvironment variable"
+        assert os.environ["VALUE5"] == "Extra endspaces removed"
+
+
 @pytest.mark.parametrize(
-    "options", ("examples/geomancy.toml", "examples/pyproject.toml")
+    "options", (Path("examples") / "geomancy.toml", Path("examples") / "pyproject.toml")
 )
 def test_cli_check(run, options):
     """Test the default checks"""
-    captured = run(options)
+    captured = run(str(options))
     # Check environment variables
     assert "Check environment variable" in captured.out
