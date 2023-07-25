@@ -1,9 +1,10 @@
 <!-- start intro -->
-![geomancy logi](https://raw.githubusercontent.com/jlorieau/geomancy/main/assets/geomancy_logo.png)
+<img src="https://raw.githubusercontent.com/jlorieau/geomancy/main/docs/_static/geomancy_logo.svg" alt="geomancy logo" height="150px"/>
 
 [![pypi version](https://img.shields.io/pypi/v/geomancy.svg)](https://pypi.org/project/geomancy/)
 [![python versions](https://img.shields.io/pypi/pyversions/geomancy.svg)](https://pypi.org/project/geomancy/)
 [![Black formatting](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Documentation Status](https://readthedocs.org/projects/geomancy/badge/?version=latest)](https://geomancy.readthedocs.io/en/latest/?badge=latest)
 
 The ``geomancy`` tool makes it easy to check and validate environments, such
 as development, testing and production.
@@ -18,14 +19,18 @@ checking environments that use the [12-factor](http://12factor.net/) principles.
 ``geomancy`` can:
 
 - __Environment variables__. Check environment variables are properly set and,
-optionally, check that they have valid values ([checkEnv](#checkenv))
-- __Paths__. Check file and directory path existence ([checkPath](#checkpath))
+  optionally, check that they have valid values
+  ([checkEnv](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkenv))
+- __Paths__. Check file and directory path existence
+  ([checkPath](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkpath))
 - __Executables__. Check executables are available and, optionally, have the
-  minimum or correct versions ([checkExec](#checkexec))
+  minimum or correct versions
+  ([checkExec](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkexec))
 - __Python Packages__. Check python packages are availabile and, optionally,
-  have the minimum or correct versions ([checkPythonPkg](#checkpythonpkg))
+  have the minimum or correct versions
+  ([checkPythonPkg](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkpythonpkg))
 - __Group Checks__. Nested group checks with conditional (all or any) pass
-  criteria ([groups of checks](#check-groups))
+  criteria ([groups of checks](https://geomancy.readthedocs.io/en/latest/usage/index.html#check-groups))
 - __Environment Substitution__. Subsitute parameter values from environment
   variables. ex: ``checkPath: {HOME}/.geomancy.toml``
 <!-- end features -->
@@ -94,20 +99,18 @@ $ geo
 ```
 <!-- end quickstart -->
 
-## Usage
-<!-- start usage -->
-1. Create a file containing checks. Either
+## Documentation
 
-   - ``.geomancy.toml`` in the project root. See the ``examples`` directory for
-     examples.
+For full documentation please see https://geomancy.readthedocs.io/en/latest.
 
-   or
 
-   - ``pyproject.toml`` with checks and config in the ``[tool.geomancy]`` section.
+## Bugs or Requests
+Please use the [GitHub issue tracker](https://github.com/jlorieau/geomancy/issues)
+to submit bugs or request features.
 
-2. Run the geo
+## License
 
-   ```shell
-   $ geo
-   ```
-<!-- end usage -->
+Copyright Justin Lorieau and others, 2023.
+
+Distributed under the terms of the [GPLv3 license](LICENSE.md).
+geomancy is free and open source software.
