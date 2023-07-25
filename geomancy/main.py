@@ -13,6 +13,7 @@ import tomllib
 from . import get_version
 from .config import Config
 from .checks import CheckBase
+from .environment import load_env
 
 __description__ = (Path(__file__).parent / "__description__.txt").read_text().strip()
 
@@ -67,6 +68,19 @@ def setup_parser() -> argparse.ArgumentParser:
         help="Print the current version",
     )
     parser.add_argument("-d", "--debug", action="store_true", help="Enable debug mode")
+    parser.add_argument(
+        "-e",
+        "--env",
+        action="append",
+        type=filepath,
+        help="Optional environment file(s) to load",
+    )
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        default=False,
+        help="Overwrite environment variables from files",
+    )
     parser.add_argument(
         "--disable-color", action="store_true", help="Disable colors in the terminal"
     )
@@ -151,10 +165,21 @@ def action_check(args: argparse.Namespace) -> t.Union[bool, None]:
     return all(check.check() for check in checks)
 
 
-def action_config(args) -> bool:
-    """Handle execution of the 'config' sub-command"""
-    config.pprint_toml()
-    return True
+def action_env(args, parser) -> int:
+    """Hand the environment files (-e) options"""
+    # The '--overwrite' flag only makes sense if environment files (-e) are
+    # specified
+    if args.overwrite and args.env is None:
+        parser.error(
+            f"The --overwrite flag can only be used when environment files "
+            f"(--env) are specified"
+        )
+
+    env_files = args.env if args.env is not None else []
+    count = 0
+    for filepath in env_files:
+        count += load_env(filepath, overwrite=args.overwrite)
+    return count
 
 
 def main_cli(args: t.Optional[t.List[str]] = None):
@@ -168,12 +193,15 @@ def main_cli(args: t.Optional[t.List[str]] = None):
 
     # Process the --config flag
     if args.config:
-        action_config(args)
+        config.pprint_toml()
         exit(0)
 
     # Process the --disable-color flag
     if args.disable_color:
         config.TERM.USE_COLOR = False
+
+    # Process the -e/--env files and --overwrite
+    action_env(args=args, parser=parser)
 
     # Process the checks
     result = action_check(args)
