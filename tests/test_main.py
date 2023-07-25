@@ -54,30 +54,31 @@ def test_cli_config(run, options):
 
 
 @pytest.mark.parametrize("flag", ("-e", "--env"))
-def test_cli_env(run, flag, caplog):
+def test_cli_env(run, flag, test_env_file):
     """Test the -e/--env and --overwrite flags for loading environment
     variables.
+
+    See ./conftest.py for details on the 'test_env_file' fixture
     """
     # running '--overwrite' without '-e/--env' gives an error
     captured = run("--overwrite", expected_code=2)
 
     with pytest.MonkeyPatch.context() as mp:
+        filepath = test_env_file["filepath"]
+        variables = test_env_file["variables"]
+
         # Reset env variables
-        for i in range(1, 6):
-            mp.delenv(f"VALUE{i}", raising=False)
+        for name in variables.keys():
+            mp.delenv(name, raising=False)
 
         # running "-e/--env" should load environment variables, which are logged
         # in debug mode
-        filepath = Path("tests") / "environment" / "test.env"
-        options = ("-d", flag, str(filepath))
+        options = ("-d", flag, filepath)
         captured = run(options)
 
         # The variables are loaded in the current process
-        assert os.environ["VALUE1"] == "My Value"
-        assert os.environ["VALUE2"] == "dev"
-        assert os.environ["VALUE3"] == "my-dev"
-        assert os.environ["VALUE4"] == "A Multiline\nenvironment variable"
-        assert os.environ["VALUE5"] == "Extra endspaces removed"
+        for name, value in variables.items():
+            assert os.environ[name] == value
 
 
 @pytest.mark.parametrize(
