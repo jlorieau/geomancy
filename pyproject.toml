@@ -30,7 +30,7 @@ dev = [
     "black[d]",
     "build"
     ]
-doc = [
+docs = [
     "sphinx",
     "sphinx-book-theme",
     "sphinx_design>=0.4",
