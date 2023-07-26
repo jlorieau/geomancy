@@ -1,7 +1,7 @@
 (file-format)=
 # File format for Checks
 
-The checks file is formatted in [YAML](https://yaml.org) or [TOML](https://toml.io/en/),
+The checks file is formatted in [yaml](https://yaml.org) or [toml](https://toml.io/en/),
 and it contains a listing of checks and, optionally, configuration options
 for ``geomancy``.
 
