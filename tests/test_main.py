@@ -82,10 +82,16 @@ def test_cli_env(run, flag, test_env_file):
 
 
 @pytest.mark.parametrize(
-    "options", (Path("examples") / "geomancy.toml", Path("examples") / "pyproject.toml")
+    "options",
+    (
+        Path("examples") / "geomancy.toml",
+        Path("examples") / "pyproject.toml",
+        Path("Examples") / "geomancy.yaml",
+    ),
 )
 def test_cli_check(run, options):
     """Test the default checks"""
     captured = run(str(options))
-    # Check environment variables
+
+    # Check, for example, that environment variables were checked
     assert "Check environment variable" in captured.out

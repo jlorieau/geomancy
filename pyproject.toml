@@ -15,6 +15,7 @@ classifiers = [
     "Development Status :: 4 - Beta"
     ]
 dynamic = ["version", "description"]
+dependencies = ["pyyaml>=6.0"]
 
 [tool.setuptools]
 packages = ["geomancy"]
