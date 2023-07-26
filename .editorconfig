@@ -13,3 +13,10 @@ charset = utf-8
 # Docstrings and comments use max_line_length = 79
 [*.py]
 max_line_length = 88
+
+# YAML files are indented by 2 spaces
+[*.yml]
+indent_size = 2
+
+[*.yaml]
+indent_size = 2
