@@ -1,12 +1,11 @@
-# Usage
-
-## Format
+(file-format)=
+# File format for Checks
 
 The checks file is formatted in [YAML](https://yaml.org) or [TOML](https://toml.io/en/),
 and it contains a listing of checks and, optionally, configuration options
 for ``geomancy``.
 
-### Filenames
+## Filenames
 
 The checks file may be a dedicated file for ``geomancy``, such as a
 ``.geomancy.yaml`` or ``.geomancy.toml`` file in the project root
@@ -41,7 +40,7 @@ regex = "[a-z_][a-z0-9_-]*[$]?"
 :::
 ::::
 
-### Nesting and Listing Checks
+## Nesting and Listing Checks
 
 Checks can be grouped into sections of related checks, and the pass condition
 for child checks can be customized.
@@ -129,7 +128,7 @@ type = "file"
 :::
 ::::
 
-### Configuration
+## Configuration
 
 Checks files may optionally include configuration settings for ``geomancy``.
 

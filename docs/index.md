@@ -26,7 +26,14 @@
 :hidden:
 
 quickstart
-usage/index
+```
+```{toctree}
+:hidden:
+:caption: Usage
+:maxdepth: 1
+
+usage/running
+usage/format
 ```
 ```{toctree}
 :hidden:
