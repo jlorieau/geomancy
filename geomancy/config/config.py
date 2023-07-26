@@ -177,7 +177,7 @@ class Config(metaclass=ConfigMeta):
         return config
 
     @classmethod
-    def toml_loads(cls, s: str) -> "Config":
+    def loads_toml(cls, s: str) -> "Config":
         """Load config from a string formatted in TOML format.
 
         Returns
@@ -189,7 +189,7 @@ class Config(metaclass=ConfigMeta):
         return cls.load(d)
 
     @classmethod
-    def toml_load(cls, filename: Path) -> "Config":
+    def load_toml(cls, filename: Path) -> "Config":
         """Load config from a file formatted in TOML format.
 
         Returns
@@ -201,7 +201,7 @@ class Config(metaclass=ConfigMeta):
             d = tomllib.load(f)
         return cls.load(d)
 
-    def toml_dumps(self, name="config", level=0) -> str:
+    def dumps_toml(self, name="config", level=0) -> str:
         """Produce a string of the current config in TOML format.
 
         Parameters
@@ -243,7 +243,7 @@ class Config(metaclass=ConfigMeta):
         ]
         for key, value in items:
             text += indent  # Add indentation
-            text += value.toml_dumps(name=".".join((name, key)), level=level + 1)
+            text += value.dumps_toml(name=".".join((name, key)), level=level + 1)
 
         if level == 0:
             text = text.rstrip("\n") + "\n"  # Remove multiple terminal newlines
@@ -251,7 +251,7 @@ class Config(metaclass=ConfigMeta):
 
     def pprint_toml(self):
         """Pretty print in TOML format."""
-        print(self.toml_dumps())
+        print(self.dumps_toml())
 
     def pprint_yaml(self):
         """Pretty print in YAML format"""
