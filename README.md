@@ -1,11 +1,14 @@
-<!-- start intro -->
+<!-- start logo -->
 <img src="https://raw.githubusercontent.com/jlorieau/geomancy/main/docs/_static/geomancy_logo.svg" alt="geomancy logo" height="150px"/>
+<!-- end logo -->
 
+<!-- start badges -->
 [![pypi version](https://img.shields.io/pypi/v/geomancy.svg)](https://pypi.org/project/geomancy/)
 [![python versions](https://img.shields.io/pypi/pyversions/geomancy.svg)](https://pypi.org/project/geomancy/)
 [![Black formatting](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Documentation Status](https://readthedocs.org/projects/geomancy/badge/?version=latest)](https://geomancy.readthedocs.io/en/latest/?badge=latest)
-
+<!-- end badges -->
+<!-- start intro -->
 The ``geomancy`` tool makes it easy to check and validate environments, such
 as development, testing and production.
 
