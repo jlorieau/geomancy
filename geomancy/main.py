@@ -8,6 +8,7 @@ import typing as t
 import argparse
 import logging
 from pathlib import Path
+from itertools import chain
 import tomllib
 
 import yaml
@@ -28,11 +29,9 @@ config.VERSION = get_version()
 # Default paths for checks files
 config.CLI.CHECKS_PATHS = [
     "pyproject.toml",
-    ".geomancy.toml",
-    "geomancy.toml",
-    "geomancy.yaml",
+    ".geomancy.??ml",
+    "geomancy.??ml",
     "geomancy.yml",
-    ".geomancy.yaml",
     ".geomancy.yml",
 ]
 
@@ -49,29 +48,39 @@ config.CLI.SETTINGS_PATHS = ["{HOME}/.geomancerrc"]
 config.CLI.CONFIG_NAMES = ["config", "Config"]
 
 
-def filepath(string: str, required: bool = True) -> t.Union["Path", None]:
-    """Given a path string, verifies that the path is an existing file and
-    converts it to a path.
+def filepaths(string: str, required: bool = True) -> t.List[Path]:
+    """Given a path string verifies that the path(s) exist converts to path object(s).
 
     Parameters
     ----------
     string
-        The path string to verify and convert
+        The path string to verify and convert, which may include gobs
     required
         If True, log an error and exit the program if the file does not exist
 
     Returns
     -------
-    path
-        The path for the existing file
+    paths
+        The paths for the existing files
     """
-    path = Path(string)
-    if not path.is_file():
-        if required:
-            logger.error(f"Could not find the file given by the path {string}")
-            exit(1)
-        return None
-    return path
+    # See if there's a glob pattern in the string
+    if any(c in string for c in ("*", "?", "[", "]")):
+        # Expand the glob from the current directory
+        paths = list(Path(".").glob(string))
+    else:
+        paths = [Path(string)]
+
+    # Check the paths
+    existing_paths = []
+    for path in paths:
+        if path.is_file():
+            existing_paths.append(path)
+
+    if required and len(existing_paths) == 0:
+        logger.error(f"Could not find file(s) given by the path '{string}'")
+        exit(1)
+
+    return existing_paths
 
 
 def setup_parser() -> argparse.ArgumentParser:
@@ -91,7 +100,7 @@ def setup_parser() -> argparse.ArgumentParser:
         "-e",
         "--env",
         action="append",
-        type=filepath,
+        type=filepaths,
         help="Optional environment file(s) to load",
     )
     parser.add_argument(
@@ -106,7 +115,7 @@ def setup_parser() -> argparse.ArgumentParser:
     parser.add_argument("--config", action="store_true", help="Print default config")
     parser.add_argument(
         "checks_files",
-        type=filepath,
+        type=filepaths,
         nargs="*",
         help="Optional file containing checks to run",
     )
@@ -137,14 +146,19 @@ def action_check(args: argparse.Namespace) -> t.Union[bool, None]:
         False if one of the checks failed
         None if no valid checks files were found
     """
-    # Check the specified files
+    # Retrieve and format the checks files into a single flat list
     if len(args.checks_files) > 0:
         # Use the specified checks_files, if available
         checks_files = args.checks_files
     else:
         # Otherwise use the default paths in the config
-        checks_files = [filepath(p, required=False) for p in config.CLI.CHECKS_PATHS]
+        checks_files = [filepaths(p, required=False) for p in config.CLI.CHECKS_PATHS]
         checks_files = [p for p in checks_files if p is not None]
+
+    # At this stage, checks_files is a list of lists of Path objects.
+    # It needs to be flattened into a list of Path objects
+    checks_files = list(chain(*checks_files))
+    logging.debug(f"action_check: checks_files: {checks_files}")
 
     # Nothing to do if no checks files were found
     if len(checks_files) == 0:
@@ -184,7 +198,7 @@ def action_check(args: argparse.Namespace) -> t.Union[bool, None]:
 
     # Create a root check, if there are a lot of checks
     if len(checks) > 1:
-        checks = [CheckBase(name="Multiple files", sub_checks=checks)]
+        checks = [CheckBase(name=f"Checking {len(checks)} files", children=checks)]
 
     # Run the checks
     return all(check.check() for check in checks)
@@ -200,7 +214,16 @@ def action_env(args, parser) -> int:
             f"(--env) are specified"
         )
 
+    # Retrieve the env_files from the arguments
     env_files = args.env if args.env is not None else []
+
+    # At this stage, env_files is a list of lists of Path objects.
+    # It needs to be flattened into a list of Path objects
+    env_files = list(chain(*env_files))
+    logging.debug(f"action_env: env_values: {env_files}")
+
+    # Load the environment files and keep track of the number of variables
+    # substituted
     count = 0
     for filepath in env_files:
         count += load_env(filepath, overwrite=args.overwrite)
