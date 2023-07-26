@@ -1,6 +1,7 @@
 """Test the main CLI entrypoint"""
 import typing as t
 from pathlib import Path
+from itertools import chain
 import os
 
 import pytest
@@ -83,15 +84,13 @@ def test_cli_env(run, flag, test_env_file):
 
 @pytest.mark.parametrize(
     "options",
-    (
-        Path("examples") / "geomancy.toml",
-        Path("examples") / "pyproject.toml",
-        Path("Examples") / "geomancy.yaml",
-    ),
+    chain(*tuple(Path("examples").glob(f"*.{ext}") for ext in ("toml", "yaml"))),
 )
 def test_cli_check(run, options):
-    """Test the default checks"""
+    """Test all the checks files in the examples directory"""
     captured = run(str(options))
 
     # Check, for example, that environment variables were checked
-    assert "Check environment variable" in captured.out
+    assert any(
+        msg in captured.out for msg in ("Check environment variable", "Check path")
+    )
