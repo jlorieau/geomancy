@@ -81,7 +81,7 @@ issue_format = "[#{issue}](https://github.com/jlorieau/geomancy/issues/{issue})"
     showcontent = true
 
     [[tool.towncrier.type]]
-    directory = "docs"
+    directory = "doc"
     name = "Improved Documentation"
     showcontent = true
 
