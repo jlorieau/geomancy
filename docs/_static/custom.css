@@ -1,6 +1,7 @@
 /* changes the dark theme */
 html[data-theme="dark"] {
-    --pst-color-background: #212837;
+    --pst-color-muted: #c9c8c8;
+    --pst-color-background: #202736;
     --pst-color-border: #504f55;
 }
 
