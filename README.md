@@ -112,5 +112,5 @@ to submit bugs or request features.
 
 Copyright Justin Lorieau and others, 2023.
 
-Distributed under the terms of the [GPLv3 license](LICENSE.md).
+Distributed under the terms of the [MIT license](LICENSE).
 geomancy is free and open source software.
