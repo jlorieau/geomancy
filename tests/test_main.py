@@ -47,11 +47,11 @@ def test_cli_disable_color(run, options, config):
     assert not config.TERM.USE_COLOR  # flag set to false
 
 
-@pytest.mark.parametrize("options", ("--config",))
+@pytest.mark.parametrize("options", ("--config-toml", "--config-yaml"))
 def test_cli_config(run, options):
     """Test the --config option"""
     captured = run(options)
-    assert "[config]" in captured.out  # config output in TOML format
+    assert "config" in captured.out  # config output in TOML/yaml format
 
 
 @pytest.mark.parametrize("flag", ("-e", "--env"))

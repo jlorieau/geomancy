@@ -5,6 +5,7 @@ from pathlib import Path
 from collections.abc import Mapping
 import re
 import tomllib
+import yaml
 import logging
 
 __all__ = ("ConfigException", "Config", "Parameter")
@@ -251,6 +252,10 @@ class Config(metaclass=ConfigMeta):
     def pprint_toml(self):
         """Pretty print in TOML format."""
         print(self.toml_dumps())
+
+    def pprint_yaml(self):
+        """Pretty print in YAML format"""
+        print(yaml.dump({"config": self.__dict__}))
 
 
 # dummy placeholder object

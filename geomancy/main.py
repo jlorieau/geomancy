@@ -112,7 +112,12 @@ def setup_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--disable-color", action="store_true", help="Disable colors in the terminal"
     )
-    parser.add_argument("--config", action="store_true", help="Print default config")
+    parser.add_argument(
+        "--config-toml", action="store_true", help="Print default config in toml format"
+    )
+    parser.add_argument(
+        "--config-yaml", action="store_true", help="Print default config in yaml format"
+    )
     parser.add_argument(
         "checks_files",
         type=filepaths,
@@ -132,7 +137,7 @@ def setup_logging(debug: bool = False):
 
 
 def action_check(args: argparse.Namespace) -> t.Union[bool, None]:
-    """Handle execution of the 'check' sub-command
+    """Handle execution of the default check mode
 
     Parameters
     ----------
@@ -230,6 +235,17 @@ def action_env(args, parser) -> int:
     return count
 
 
+def action_config(args: argparse.Namespace):
+    """Handle the output from --config options"""
+    if args.config_yaml:
+        config.pprint_yaml()
+    elif args.config_toml:
+        config.pprint_toml()
+    else:
+        return None
+    exit(0)
+
+
 def main_cli(args: t.Optional[t.List[str]] = None):
     # Parse the CLI arguments
     parser = setup_parser()
@@ -239,10 +255,8 @@ def main_cli(args: t.Optional[t.List[str]] = None):
     setup_logging(debug=args.debug)
     logger.debug(f"CLI parsed args: {args}")
 
-    # Process the --config flag
-    if args.config:
-        config.pprint_toml()
-        exit(0)
+    # Process the --config flag (will exit if a --config flag is specified)
+    action_config(args)
 
     # Process the --disable-color flag
     if args.disable_color:
