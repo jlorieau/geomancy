@@ -3,6 +3,9 @@ html[data-theme="dark"] {
     --pst-color-muted: #c9c8c8;
     --pst-color-background: #1e232f;
     --pst-color-border: #504f55;
+    --pst-color-success: #1ecf48;
+    --sd-color-tabs-overline: var(--pst-color-border);
+    --sd-color-tabs-underline: var(--pst-color-border);
 }
 
 /* the following prevents to sidebar footer from forcing a scrollbar to appear */
