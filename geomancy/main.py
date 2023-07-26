@@ -44,9 +44,6 @@ config.CLI.YAML_EXTS = [".yml", ".yaml"]
 # Default paths for settings
 config.CLI.SETTINGS_PATHS = ["{HOME}/.geomancerrc"]
 
-# Default names for config sections in checks files
-config.CLI.CONFIG_NAMES = ["config", "Config"]
-
 
 def filepaths(string: str, required: bool = True) -> t.List[Path]:
     """Given a path string verifies that the path(s) exist converts to path object(s).
@@ -191,7 +188,7 @@ def action_check(args: argparse.Namespace) -> t.Union[bool, None]:
             d = d.get("tool", dict()).get("geomancy", dict())
 
         # Load config section, if available
-        for config_name in config.CLI.CONFIG_NAMES:
+        for config_name in config.section_aliases:
             config_section = d.pop(config_name, None)
             if isinstance(config_section, dict):
                 config.update(config_section)
