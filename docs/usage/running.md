@@ -73,10 +73,37 @@ multiple files at once. For example, the following will run checks in all
 files that have the ``geomancy`` filename: ``$ geo geomancy.*``
 :::
 
-## Configuring Geomancy
+## Configuring geomancy
 
 As described in the [next section](#file-format), configuration options are
 placed in the ``config`` section of checks files or the
 ``[tool.geomancy.config]`` section of the ``pyproject.toml`` file.
 
+The default configuration options can be listed in
+[yaml](https://yaml.org) or [toml](https://toml.io/en/) formats.
 
+::::{tab-set}
+:::{tab-item} config-yaml
+```shell
+$ geo --config-yaml
+config:
+  CHECKBASE:
+    ENV_SUBSTITUTE_DEFAULT: true
+    MAX_LEVEL: 10
+...
+```
+:::
+:::{tab-item} config-toml
+```shell
+$ geo --config-toml
+[config]
+VERSION='0.9.2'
+
+  [config.CHECKBASE]
+  ENV_SUBSTITUTE_DEFAULT=true
+  MAX_LEVEL=10...
+```
+:::
+::::
+
+## Environment variables
