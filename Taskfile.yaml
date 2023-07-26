@@ -3,7 +3,7 @@ version: '3'
 
 vars:
     PROJECT_NAME: geomancy
-    SPHINX_BUILD: sphinx-build
+    SPHINX_BUILD: .venv/bin/sphinx-build  # run from within virtualenv
     SPHINX_OPTS: ""
     SPHINX_SOURCE_DIR: .
     SPHINX_BUILD_DIR: _build
@@ -41,19 +41,19 @@ tasks:
       desc: Print the docs building help message
       dir: docs
       cmds:
-          - "{{.SPHINX_BUILD}} -M help {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} {{.SPHINX_OPTS}}"
+          - "../{{.SPHINX_BUILD}} -M help {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} {{.SPHINX_OPTS}}"
 
   docs:build:
       desc: Build the docs
       dir: docs
       cmds:
-          - "{{.SPHINX_BUILD}} -M html {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} {{.SPHINX_OPTS}}"
+          - "../{{.SPHINX_BUILD}} -M html {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} {{.SPHINX_OPTS}}"
 
   docs:clean:
       desc: Clean the docs build directories
       dir: docs
       cmds:
-          - "{{.SPHINX_BUILD}} -M clean {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} {{.SPHINX_OPTS}}"
+          - "../{{.SPHINX_BUILD}} -M clean {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} {{.SPHINX_OPTS}}"
 
   towncrier:cmds:
       desc: A refresher of towncrier commands
