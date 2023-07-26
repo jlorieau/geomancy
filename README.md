@@ -18,43 +18,40 @@ resources, or for checking environments that use the
 
 ## Quickstart
 <!-- start quickstart -->
-Create a ``.geomancy.toml`` file with checks.
+Create a ``.geomancy.yaml`` file with checks.
 
-```toml
-[checks.Environment]
-desc = "Check environment variables common to all development environments"
+```yaml
+checks:
+    Environment:
+        desc: Check environment variables common to all development environments
 
-    [checks.Environment.Username]
-    desc = "The current username"
-    checkEnv = "{USER}"
-    regex = "[a-z_][a-z0-9_-]*[$]?"
+        Username:
+            desc: The current username
+            checkEnv: "{USER}"
+            regex: "[a-z_][a-z0-9_-]*[$]?"
 
-[checks.Paths]
-desc = "Checks the existence of needed files and directories"
-subchecks = "any"  # at least one sub-check should pass
+    Paths:
+      desc: Checks the existence of needed files and directories
+      subchecks: any  # at least one of the files must be present
 
-    [checks.Paths.Geomancy]
-    desc = "Check for 'geomancy.toml' file"
-    checkPath = "examples/geomancy.toml"
-    type = "file"
+          Geomancy:
+              desc: Check for the 'geomancy.toml' file
+              checkPath: examples/geomancy.toml
+              type: file
+          Pyproject:
+              desc: Check for 'pyproject.toml' file
+              checkPath: examples/pyproject.toml
+              type: file
 
-    [checks.Paths.Pyproject]
-    desc = "Check for 'pyproject.toml' file"
-    checkPath = "examples/pyproject.toml"
-    type = "file"
+    Executables:
+        desc: Check the availability of commands and their versions
 
-[checks.Executables]
-desc = "Check the availability of commands and their versions"
-
-    [checks.Executables.Python]
-    desc = "Python interpreter"
-    checkExec = "python3>=3.11"
+        Python:
+            desc: Python interpreter ver 3.11 or higher
+            checkExec: python3>=3.11
 ```
 
-By default, ``geomancy`` will search ``.geomancy.toml``, ``geomancy.toml`` and
-``pyproject.toml``.
-
-Use ``geo`` to run the checks
+Use ``geo`` to run the checks.
 
 ```shell
 $ geo
@@ -69,6 +66,8 @@ $ geo
 [✔]     Check executable 'python3>=3.11'...passed
 ========================== PASSED.  8 checks in 0.01s =========================
 ```
+(By default, ``geomancy`` will search ``.geomancy.y[a]ml``, ``geomancy.y[a]ml``
+``.geomancy.toml``, ``geomancy.toml`` and ``pyproject.toml``.)
 <!-- end quickstart -->
 
 ## Features
@@ -90,6 +89,9 @@ $ geo
   criteria ([groups of checks](https://geomancy.readthedocs.io/en/latest/usage/index.html#check-groups))
 - __Environment Substitution__. Substitute parameter values from environment
   variables. ex: ``checkPath: {HOME}/.geomancy.toml``
+- __Multiple Formats__. Checks files can be in yaml (e.g. ``.geomancy.yaml``)
+  or in [toml](https://toml.io/en/) (e.g. ``.geomancy.toml`` or
+  ``pyproject.toml``)
 <!-- end features -->
 
 ## Documentation
