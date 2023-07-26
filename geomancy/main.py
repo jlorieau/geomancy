@@ -32,6 +32,8 @@ config.CLI.CHECKS_PATHS = [
     "geomancy.toml",
     "geomancy.yaml",
     "geomancy.yml",
+    ".geomancy.yaml",
+    ".geomancy.yml",
 ]
 
 # Default file extensions for TOML files
