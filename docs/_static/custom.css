@@ -1,0 +1,11 @@
+/* changes the dark theme */
+html[data-theme="dark"] {
+    --pst-color-background: #212837;
+    --pst-color-border: #504f55;
+}
+
+/* the following prevents to sidebar footer from forcing a scrollbar to appear */
+.bd-sidebar-primary div#rtd-footer-container {
+    bottom: 0;
+    margin: 0;
+}
