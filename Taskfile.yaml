@@ -47,7 +47,11 @@ tasks:
       desc: Build the docs
       dir: docs
       cmds:
-          - "../{{.SPHINX_BUILD}} -M html {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} {{.SPHINX_OPTS}}"
+          - "../{{.SPHINX_BUILD}} -M html {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} -E -a {{.SPHINX_OPTS}}"
+      sources:
+          - "**/*.md"
+          - "**/*.rst"
+          - "_static/**"
 
   docs:clean:
       desc: Clean the docs build directories
