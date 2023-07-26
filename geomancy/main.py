@@ -10,6 +10,8 @@ import logging
 from pathlib import Path
 import tomllib
 
+import yaml
+
 from . import get_version
 from .config import Config
 from .checks import CheckBase
@@ -24,10 +26,27 @@ config = Config()  # Set up config defaults for the CLI
 config.VERSION = get_version()
 
 # Default paths for checks files
-config.CLI.CHECKS_PATHS = ["pyproject.toml", ".geomancy.toml", "geomancy.toml"]
+config.CLI.CHECKS_PATHS = [
+    "pyproject.toml",
+    ".geomancy.toml",
+    "geomancy.toml",
+    "geomancy.yaml",
+    "geomancy.yml",
+    ".geomancy.yaml",
+    ".geomancy.yml",
+]
+
+# Default file extensions for TOML files
+config.CLI.TOML_EXTS = [".toml"]
+
+# Default file extensions for YAML files
+config.CLI.YAML_EXTS = [".yml", ".yaml"]
 
 # Default paths for settings
 config.CLI.SETTINGS_PATHS = ["{HOME}/.geomancerrc"]
+
+# Default names for config sections in checks files
+config.CLI.CONFIG_NAMES = ["config", "Config"]
 
 
 def filepath(string: str, required: bool = True) -> t.Union["Path", None]:
@@ -99,7 +118,7 @@ def setup_logging(debug: bool = False):
     """Set up the default logging"""
     logging.basicConfig(
         level=logging.DEBUG if debug else None,
-        format="%(name)s:%(levelname)s: %(message)s",
+        format="%(levelname)s:%(name)s: %(message)s",
     )
 
 
@@ -136,9 +155,14 @@ def action_check(args: argparse.Namespace) -> t.Union[bool, None]:
     checks = []
     for checks_file in checks_files:
         # Parse the file by filetype
-        if checks_file.suffix in (".toml",):
+        if checks_file.suffix in config.CLI.TOML_EXTS:
             with open(checks_file, "rb") as f:
                 d = tomllib.load(f)
+
+        elif checks_file.suffix in config.CLI.YAML_EXTS:
+            with open(checks_file, "r") as f:
+                d = yaml.load(f, Loader=yaml.SafeLoader)
+
         else:
             continue
 
@@ -148,9 +172,10 @@ def action_check(args: argparse.Namespace) -> t.Union[bool, None]:
             d = d.get("tool", dict()).get("geomancy", dict())
 
         # Load config section, if available
-        config_section = d.pop("config", None)
-        if isinstance(config_section, dict):
-            config.update(config_section)
+        for config_name in config.CLI.CONFIG_NAMES:
+            config_section = d.pop(config_name, None)
+            if isinstance(config_section, dict):
+                config.update(config_section)
 
         # Load the rest into a root CheckBase
         check = CheckBase.load(d, name=str(checks_file))

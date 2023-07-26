@@ -10,6 +10,27 @@ deprecations section.
 
 <!-- towncrier release notes start -->
 
+## [0.9.1](https://github.com/jlorieau/geomancy/tree/0.9.1) - 2023-07-26
+
+
+### Improved Documentation
+
+- [#10](https://github.com/jlorieau/geomancy/issues/10). Added a more complete list of PyPI classifiers
+
+
+## [0.9.0](https://github.com/jlorieau/geomancy/tree/0.9.0) - 2023-07-26
+
+
+### Features
+
+- [#17](https://github.com/jlorieau/geomancy/issues/17). Added YAML parsing functionality for checks files
+
+
+### Improved Documentation
+
+- [#17](https://github.com/jlorieau/geomancy/issues/17). Added YAML examples (default) in the documentation
+
+
 ## [0.8.1](https://github.com/jlorieau/geomancy/tree/0.8.1) - 2023-07-25
 
 

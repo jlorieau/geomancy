@@ -1,0 +1,10 @@
+# A flat file with single checks at the root level--i.e. no nesting
+Geomancy:
+  desc: Check for the 'geomancy.toml' file
+  checkPath: examples/geomancy.toml
+  type: file
+
+Pyproject:
+  desc: Check for 'pyproject.toml' file
+  checkPath: examples/pyproject.toml
+  type: file

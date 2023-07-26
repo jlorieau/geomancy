@@ -5,8 +5,11 @@ from pathlib import Path
 from collections.abc import Mapping
 import re
 import tomllib
+import logging
 
 __all__ = ("ConfigException", "Config", "Parameter")
+
+logger = logging.getLogger(__name__)
 
 
 class ConfigException(Exception):
@@ -133,6 +136,7 @@ class Config(metaclass=ConfigMeta):
                     f"Cannot replace config section '{k}' with a parameter '{v}'"
                 )
             else:
+                logger.debug(f"Config.update(): set {k}={v}")
                 setattr(self, k, v)
 
     @classmethod
@@ -166,6 +170,7 @@ class Config(metaclass=ConfigMeta):
                 setattr(config, k, sub_config)
             else:
                 # Otherwise just store the value
+                logger.debug(f"Config.load(): set {k}={v}")
                 setattr(config, k, v)
 
         return config
