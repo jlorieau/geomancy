@@ -55,22 +55,54 @@ def test_parse_env_docker_rules():
     assert p(r"VAR=some\tvalue") == {"VAR": r"some\tvalue"}
 
 
-# def test_parse_env_docker_parameter_expansion():
-#     """Test the parse_env_str function parameter expansion compared to docker
-#     dotenv parameter expansion.
-#
-#     The layout and order of these tests deliberately matches the following:
-#     https://docs.docker.com/compose/environment-variables/env-file/#parameter-expansion
-#     """
-#     p = parse_env_str
-#
-#     with pytest.MonkeyPatch.context() as mp:
-#         mp.setenv("OTHER_VAL", "new value")
-#
-#         # Direct substitution
-#         assert p(r"VAR=${OTHER_VAL}") == {"VAR": "new value"}  # (un-quoted)
-#         assert p(r'VAR="${OTHER_VAL}"') == {"VAR": "new value"}  # (double quoted)
-#         assert p(r"VAR='${OTHER_VAL}'") == {"VAR": "${OTHER_VAL}"}  # (literal)
+def test_parse_env_docker_parameter_expansion():
+    """Test the parse_env_str function parameter expansion compared to docker
+    dotenv parameter expansion.
+
+    The layout and order of these tests deliberately matches the following:
+    https://docs.docker.com/compose/environment-variables/env-file/#parameter-expansion
+    """
+    p = parse_env
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setenv("OTHER_VAL", "new value")
+
+        # Direct substitution (braced)
+        assert p(r"VAR=${OTHER_VAL}") == {"VAR": "new value"}  # (un-quoted)
+        assert p(r'VAR="${OTHER_VAL}"') == {"VAR": "new value"}  # (double quoted)
+        assert p(r"VAR='${OTHER_VAL}'") == {"VAR": "${OTHER_VAL}"}  # (literal)
+
+        # Direct substitution (unbraced)
+        assert p(r"VAR=$OTHER_VAL") == {"VAR": "new value"}  # (un-quoted)
+        assert p(r'VAR="$OTHER_VAL"') == {"VAR": "new value"}  # (double quoted)
+        assert p(r"VAR='$OTHER_VAL'") == {"VAR": "$OTHER_VAL"}  # (literal)
+
+        # Default value
+        assert p(r"VAR=${MISSING:-default}") == {"VAR": "default"}
+        assert p(r"VAR=${MISSING-default}") == {"VAR": "default"}
+        assert p(r"VAR=$MISSING:-default") == {"VAR": "default"}
+        assert p(r"VAR=$MISSING-default") == {"VAR": "default"}
+
+        # Error value
+        for error_value in (
+            r"VAR=${ERROR:?error raised}",
+            r"VAR=${ERROR?error raised}",
+            r"VAR=$ERROR:?error",
+            r"VAR=$ERROR?error",
+        ):
+            with pytest.raises(EnvironmentError):
+                p(error_value)
+
+        # Replace value
+        assert p(r"VAR=${OTHER_VAL:+replaced value}") == {"VAR": "replaced value"}
+        assert p(r"VAR=${OTHER_VAL+replaced value}") == {"VAR": "replaced value"}
+        assert p(r"VAR=$OTHER_VAL:+replaced") == {"VAR": "replaced"}
+        assert p(r"VAR=$OTHER_VAL+replaced") == {"VAR": "replaced"}
+
+        assert p(r"VAR=${MISSING:+replaced value}") == {"VAR": ""}
+        assert p(r"VAR=${MISSING+replaced value}") == {"VAR": ""}
+        assert p(r"VAR=$MISSING:+replaced") == {"VAR": ""}
+        assert p(r"VAR=$MISSING+replaced") == {"VAR": ""}
 
 
 def test_load_env(test_env_file):
