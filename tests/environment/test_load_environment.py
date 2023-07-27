@@ -1,10 +1,76 @@
 """Test env functions, regexes and utilities"""
 import os
-from pathlib import Path
 
 import pytest
 
 from geomancy.environment import parse_env_str, load_env
+
+
+def test_parse_env_docker_rules():
+    """Test the parse_env_str function rules compared to docker dotenv rules.
+
+    The layout and order of these tests deliberately matches the following:
+    https://docs.docker.com/compose/environment-variables/env-file/#syntax
+    """
+    p = parse_env_str
+
+    # Lines beginning with # are processed as comments and ignored
+    assert p("# VAR=VAL") == {}
+    assert p(" # VAR=VAL") == {}
+
+    # Blank lines are ignored
+    assert p("\n") == {}
+
+    # Each line represents a key-value pair. Values can optionally be quoted
+    assert p("VAR=VAL") == {"VAR": "VAL"}
+    assert p('VAR="VAL"') == {"VAR": "VAL"}
+    assert p("VAR='VAL'") == {"VAR": "VAL"}
+
+    # Inline comments for unquoted values must be preceded with a space
+    assert p("VAR=VAL # comment") == {"VAR": "VAL"}
+    assert p("VAR=VAL# not a comment") == {"VAR": "VAL# not a comment"}
+
+    # Inline comments for quoted values must follow the closing quote
+    assert p('VAR="VAL # not a comment"') == {"VAR": "VAL # not a comment"}
+    assert p('VAR="VAL" # comment') == {"VAR": "VAL"}
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setenv("OTHER", "NEWVALUE")
+
+        # Single-quoted (') values are used literally.
+        assert p("VAR='$OTHER'") == {"VAR": "$OTHER"}
+        assert p("VAR='${OTHER}'") == {"VAR": "${OTHER}"}
+
+        # Double-quote (") values allow substitution
+        assert p(r'VAR="My ${OTHER}."') == {"VAR": "My NEWVALUE."}
+
+    # Quotes can be escaped with a backslash: \' or \"
+    assert p(r"VAR='Let\'s go!'") == {"VAR": r"Let's go!"}
+    assert p(r'VAR="{\"hello\": \"json\"}"') == {"VAR": r'{"hello": "json"}'}
+
+    # Common shell escape sequences including \n, \r, \t, and \\ are supported
+    # in double-quoted values.
+    assert p(r'VAR="some\tvalue"') == {"VAR": "some\tvalue"}
+    assert p(r"VAR='some\tvalue'") == {"VAR": r"some\tvalue"}
+    assert p(r"VAR=some\tvalue") == {"VAR": r"some\tvalue"}
+
+
+# def test_parse_env_docker_parameter_expansion():
+#     """Test the parse_env_str function parameter expansion compared to docker
+#     dotenv parameter expansion.
+#
+#     The layout and order of these tests deliberately matches the following:
+#     https://docs.docker.com/compose/environment-variables/env-file/#parameter-expansion
+#     """
+#     p = parse_env_str
+#
+#     with pytest.MonkeyPatch.context() as mp:
+#         mp.setenv("OTHER_VAL", "new value")
+#
+#         # Direct substitution
+#         assert p(r"VAR=${OTHER_VAL}") == {"VAR": "new value"}  # (un-quoted)
+#         assert p(r'VAR="${OTHER_VAL}"') == {"VAR": "new value"}  # (double quoted)
+#         assert p(r"VAR='${OTHER_VAL}'") == {"VAR": "${OTHER_VAL}"}  # (literal)
 
 
 def test_parse_env_str_strip_comment():
