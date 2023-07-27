@@ -1,4 +1,4 @@
-"""Functions to load dotenv files"""
+"""Functions to load dotenv files and parse strings in dotenv format"""
 import typing as t
 import os
 import re
@@ -6,7 +6,7 @@ import codecs
 import logging
 from pathlib import Path
 
-__all__ = ("parse_env_str", "load_env")
+__all__ = ("parse_env", "load_env")
 
 logger = logging.getLogger(__name__)
 
@@ -61,10 +61,7 @@ def sub_env(string: str, missing_default: str = "", **kwargs) -> str:
     return sub_re.sub(sub_func, string)
 
 
-def parse_env_str(
-    string: str,
-    strip_values: bool = True,
-) -> dict:
+def parse_env(string: str, strip_values: bool = True) -> dict:
     """Parse a string in env format into a dict
 
     Parameters
@@ -151,7 +148,7 @@ def load_env(
         return 0
 
     # Parse the environment
-    env_vars = parse_env_str(string=string, *args, **kwargs)
+    env_vars = parse_env(string=string, *args, **kwargs)
 
     # Load the environment variables
     count = 0
