@@ -6,7 +6,7 @@ import os
 
 import pytest
 
-from geomancy.main import main_cli
+from geomancy.entrypoints import geo_cli
 from geomancy.config import Config
 
 
@@ -18,7 +18,7 @@ def run(capsys) -> t.Callable:
     def runcmd(options, expected_code: int = 0):
         options = [options] if isinstance(options, str) else options
         try:
-            main_cli(options)
+            geo_cli(options)
         except SystemExit as e:
             if e.code != expected_code:
                 raise e

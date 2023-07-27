@@ -55,7 +55,7 @@ docs = [
 ]
 
 [project.scripts]
-geo = "geomancy.main:main_cli"
+geo = "geomancy.entrypoints:geo_cli"
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"

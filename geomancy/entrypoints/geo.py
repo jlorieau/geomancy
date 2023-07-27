@@ -1,5 +1,5 @@
 """
-The program entry point.
+The 'geo' program entry point.
 
 This file is located in the root module directory, rather than the 'cli'
 submodule because it may access functionality from all submodules
@@ -13,12 +13,16 @@ import tomllib
 
 import yaml
 
-from . import get_version
-from .config import Config
-from .checks import CheckBase
-from .environment import load_env
+from .. import get_version
+from ..config import Config
+from ..checks import CheckBase
+from ..environment import load_env
 
-__description__ = (Path(__file__).parent / "__description__.txt").read_text().strip()
+__all__ = ("geo_cli",)
+
+__description__ = (
+    (Path(__file__).parent / ".." / "__description__.txt").read_text().strip()
+)
 
 logger = logging.getLogger(__name__)  # Create a default logger
 config = Config()  # Set up config defaults for the CLI
@@ -243,7 +247,7 @@ def action_config(args: argparse.Namespace):
     exit(0)
 
 
-def main_cli(args: t.Optional[t.List[str]] = None):
+def geo_cli(args: t.Optional[t.List[str]] = None):
     # Parse the CLI arguments
     parser = setup_parser()
     args = parser.parse_args(args)  # parse root parser args
