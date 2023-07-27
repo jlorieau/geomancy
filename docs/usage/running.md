@@ -221,6 +221,6 @@ environment file rules. Specifically,
     ${MYVAR:+replaced}  # -> replaced
     $MYVAR+replaced     # -> replaced
     $MYVAR:+replaced    # -> replaced
-    #{MISSING+replaced} # ""
-    #MISSING+replaced   # ""
+    ${MISSING+replaced} # ""
+    ${MISSING+replaced} # ""
     ```
