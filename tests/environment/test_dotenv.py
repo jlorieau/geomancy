@@ -78,8 +78,8 @@ def test_parse_env_docker_parameter_expansion():
         assert p(r"VAR='$OTHER_VAL'") == {"VAR": "$OTHER_VAL"}  # (literal)
 
         # Default value
-        assert p(r"VAR=${MISSING:-default}") == {"VAR": "default"}
-        assert p(r"VAR=${MISSING-default}") == {"VAR": "default"}
+        assert p(r"VAR=${MISSING:-my default value}") == {"VAR": "my default value"}
+        assert p(r"VAR=${MISSING-my default value}") == {"VAR": "my default value"}
         assert p(r"VAR=$MISSING:-default") == {"VAR": "default"}
         assert p(r"VAR=$MISSING-default") == {"VAR": "default"}
 
@@ -90,7 +90,7 @@ def test_parse_env_docker_parameter_expansion():
             r"VAR=$ERROR:?error",
             r"VAR=$ERROR?error",
         ):
-            with pytest.raises(EnvironmentError):
+            with pytest.raises(EnvironmentError) as e:
                 p(error_value)
 
         # Replace value
