@@ -168,7 +168,7 @@ def parse_env(string: str, strip_values: bool = True) -> dict:
 
 def load_env(
     filepath: t.Union[str, Path], overwrite: bool = False, *args, **kwargs
-) -> int:
+) -> dict:
     """Load an environment file.
 
     Parameters
@@ -177,14 +177,15 @@ def load_env(
         The path to the file with environment settings to load
     overwrite
         If True, overwrite environment variables that already exist
-        If False (default), only load environment variables that don't already exist
+        If False (default), only load environment variables that don't already
+        exist
     args, kwargs
         Arguments and keyword arguments passed to :func:`parse_env_str`
 
     Returns
     -------
-    env_substituted
-        The number of environment variables substituted
+    env
+        A dict with all of the loaded env variable name-value pairs in a dict
     """
     # Try loading the file
     filepath = Path(filepath)
@@ -198,16 +199,16 @@ def load_env(
     env_vars = parse_env(string=string, *args, **kwargs)
 
     # Load the environment variables
-    count = 0
+    updated_env_vars = dict()
     for name, value in env_vars.items():
-        # Do nothing if the variable already exists, and overwrite isn't specified
+        # Do nothing if the variable already exists, and overwrite isn't
+        # specified
         if name in os.environ and not overwrite:
             continue
 
         os.environ[name] = value
-        count += 1
+        updated_env_vars[name] = value
 
         logger.debug(f"Substituted environment variable {name}={value}")
-    logger.debug(f"Substituted {count} environment variables from {filepath}")
 
-    return count
+    return updated_env_vars

@@ -38,8 +38,13 @@ def env_options(func=None):
     return wrap if func is None else wrap(func)
 
 
-def handle_env(env, overwrite) -> int:
-    """Handle the environment files (-e) options"""
+def handle_env(env, overwrite) -> dict:
+    """Handle the environment files (-e) options.
+
+    Returns
+    -------
+    env the processed env
+    """
     logger.debug(f"env={env}, overwrite={overwrite}")
 
     # The '--overwrite' flag only makes sense if environment files (-e) are
@@ -57,7 +62,8 @@ def handle_env(env, overwrite) -> int:
 
     # Load the environment files and keep track of the number of variables
     # substituted
-    count = 0
+    env = dict()
     for filepath in existing_paths:
-        count += load_env(filepath, overwrite=overwrite)
-    return count
+        returned_dict = load_env(filepath, overwrite=overwrite)
+        env.update(returned_dict)
+    return env

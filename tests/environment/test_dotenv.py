@@ -119,18 +119,18 @@ def test_load_env(test_env_file):
             mp.delenv(name, raising=False)
 
         # Load the environment variables from 'test.env'
-        count = load_env(filepath=filepath, overwrite=False)
+        env_vars = load_env(filepath=filepath, overwrite=False)
 
         for name, value in variables.items():
             assert os.environ[name] == value
-        assert count == len(variables)
+        assert len(env_vars) == len(variables)
 
         # The environment variables are already loaded, so trying so again
         # will give a loaded count = 0 -- i.e. no variables loaded
-        count = load_env(filepath=filepath, overwrite=False)
-        assert count == 0
+        env_vars = load_env(filepath=filepath, overwrite=False)
+        assert len(env_vars) == 0
 
         # Unless we put the overwrite flag, in which case the 5 variables will
         # be overwritten
-        count = load_env(filepath=filepath, overwrite=True)
-        assert count == len(variables)
+        env_vars = load_env(filepath=filepath, overwrite=True)
+        assert len(env_vars) == len(variables)
