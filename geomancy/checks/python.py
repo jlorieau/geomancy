@@ -23,7 +23,7 @@ class CheckPythonPackage(CheckVersion):
     use_pip_freeze: bool = True
 
     # The regex to use for parsing python package names
-    pip_pkg_str = r"^(?P<name>{pkg_name})==(?P<ver>[\d\w.]+)$"
+    pip_pkg_str = r"^(?P<name>{pkg_name})\s*==\s*(?P<ver>[\d\w.]+)$"
 
     # The results of pip freeze
     pip_freeze: t.Union[str, None]
@@ -73,7 +73,8 @@ class CheckPythonPackage(CheckVersion):
 
             logger.debug(f"Found '{pkg_name}' package version '{version}' with "
                          f"pip freeze.")
-            return version
+            if version is not None:
+                return version
 
         # Method 2 -- try importing and getting it from the __version__ string
         code = f"import {pkg_name}; print({pkg_name}.__version__)"
