@@ -78,27 +78,58 @@ def test_cli_config(run, flag):
 
 
 @pytest.mark.parametrize("flag", ("-e", "--env"))
-def test_cli_env(run, flag, test_env_file):
-    """Test the -e/--env and --overwrite flags for loading environment
-    variables.
+def test_cli_handle_env(run, flag, test_env_file):
+    """Test the handling of -e/--env and --overwrite flags for loading
+    environment variables.
 
     See ./conftest.py for details on the 'test_env_file' fixture
     """
+    # Set up the env files
+    filepath = test_env_file["filepath"]
+    variables = test_env_file["variables"]
+
     # running '--overwrite' without '-e/--env' gives an error
     result = run("--overwrite", expected_code=2)
 
     with pytest.MonkeyPatch.context() as mp:
-        filepath = test_env_file["filepath"]
-        variables = test_env_file["variables"]
-
         # Reset env variables
         for name in variables.keys():
             mp.delenv(name, raising=False)
+
+        # The variables are in the environment (os.environ)
+        for name, value in variables.items():
+            assert name not in os.environ
 
         # running "-e/--env" should load environment variables, which are logged
         # in debug mode
         options = ("-d", flag, filepath)
         result = run(options)
+
+        # The variables are loaded in the current process
+        for name, value in variables.items():
+            assert os.environ[name] == value
+
+
+def test_cli_run(run, capsys, test_env_file):
+    """Test the 'run' subcommand and loading environment variables.
+
+    See ./conftest.py for details on the 'test_env_file' fixture.
+    """
+    # Set up the env files
+    filepath = test_env_file["filepath"]
+    variables = test_env_file["variables"]
+
+    with pytest.MonkeyPatch.context() as mp:
+        # Reset env variables
+        for name in variables.keys():
+            mp.delenv(name, raising=False)
+
+        # The variables are in the environment (os.environ)
+        for name, value in variables.items():
+            assert name not in os.environ
+
+        # Run the command with the 'run' subcommand
+        result = run(("run", "-e", filepath, "echo", "here!"))
 
         # The variables are loaded in the current process
         for name, value in variables.items():
