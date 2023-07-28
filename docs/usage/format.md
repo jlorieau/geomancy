@@ -130,7 +130,8 @@ type = "file"
 
 ## Configuration
 
-Checks files may optionally include configuration settings for ``geomancy``.
+Checks files may optionally include configuration settings for geomancy. The
+[config](#configuration) lists the current default configuration.
 
 ::::{tab-set}
 :::{tab-item} geomancy.yaml
@@ -158,11 +159,6 @@ ENV_SUBSTITUTE_DEFAULT = true
 ```
 :::
 ::::
-
-:::{tip}
-All configuration options and their defaults can be listed in
-[TOML](https://toml.io/en/) format using the ``geo --config`` command.
-:::
 
 ## Checks
 
