@@ -2,14 +2,13 @@
 The 'check' subcommand
 """
 import typing as t
-from pathlib import Path
 import logging
 import tomllib
 
 import click
 import yaml
 
-from .environment import env_options, handle_env
+from .environment import env_options
 from .utils import filepaths
 from ..checks import CheckBase
 from ..config import Config
@@ -61,12 +60,9 @@ def validate_checks_files(
 @click.command
 @click.argument("checks_files", nargs=-1, type=str, callback=validate_checks_files)
 @env_options
-def check(checks_files, **kwargs):
+def check(checks_files, env):
     """Run checks"""
     logger.debug(f"check_files={checks_files}")
-
-    # Hand environment file options
-    env_count = handle_env(**kwargs)
 
     # Convert the checks_files into root checks
     checks = []
