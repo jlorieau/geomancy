@@ -26,7 +26,15 @@
 :hidden:
 
 quickstart
-usage/index
+```
+```{toctree}
+:hidden:
+:caption: Usage
+:maxdepth: 1
+
+usage/cmd_checks
+usage/cmd_run
+usage/format
 ```
 ```{toctree}
 :hidden:

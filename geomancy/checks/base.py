@@ -171,7 +171,7 @@ class CheckBase(ABC):
                 msg=msg,
                 level=level,
                 status=f" ({self.count} checks)",
-                color_status=term.RESET,
+                style_status={"reset": True},
             )
 
         # Run all children checks
@@ -188,17 +188,17 @@ class CheckBase(ABC):
             term.p_pass(
                 msg=msg,
                 level=level,
-                color_msg=term.BOLD,
                 status=f" ({self.count} checks)",
-                color_status=term.RESET,
+                style_status={"reset": True},
+                style_msg={"bold": True},
             )
         elif not passed and not self.is_collection:
             term.p_fail(
                 msg=msg,
                 level=level,
-                color_msg=term.BOLD,
                 status=f" ({self.count} checks)",
-                color_status=term.RESET,
+                style_status={"reset": True},
+                style_msg={"bold": True},
             )
 
         for result in results:
@@ -226,10 +226,11 @@ class CheckBase(ABC):
                 msg += f" in {total_time:.2f}s"
 
             # Determine the message color
-            color_msg = term.BOLD + term.GREEN if passed else term.BOLD + term.RED
+            style_msg = {"bold": True}
+            style_msg["fg"] = "green" if passed else "red"
 
             # Print the message
-            term.p_h1(msg, color_msg=color_msg)
+            term.p_h1(msg, style_msg=style_msg)
 
         return CheckResult(passed=passed, msg="", status="")
 

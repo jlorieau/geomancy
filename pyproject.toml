@@ -30,7 +30,7 @@ classifiers = [
     "Development Status :: 4 - Beta",
     ]
 dynamic = ["version", "description"]
-dependencies = ["pyyaml>=6.0"]
+dependencies = ["pyyaml>=6.0", "click>=8.1", "click-default-group"]
 
 [tool.setuptools]
 packages = ["geomancy"]
@@ -55,7 +55,7 @@ docs = [
 ]
 
 [project.scripts]
-geo = "geomancy.main:main_cli"
+geo = "geomancy.entrypoints:geo_cli"
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"

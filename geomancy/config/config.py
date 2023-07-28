@@ -5,6 +5,7 @@ from pathlib import Path
 from collections.abc import Mapping
 import re
 import tomllib
+import yaml
 import logging
 
 __all__ = ("ConfigException", "Config", "Parameter")
@@ -43,6 +44,9 @@ class Config(metaclass=ConfigMeta):
 
     # The regex to validate key names
     key_regex = re.compile(r"^[_A-Za-z][_A-Za-z0-9]*$")
+
+    # Different names for subsections in a dict which could contain config settings
+    section_aliases = ("config", "Config")
 
     def __new__(cls, root: bool = True):
         # Create the singleton instance if it hasn't been created
@@ -83,6 +87,12 @@ class Config(metaclass=ConfigMeta):
         """Set attributes in the Config"""
         Config.validate(key)
         super().__setattr__(key, value)
+
+    def __eq__(self, other):
+        """Test whether this Config is equal to another"""
+        if not type(self) == type(other):
+            return False
+        return self.__dict__ == other.__dict__
 
     def __len__(self):
         """The number of items in this Config"""
@@ -176,19 +186,7 @@ class Config(metaclass=ConfigMeta):
         return config
 
     @classmethod
-    def toml_loads(cls, s: str) -> "Config":
-        """Load config from a string formatted in TOML format.
-
-        Returns
-        -------
-        config
-            The root config instance with parameters loaded
-        """
-        d = tomllib.loads(s)
-        return cls.load(d)
-
-    @classmethod
-    def toml_load(cls, filename: Path) -> "Config":
+    def load_toml(cls, filename: Path) -> "Config":
         """Load config from a file formatted in TOML format.
 
         Returns
@@ -198,15 +196,35 @@ class Config(metaclass=ConfigMeta):
         """
         with open(filename, "rb") as f:
             d = tomllib.load(f)
+
+        # If the config dict is an item in 'd', get that instead
+        for alt_name in cls.section_aliases:
+            d = d[alt_name] if alt_name in d else d
         return cls.load(d)
 
-    def toml_dumps(self, name="config", level=0) -> str:
+    @classmethod
+    def loads_toml(cls, s: str) -> "Config":
+        """Load config from a string formatted in TOML format.
+
+        Returns
+        -------
+        config
+            The root config instance with parameters loaded
+        """
+        d = tomllib.loads(s)
+
+        # If the config dict is an item in 'd', get that instead
+        for alt_name in cls.section_aliases:
+            d = d[alt_name] if alt_name in d else d
+        return cls.load(d)
+
+    def dumps_toml(self, name: str = "config", level: int = 0) -> str:
         """Produce a string of the current config in TOML format.
 
         Parameters
         ----------
         name
-            Name of the current section. Sub-sections are identified with '.'
+            Name of the current section. Subsections are identified with '.'
             characters
         level
             Current level of the hierarchy
@@ -242,7 +260,91 @@ class Config(metaclass=ConfigMeta):
         ]
         for key, value in items:
             text += indent  # Add indentation
-            text += value.toml_dumps(name=".".join((name, key)), level=level + 1)
+            text += value.dumps_toml(name=".".join((name, key)), level=level + 1)
+
+        if level == 0:
+            text = text.rstrip("\n") + "\n"  # Remove multiple terminal newlines
+        return text
+
+    @classmethod
+    def load_yaml(cls, filename: Path) -> "Config":
+        """Load config from a file formatted in YAML format.
+
+        Returns
+        -------
+        config
+            The root config instance with parameters loaded
+        """
+        with open(filename, "r") as f:
+            d = yaml.load(f, yaml.SafeLoader)
+
+        # If the config dict is an item in 'd', get that instead
+        for alt_name in cls.section_aliases:
+            d = d[alt_name] if alt_name in d else d
+        return cls.load(d)
+
+    @classmethod
+    def loads_yaml(cls, s: str) -> "Config":
+        """Load config from a string formatted in YAML format.
+
+        Returns
+        -------
+        config
+            The root config instance with parameters loaded
+        """
+        d = yaml.load(s, yaml.SafeLoader)
+
+        # If the config dict is an item in 'd', get that instead
+        for alt_name in cls.section_aliases:
+            d = d[alt_name] if alt_name in d else d
+        return cls.load(d)
+
+    def dumps_yaml(
+        self, name: str = "config", indent_spaces: int = 2, level: int = 0
+    ) -> str:
+        """Produce a string of the current config in YAML format.
+
+        Parameters
+        ----------
+        name
+            Name of the current section.
+        indent_spaces
+            Number of spaces to indent subsections.
+        level
+            Current level of the hierarchy
+        """
+        indent = " " * indent_spaces * level  # indentation
+        text = f"{indent}{name}:\n"  # section heading
+
+        # Process general parameters before sections (sub configs)
+        items = [
+            (k, v)
+            for k, v in sorted(self.__dict__.items())
+            if not isinstance(v, Config)
+        ]
+        for key, value in items:
+            text += indent + " " * indent_spaces  # Add indentation
+
+            # Different simple parameter formats for TOML
+            if isinstance(value, str) and "'" not in value:
+                text += f"{key}: '{value}'\n"
+            elif isinstance(value, str):
+                text += f'{key}: "{value}"\n'
+            elif isinstance(value, bool):
+                text += f"{key}: {value}\n"
+            else:
+                text += f"{key}: {value}\n"
+
+        if len(items) > 0:
+            text += "\n"
+
+        # Next process sections (sub configs)
+        items = [
+            (k, v) for k, v in sorted(self.__dict__.items()) if isinstance(v, Config)
+        ]
+        for key, value in items:
+            text += indent  # Add indentation
+            text += value.dumps_yaml(name=key, level=level + 1)
 
         if level == 0:
             text = text.rstrip("\n") + "\n"  # Remove multiple terminal newlines
@@ -250,7 +352,11 @@ class Config(metaclass=ConfigMeta):
 
     def pprint_toml(self):
         """Pretty print in TOML format."""
-        print(self.toml_dumps())
+        print(self.dumps_toml())
+
+    def pprint_yaml(self):
+        """Pretty print in YAML format"""
+        print(self.dumps_yaml())
 
 
 # dummy placeholder object

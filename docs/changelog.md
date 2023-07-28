@@ -10,6 +10,27 @@ deprecations section.
 
 <!-- towncrier release notes start -->
 
+## [0.9.2](https://github.com/jlorieau/geomancy/tree/0.9.2) - 2023-07-28
+
+
+### Features
+
+- [#6](https://github.com/jlorieau/geomancy/issues/6). Implemented CLI glob patterns for checks file arguments and env files
+- [#18](https://github.com/jlorieau/geomancy/issues/18). Switched implementation of CLI in click
+- [#20](https://github.com/jlorieau/geomancy/issues/20). Implement Config load_yaml, loads_yaml, dumps_yaml methods
+- [#21](https://github.com/jlorieau/geomancy/issues/21). Implemented environment file loading using docker compose rules
+- [#22](https://github.com/jlorieau/geomancy/issues/22). Implemented 'run' subcommand for running commands within an environment
+- [#23](https://github.com/jlorieau/geomancy/issues/23). Implement ANSI color with click echo and style
+- [#24](https://github.com/jlorieau/geomancy/issues/24). Implemented a simpler @env_options usage for the CLI.
+
+
+### Improved Documentation
+
+- [#6](https://github.com/jlorieau/geomancy/issues/6). Added description on file globs to running documentation
+- [#21](https://github.com/jlorieau/geomancy/issues/21). Added documentation on environment file loading using docker compose rules
+- [#22](https://github.com/jlorieau/geomancy/issues/22). Added documentation on the 'run' subcommand for running commands within an environment
+
+
 ## [0.9.1](https://github.com/jlorieau/geomancy/tree/0.9.1) - 2023-07-26
 
 

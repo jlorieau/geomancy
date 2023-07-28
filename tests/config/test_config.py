@@ -197,11 +197,61 @@ def test_config_recursive_update(reset_config):
     assert config.section1.subsection1 == 1  # config remains
 
 
+@pytest.mark.parametrize(
+    "ext,save_file",
+    (
+        ("toml", False),
+        ("toml", True),
+        ("yaml", False),
+        ("yaml", True),
+    ),
+)
+def test_config_parsing_strings(reset_config, tmp_path, ext, save_file):
+    """Test Config load/dump string methods"""
+    # Setup a config
+    config = Config()
+    config.a = 1
+    config.b = "string"
+    config.c = True
+    config.d.a = "subsection1"
+    config.d.b = "subsection2"
+
+    # Create a string from the default config
+    dict_copy = dict(config.__dict__)
+    assert len(dict_copy) == 4  # 'a', 'b', 'c'  and 'd'
+
+    # Create a string from the config
+    meth = getattr(config, f"dumps_{ext}")
+    config_str = meth()
+    assert config_str.strip() != ""
+
+    # Optionally save the string to a file
+    if save_file:
+        filepath = (tmp_path / "test").with_stem("." + ext)
+        filepath.write_text(config_str)
+    else:
+        filepath = None
+
+    Config._instance = None  # reset singleton
+
+    # Try reloading the string
+    if save_file:
+        meth = getattr(Config, f"load_{ext}")
+        new_config = meth(filepath)
+    else:
+        meth = getattr(Config, f"loads_{ext}")
+        new_config = meth(config_str)
+
+    # Make sure the new dict matches the old
+    assert len(dict_copy) == 4 and len(new_config.__dict__) == 4
+    assert dict_copy == new_config.__dict__
+
+
 def test_config_toml_parsing(reset_config):
     """Test Config with the parsing of TOML strings and files"""
     # Load the toml file
     filename = Path(__file__).parent / "config1.toml"
-    config = Config.toml_load(filename)
+    config = Config.load_toml(filename)
 
     # Check the parsed config
     assert config.checkEnv.env_substitute
