@@ -36,8 +36,14 @@ def print_version(context, parameter, value):
     callback=print_version,
     help="Show the version and exit.",
 )
-def geo_cli(debug):
+@click.option("--disable-color", is_flag=True, help="Disable terminal coloring")
+@click.pass_context
+def geo_cli(ctx, debug, disable_color):
     """The main entrypoint for the 'geo' CLI"""
+    # Disable coloring, if specified
+    if disable_color:
+        ctx.color = False
+
     # Setup logging
     logging.basicConfig(
         level=logging.DEBUG if debug else None,
