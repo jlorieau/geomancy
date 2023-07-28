@@ -11,6 +11,17 @@ from geomancy.entrypoints import geo_cli
 from geomancy.config import Config
 
 
+def get_checks_files():
+    """Return a list of checks files to check"""
+    checks_files = []
+
+    # examples/
+    for ext in ("toml", "yaml"):
+        checks_files += list(Path("examples").glob(f"*.{ext}"))
+
+    return checks_files
+
+
 @pytest.fixture
 def run() -> t.Callable:
     """Run the CLI with the given option, check for the expected exit
@@ -42,10 +53,7 @@ def test_cli_help(run, options):
     assert "Show this message and exit" in result.output
 
 
-@pytest.mark.parametrize(
-    "options",
-    chain(*tuple(Path("examples").glob(f"*.{ext}") for ext in ("toml", "yaml"))),
-)
+@pytest.mark.parametrize("options", get_checks_files())
 def test_cli_check(run, options):
     """Test CLI with all the checks files individually in the examples directory"""
     result = run(str(options))
@@ -84,8 +92,11 @@ def test_cli_handle_env(run, flag, test_env_file):
 
     See ./conftest.py for details on the 'test_env_file' fixture
     """
+    # Get a single checks file to test against
+    checks_file = get_checks_files()[0]
+
     # Set up the env files
-    filepath = test_env_file["filepath"]
+    env_filepath = test_env_file["filepath"]
     variables = test_env_file["variables"]
 
     # running '--overwrite' without '-e/--env' gives an error
@@ -102,7 +113,7 @@ def test_cli_handle_env(run, flag, test_env_file):
 
         # running "-e/--env" should load environment variables, which are logged
         # in debug mode
-        options = ("-d", flag, filepath)
+        options = ("-d", flag, env_filepath, "checks", str(checks_file))
         result = run(options)
 
         # The variables are loaded in the current process
@@ -110,8 +121,8 @@ def test_cli_handle_env(run, flag, test_env_file):
             assert os.environ[name] == value
 
 
-def test_cli_run(run, capsys, test_env_file):
-    """Test the 'run' subcommand and loading environment variables.
+def test_cli_run(run, test_env_file):
+    """Test the 'run' subcommand and the handle_env function.
 
     See ./conftest.py for details on the 'test_env_file' fixture.
     """
