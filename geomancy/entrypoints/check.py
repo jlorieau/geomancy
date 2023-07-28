@@ -18,6 +18,13 @@ __all__ = ("check",)
 # Setup logger and configuration
 logger = logging.getLogger(__name__)
 
+
+# Exception classes
+class MissingChecks(click.ClickException):
+    """No checks were found in the checks files"""
+
+
+# Config options
 config = Config()
 config.CLI.CHECKS_PATHS = [  # Default paths for checks files
     "pyproject.toml",
@@ -50,6 +57,7 @@ def check(checks_files, **kwargs):
     # Nothing to do if no checks files were found
     if len(existing_files) == 0:
         raise click.MissingParameter(f"Could not find a checks file")
+    logging.debug(f"Checking the following files: {existing_files}")
 
     # Convert the checks_files into root checks
     checks = []
@@ -85,6 +93,12 @@ def check(checks_files, **kwargs):
     # Create a root check, if there are a lot of checks
     if len(checks) > 1:
         checks = [CheckBase(name=f"Checking {len(checks)} files", children=checks)]
+    elif len(checks) == 0:
+        plural = True if len(existing_files) > 1 else False
+        raise MissingChecks(
+            f"No checks were found in the file{'s' if plural else ''}: "
+            f"{', '.join(map(str, existing_files))}"
+        )
 
     # Run the checks
     return all(check.check() for check in checks)
