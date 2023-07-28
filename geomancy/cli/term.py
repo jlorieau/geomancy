@@ -6,6 +6,8 @@ import textwrap
 from types import MappingProxyType
 from abc import ABC, abstractmethod
 
+import click
+
 from ..config import Parameter, ConfigException
 
 __all__ = ("Term",)
@@ -260,27 +262,27 @@ class FullTerm(Term):
             term_width = self.width
         msg = "{:=^{length}s}".format(" " + msg.strip() + " ", length=term_width)
 
-        sys.stdout.write(f"{color_msg}{msg}{self.RESET}{end}")
+        click.echo(f"{color_msg}{msg}{self.RESET}{end}", nl=False)
 
     def p_h2(self, msg: str, **kwargs):
         fmt = self.format_kwargs
         kwargs.setdefault("color_msg", self.BOLD)
         kwargs.setdefault("check", "")
-        sys.stdout.write(self.fmt(msg, **kwargs))
+        click.echo(self.fmt(msg, **kwargs), nl=False)
 
     def p_pass(self, msg: str, **kwargs):
         fmt = self.format_kwargs
         kwargs.setdefault("color_check", self.GREEN)
         kwargs.setdefault("color_status", self.GREEN)
         kwargs.setdefault("check", "✔")
-        sys.stdout.write(self.fmt(msg, **kwargs))
+        click.echo(self.fmt(msg, **kwargs), nl=False)
 
     def p_fail(self, msg: str, **kwargs):
         fmt = self.format_kwargs
         kwargs.setdefault("color_check", self.RED)
         kwargs.setdefault("color_status", self.RED)
         kwargs.setdefault("check", "✖")
-        sys.stdout.write(self.fmt(msg, **kwargs))
+        click.echo(self.fmt(msg, **kwargs), nl=False)
 
     def p_warn(self, msg: str, **kwargs):
         """Print a message for a warning"""
@@ -288,4 +290,4 @@ class FullTerm(Term):
         kwargs.setdefault("color_check", self.YELLOW)
         kwargs.setdefault("color_status", self.YELLOW)
         kwargs.setdefault("check", "!")
-        sys.stdout.write(self.fmt(msg, **kwargs))
+        click.echo(self.fmt(msg, **kwargs), nl=False)
