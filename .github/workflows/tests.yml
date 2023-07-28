@@ -3,7 +3,7 @@ name: Run pytest on the python package
 on: [push]
 
 jobs:
-  build:
+  test:
 
     runs-on: ${{ matrix.os }}
     strategy:
