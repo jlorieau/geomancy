@@ -32,7 +32,8 @@ quickstart
 :caption: Usage
 :maxdepth: 1
 
-usage/running
+usage/cmd_checks
+usage/cmd_run
 usage/format
 ```
 ```{toctree}

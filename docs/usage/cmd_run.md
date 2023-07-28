@@ -1,111 +1,57 @@
-(running-checks)=
-# Running Checks
+(running-environments)=
+# Running Environments
 
-## Specifying which checks to run
+Geomancy can load environment files and run commands from within these
+environment.
 
-Geomancy can find checks from files in pre-defined locations, if file
-arguments aren't specified, or it can run checks from the files specified as
-arguments.
+The ``run`` subcommand will run commands in a separate process, and environment
+files are loaded with the ``-e``/``-env`` option for each environment.
 
-The format of the checks file is specified in the [next section](#file-format).
+```shell
+$ geo run -e [env_file] -- [cmd]
+```
+
+The following examples shows commands with arguments.
 
 ::::{tab-set}
-:::{tab-item} With arguments
-The following evaluates the checks listed in ``examples/geomancy.yaml``, if
-this file exists.
+:::{tab-item} Example
+The following runs echo and grep in an environment loaded with the ``.env``
+file.
 ```shell
-$ geo examples/geomancy.yaml
-=========================== examples/geomancy.yaml ============================
-    checks (12 checks)
-[✔]   Environment (2 checks)
-[✔]     Check environment variable '{PATH}'...passed
-[✔]     Check environment variable '{USER}'...passed
-      Paths (4 checks)
-[✔]     ChecksFile (3 checks)
-[✔]       Check path 'examples/geomancy.toml'...passed
-[✔]       Check path 'examples/pyproject.toml'...passed
-[!]       Check path '.missing__.txt'...missing
-[✔]   Executables (1 checks)
-[✔]     Check executable 'python3>=3.11'...passed
-[✔]   PythonPackages (1 checks)
-[✔]     Check python package 'geomancy>=0.8'...passed
-========================= PASSED. 13 checks in 0.01s ==========================
+$ geo run -e .env -- echo "My first test" | grep -e "test"
+My first test
 ```
 :::
-:::{tab-item} Without arguments
-When no arguments are specified, geo will search for checks in multiple locations.
+:::{tab-item} Example (abbreviated)
+The following is a command that does not produce option conflicts with geo--
+i.e. it does not use a `-e` flag, which could be captured by geo.
 ```shell
-$ geo
-================================ geomancy.yaml ================================
-    checks (12 checks)
-[✔]   Environment (2 checks)
-[✔]     Check environment variable '{PATH}'...passed
-[✔]     Check environment variable '{USER}'...passed
-      Paths (4 checks)
-[✔]     ChecksFile (3 checks)
-[✔]       Check path 'examples/geomancy.toml'...passed
-[✔]       Check path 'examples/pyproject.toml'...passed
-[!]       Check path '.missing__.txt'...missing
-[✔]   Executables (1 checks)
-[✔]     Check executable 'python3>=3.11'...passed
-[✔]   PythonPackages (1 checks)
-[✔]     Check python package 'geomancy>=0.8'...passed
-========================= PASSED. 13 checks in 0.01s ==========================
+$ geo run -e .env uname
+Darwin
 ```
 :::
 ::::
 
-If no checks files are listed as arguments, geo will search the following file
-locations in the current directory, and it wil run all the checks in existing
-files:
+:::{caution}
+Including environment variable references in commands will expand them before
+running the command within the environment. For example, if the ``.env`` file
+specified ``ENV=dev``, then ``$ENV`` variable would not be set in the following
+command.
 
-- ``.geomancy.yaml``
-- ``.geomancy.yml``
-- ``.geomancy.toml``
-- ``geomancy.yaml``
-- ``geomancy.yml``
-- ``geomancy.toml``
-- ``pyproject.toml``
-
-:::{tip}
-The check file arguments support globs and wildcards to run checks from
-multiple files at once. For example, the following will run checks in all
-files that have the ``geomancy`` filename: ``$ geo geomancy.*``
-:::
-
-## Configuring geomancy
-
-As described in the [next section](#file-format), configuration options are
-placed in the ``config`` section of checks files or the
-``[tool.geomancy.config]`` section of the ``pyproject.toml`` file.
-
-The default configuration options can be listed in
-[yaml](https://yaml.org) or [toml](https://toml.io/en/) formats.
-
-::::{tab-set}
-:::{tab-item} config-yaml
 ```shell
-$ geo --config-yaml
-config:
-  CHECKBASE:
-    ENV_SUBSTITUTE_DEFAULT: true
-    MAX_LEVEL: 10
-...
+$ geo run -e .env -- echo $ENV
+```
+
+Instead the value of ``ENV`` can be retrieve from the environment's ``env``
+command.
+
+```shell
+$ geo run -e .env -- env|grep ENV
+ENV=dev
 ```
 :::
-:::{tab-item} config-toml
-```shell
-$ geo --config-toml
-[config]
-VERSION='0.9.2'
 
-  [config.CHECKBASE]
-  ENV_SUBSTITUTE_DEFAULT=true
-  MAX_LEVEL=10...
-```
-:::
-::::
-
+(environment-files)=
 ## Environment Files
 
 Environment variables can be loaded from one or more environment files
