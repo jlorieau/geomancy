@@ -177,6 +177,11 @@ ENV_SUBSTITUTE_DEFAULT = true
 
 The following describes the various checks and their options.
 
+:::{versionchanged} 0.9.3
+Environment variables are now referenced by the name preceded by a ``$`` and
+optional braces. e.g. ``$USER`` or ``${USER}``
+:::
+
 ### checkEnv
 
 Check the existence and, optionally, the value of an environment variable.
