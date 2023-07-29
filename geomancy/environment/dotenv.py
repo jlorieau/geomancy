@@ -6,22 +6,9 @@ import codecs
 import logging
 from pathlib import Path
 
-__all__ = ("parse_env", "load_env")
+__all__ = ("sub_env", "parse_env", "load_env")
 
 logger = logging.getLogger(__name__)
-
-
-# Regex to match "name=value" pairs from an env file
-env_re = re.compile(
-    r"""
-    ^\s*(?P<name>[a-zA-Z_][a-zA-Z0-9_]*)  # Variable name
-    \s*=\s*  # operator to assign value
-    ((?P<quote>["|']{1,3})\s*(?P<qvalue>.+?)\s*(?P=quote)[^'"\n]*|  # quoted value
-     (?P<value>[^'"\n]+))  # non-quoted value
-    \s*$
-    """,
-    re.MULTILINE | re.VERBOSE | re.DOTALL,
-)
 
 # Regex to match environment variables for subsitution--e.g. ${NAME} or $NAME
 sub_re = re.compile(
@@ -41,6 +28,17 @@ sub_alt_re = re.compile(
     re.VERBOSE,
 )
 
+# Regex to match "name=value" pairs from an env file
+env_re = re.compile(
+    r"""
+    ^\s*(?P<name>[a-zA-Z_][a-zA-Z0-9_]*)  # Variable name
+    \s*=\s*  # operator to assign value
+    ((?P<quote>["|']{1,3})\s*(?P<qvalue>.+?)\s*(?P=quote)[^'"\n]*|  # quoted value
+     (?P<value>[^'"\n]+))  # non-quoted value
+    \s*$
+    """,
+    re.MULTILINE | re.VERBOSE | re.DOTALL,
+)
 
 # Regex to strip comments to the end of a line--# and not escaped values, \#
 comment_re = re.compile(r"(^|\s+)(#.+)$")
@@ -68,6 +66,22 @@ def sub_env(string: str, missing_default: str = "", **kwargs) -> str:
         Raised if an environment variable was not found and the :?/? error
         error is specified
         e.g. ${MISSING?not found!}
+
+    Returns
+    -------
+    substituted_str
+        The string with environment variables substituted
+
+    Notes
+    -----
+    This function follows the docker compose_ format.
+    - Environment variable names are preceded with a '$' character and may
+      include braces. e.g. ``$VAR_NAME`` or ``${VAR_NAME}``
+    - Environment variables names may include directives for default values
+      (``${MISSING-default}``), errors for missing values (``${missing?error``)
+      or replacement values (``${MISSING+replace}``)
+
+    .. _compose: https://docs.docker.com/compose/environment-variables/env-file/
     """
 
     # Substitute environment variables in values
@@ -89,7 +103,8 @@ def sub_env(string: str, missing_default: str = "", **kwargs) -> str:
         replace = alt_d["alt"] if alt_d and alt_d["replace"] else None
 
         if name in os.environ:
-            # found match in environment variables (replace will replace its value)
+            # found match in environment variables ('replace' will
+            # replace the returned value)
             return os.environ[name] if replace is None else replace
 
         elif name in kwargs and not replace:
@@ -109,7 +124,9 @@ def sub_env(string: str, missing_default: str = "", **kwargs) -> str:
 
 
 def parse_env(string: str, strip_values: bool = True) -> dict:
-    """Parse a string in env format into a dict
+    """Parse a string in env format into a dict.
+
+    See :func:`sub_env` for details on substitution.
 
     Parameters
     ----------
