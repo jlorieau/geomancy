@@ -475,7 +475,7 @@ substitution=false
 ```
 :::
 :::{tab-item} Literal string (toml)
-Use triple (4) single quotes
+Use quadruple (4) single quotes
 ```yaml
 [MyOddFilename]
 checkpath=''''myfile$.txt''''
