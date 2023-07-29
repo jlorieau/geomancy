@@ -15,12 +15,12 @@ desc = "Check environment variables common to all development environments"
     [checks.Environment.Username]
     subchecks = "any"
 
-        [checks.Environment.UnixUsername]  # linux and macOS
+        [checks.Environment.Username.UnixUsername]  # linux and macOS
         desc = "The current username"
         checkEnv = "$USER"
         regex = "[a-z_][a-z0-9_-]*[$]?"
 
-        [checks.Environment.WindowsUsername]  # windows
+        [checks.Environment.Username.WindowsUsername]  # windows
         desc = "The current username"
         checkEnv = "$USERNAME"
         regex = "[a-z_][a-z0-9_-]*[$]?"
