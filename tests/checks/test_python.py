@@ -1,6 +1,4 @@
 """Test the CheckPythonPackage check"""
-import pytest
-
 from geomancy.checks.python import CheckPythonPackage
 
 try:
