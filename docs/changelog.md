@@ -10,6 +10,20 @@ deprecations section.
 
 <!-- towncrier release notes start -->
 
+## [0.9.3](https://github.com/jlorieau/geomancy/tree/0.9.3) - 2023-07-29
+
+
+### Features
+
+- [#25](https://github.com/jlorieau/geomancy/issues/25). Implement github action to test pushes and pull requests
+- [#26](https://github.com/jlorieau/geomancy/issues/26). Implemented environment.sub_env function for check values, allowing a more powerful environment variable substitution mechanism described in the docs for environment files
+
+
+### Improved Documentation
+
+- [#26](https://github.com/jlorieau/geomancy/issues/26). Updated documentation for new environment variable substitution mechanism for check values
+
+
 ## [0.9.2](https://github.com/jlorieau/geomancy/tree/0.9.2) - 2023-07-28
 
 
