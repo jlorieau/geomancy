@@ -3,10 +3,48 @@ Test the environment variable check class
 """
 from geomancy.checks import CheckBase
 
+import pytest
+
 
 # A dummy CheckBase subclass for tests
 class CheckDummy(CheckBase):
     aliases = ("checkDummy",)
+
+
+def test_check_base_env_substitution():
+    """Check the environment substitution of the value property"""
+    with pytest.MonkeyPatch.context() as mp:
+        # Set some present and missing environment variables
+        mp.setenv("VARIABLE", "my value")
+        mp.delenv("MISSING", raising=False)
+
+        # Present environment variable without braces
+        assert CheckBase(name="sub_env", value="$VARIABLE").raw_value == "$VARIABLE"
+        assert CheckBase(name="sub_env", value="$VARIABLE").value == "my value"
+        assert (
+            CheckBase(name="sub_env", value="$VARIABLE", env_substitute=False).value
+            == "$VARIABLE"
+        )
+        assert (
+            CheckBase(name="sub_env", value="$VARIABLE", substitute=False).value
+            == "$VARIABLE"
+        )
+
+        # Present environment variable with braces
+        assert CheckBase(name="sub_env", value="${VARIABLE}").raw_value == "${VARIABLE}"
+        assert CheckBase(name="sub_env", value="${VARIABLE}").value == "my value"
+        assert (
+            CheckBase(name="sub_env", value="${VARIABLE}", substitute=False).value
+            == "${VARIABLE}"
+        )
+
+        # Missing environment variable without braces
+        assert CheckBase(name="sub_env", value="$MISSING").raw_value == "$MISSING"
+        assert CheckBase(name="sub_env", value="$MISSING").value == ""
+        assert (
+            CheckBase(name="sub_env", value="$MISSING", substitute=False).value
+            == "$MISSING"
+        )
 
 
 def test_check_base_flatten():

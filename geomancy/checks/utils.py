@@ -1,10 +1,9 @@
 """Utility functions"""
 import typing as t
-import os
 import operator
 import re
 
-__all__ = ("all_subclasses", "sub_env", "version_to_tuple", "name_and_version")
+__all__ = ("all_subclasses", "version_to_tuple", "name_and_version")
 
 __missing__ = object()  # used an argument for missing values
 
@@ -33,26 +32,6 @@ def all_subclasses(cls) -> t.List[t.Type]:
     return cls.__subclasses__() + [
         g for s in cls.__subclasses__() for g in all_subclasses(s)
     ]
-
-
-def sub_env(obj):
-    """Substitutes environment variables of the form {VARIABLE_NAME} in
-    strings.
-    """
-    if isinstance(obj, str):
-        try:
-            # Substitute environment variables
-            return obj.format(**os.environ)
-        except KeyError:
-            # Could find the environment variable; return None
-            return None
-    elif hasattr(obj, "__iter__"):
-        # Iterate over items to substitute environment variables
-        o_type = type(obj)
-        items = obj.items() if hasattr(obj, "items") else obj
-        return o_type(sub_env(i) for i in items)
-    else:
-        return obj
 
 
 def pop_first(d: dict, *keys, del_remaining: bool = True, default: t.Any = __missing__):

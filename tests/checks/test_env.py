@@ -12,7 +12,7 @@ def test_check_env_missing():
     """Test CheckEnv for a missing environment variable"""
     with MonkeyPatch.context() as mp:
         mp.delenv("MISSING", raising=False)
-        check = CheckEnv(name="missing", value="{MISSING}")
+        check = CheckEnv(name="missing", value="${MISSING}")
         assert not check.check().passed
 
 
@@ -21,7 +21,7 @@ def test_check_env_present():
     with MonkeyPatch.context() as mp:
         mp.setenv("PRESENT", "VALUE")
 
-        check = CheckEnv(name="PRESENT", value="{PRESENT}")
+        check = CheckEnv(name="PRESENT", value="${PRESENT}")
         assert check.name == "PRESENT"
         assert check.value == "VALUE"
         assert check.check().passed
@@ -39,11 +39,12 @@ def test_check_env_name_substitution(
 
         # Setup the check to use the variable name with environment variable
         # substitution--i.e. wrap it in curly braces
-        check = CheckEnv(name="substitution", value="{" + variable_name + "}")
+        check = CheckEnv(name="substitution", value=f"${variable_name}")
 
         # Check that the subsitution is correct
         assert check.name == "substitution"
-        assert check.raw_value == "{" + variable_name + "}"  # hidden var
+        assert check.raw_value == f"${variable_name}"  # unprocessed value
+        assert check.value == variable_value
 
         assert check.check().passed
 
@@ -59,15 +60,15 @@ def test_check_env_regex(
         mp.setenv(variable_name, variable_value)
 
         # The regex should match
-        check1 = CheckEnv(name="regex1", value="{" + variable_name + "}", regex=regex)
+        check1 = CheckEnv(name="regex1", value=f"${variable_name}", regex=regex)
         assert check1.check().passed
 
         # Change the variable value to something else in which the regex will
         # fail
-        mp.setenv(variable_name, "!" + variable_value + "!")
+        mp.setenv(variable_name, f"!{variable_value}!")
 
         # The regex should not match
-        check2 = CheckEnv(name="regex2", value="{" + variable_name + "}", regex=regex)
+        check2 = CheckEnv(name="regex2", value=f"${variable_name}", regex=regex)
         assert not check2.check().passed
 
 

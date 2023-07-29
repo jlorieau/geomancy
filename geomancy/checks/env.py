@@ -5,7 +5,7 @@ import typing as t
 import re
 
 from .base import CheckBase, CheckResult
-from .utils import sub_env
+from ..environment import sub_env
 from ..config import Parameter
 
 
