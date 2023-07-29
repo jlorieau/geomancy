@@ -31,7 +31,7 @@ under the ``[tool.geomancy]`` section.
 checks:
   Username:
     desc: The current username
-    checkEnv: "{USER}"
+    checkEnv: "$USER"
     regex: "[a-z_][a-z0-9_-]*[$]?"
 ```
 :::
@@ -39,7 +39,7 @@ checks:
 ```toml
 [checks.Username]
 desc = "The current username"
-checkEnv = "{USER}"
+checkEnv = "$USER"
 regex = "[a-z_][a-z0-9_-]*[$]?"
 ```
 :::
@@ -47,7 +47,7 @@ regex = "[a-z_][a-z0-9_-]*[$]?"
 ```toml
 [tool.geomancy.checks.Username]
 desc = "The current username"
-checkEnv = "{USER}"
+checkEnv = "$USER"
 regex = "[a-z_][a-z0-9_-]*[$]?"
 ```
 :::
@@ -203,7 +203,7 @@ checks:
   Environment:
     Username:
       desc: The current username
-      checkEnv: "{USER}"
+      checkEnv: "$USER"
       regex: "[a-z_][a-z0-9_-]*[$]?"
 ```
 :::
@@ -212,7 +212,7 @@ The ``checkEnv`` check in TOML format.
 ```toml
 [checks.Environment.Username]
 desc = "The current username"
-checkEnv = "{USER}"
+checkEnv = "$USER"
 regex = "[a-z_][a-z0-9_-]*[$]?"
 ```
 :::
@@ -434,6 +434,46 @@ subchecks = "any"
 
 Geomancy = { checkPath = "examples/geomancy.toml", type = "file" }
 Pyproject = { checkPath = "examples/pyproject.toml", type = "file" }
+```
+:::
+::::
+
+
+## Tips and Tricks
+
+### Unwanted environment substitution
+
+Environment variables are substituted by default in the values passed to
+checks. This can be avoided by setting ``substitute`` to False or by
+using a literal with single quotes.
+
+::::{tab-set}
+:::{tab-item} Substitute (yaml)
+```yaml
+MyOddFilename:
+  checkPath: myfile$.txt
+  substitution: False
+```
+:::
+:::{tab-item} Literal string (yaml)
+Use triple (3) single quotes
+```yaml
+MyOddFilename:
+  checkPath: '''myfile$.txt'''
+```
+:::
+:::{tab-item} Substitute (toml)
+```yaml
+[MyOddFilename]
+checkpath='myfile$.txt'
+substitution=false
+```
+:::
+:::{tab-item} Literal string (toml)
+Use triple (4) single quotes
+```yaml
+[MyOddFilename]
+checkpath=''''myfile$.txt''''
 ```
 :::
 ::::

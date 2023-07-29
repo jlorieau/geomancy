@@ -30,7 +30,7 @@ resources, or for checking environments that use the
 
         Username:
           desc: The current username
-          checkEnv: "{USER}"
+          checkEnv: "$USER"
           regex: "[a-z_][a-z0-9_-]*[$]?"
 
       Paths:
@@ -61,7 +61,7 @@ resources, or for checking environments that use the
     =============================== .geomancy.toml ================================
         checks (9 checks)
     [✔]   Environment (1 checks)
-    [✔]     Check environment variable '{USER}'...passed
+    [✔]     Check environment variable '$USER'...passed
     [✔]   Paths (2 checks)
     [✔]     Check path 'examples/geomancy.toml'...passed
     [✔]     Check path 'examples/pyproject.toml'...passed

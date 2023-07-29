@@ -18,8 +18,8 @@ $ geo examples/geomancy.yaml
 =========================== examples/geomancy.yaml ============================
     checks (12 checks)
 [✔]   Environment (2 checks)
-[✔]     Check environment variable '{PATH}'...passed
-[✔]     Check environment variable '{USER}'...passed
+[✔]     Check environment variable '$PATH'...passed
+[✔]     Check environment variable '$USER'...passed
       Paths (4 checks)
 [✔]     ChecksFile (3 checks)
 [✔]       Check path 'examples/geomancy.toml'...passed
@@ -39,8 +39,8 @@ $ geo
 ================================ geomancy.yaml ================================
     checks (12 checks)
 [✔]   Environment (2 checks)
-[✔]     Check environment variable '{PATH}'...passed
-[✔]     Check environment variable '{USER}'...passed
+[✔]     Check environment variable '$PATH'...passed
+[✔]     Check environment variable '$USER'...passed
       Paths (4 checks)
 [✔]     ChecksFile (3 checks)
 [✔]       Check path 'examples/geomancy.toml'...passed
@@ -210,6 +210,13 @@ environment file rules. Specifically,
     VAR=some\tvalue     # -> some\tvalue
     ```
 
+10. Environment file values are substituted according to the
+    [substitution](#environment-substitution) rules.
+    ```shell
+    MYVAR=MYVALUE
+    VAR1=$MYVAR      # VAR1=MYVALUE
+    ```
+
 (environment-substitution)=
 ### Substitution
 
@@ -225,9 +232,9 @@ for substituting environment variables in values.
    literals.
     ```shell
     MYVAR=MYVALUE
-    VAR1=$MYVAR      # -> MYVALUE
-    VAR2="${MYVAR}"  # -> MYVALUE
-    VAR3='${MYVAR}'  # -> ${MYVAR}
+    $MYVAR      # -> MYVALUE
+    "${MYVAR}"  # -> MYVALUE
+    '${MYVAR}'  # -> ${MYVAR}
     ```
 3. _Default value substitution_ will return the default value if the variable
    isn't set or is empty. Defaults can contain spaces in the braced version,
