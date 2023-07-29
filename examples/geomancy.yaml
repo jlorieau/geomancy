@@ -10,11 +10,19 @@ checks:
 
     Path:
       decs: Paths to search for executables
-      checkEnv: "$PATH"
+      checkEnv: $PATH
     Username:
-      desc: The current username
-      checkEnv: "$USER"
-      regex: "[a-z_][a-z0-9_-]*[$]?"
+      subchecks: any
+
+      UnixUsername:  # Username on linux and macOS
+        desc: The current username
+        checkEnv: $USER
+        regex: "[a-z_][a-z0-9_-]*[$]?"
+
+      WindowsUsername:  # Username on Windows
+        desc: The current username
+        checkEnv: $USERNAME
+        regex: "[a-z_][a-z0-9_-]*[$]?"
 
   Paths:
     desc: Checks the existence of needed files and directories
