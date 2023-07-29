@@ -1,6 +1,10 @@
 name: Run pytest on the python package
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+      - 'releases/**'
 
 jobs:
   test:
