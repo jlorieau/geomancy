@@ -27,9 +27,9 @@ class CheckBase(ABC):
     """Check base class and grouper
 
     .. versionchanged:: 0.9.3
-        Switch to :meth:`environment.sub_env` for value substitutions, which require
-        a '$' character  and allow different expansion rules like defaults, errors and
-        replacements.
+        Switch to :meth:`environment.sub_env` for value substitutions, which
+        require a '$' character  and allow different expansion rules like
+        defaults, errors and replacements.
     """
 
     # Unprocessed value for the check
