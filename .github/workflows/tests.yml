@@ -1,7 +1,6 @@
 name: Run pytest on the python package
 
-on:
-  pull_request:
+on: [push]
 
 jobs:
   test:
