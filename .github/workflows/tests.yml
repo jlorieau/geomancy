@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - 'releases/**'
+  pull_request:
+    branches:
+      - main
+      - 'releases/**'
 
 jobs:
   test:
