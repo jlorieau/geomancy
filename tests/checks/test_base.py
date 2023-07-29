@@ -18,33 +18,49 @@ def test_check_base_env_substitution():
         mp.setenv("VARIABLE", "my value")
         mp.delenv("MISSING", raising=False)
 
-        # Present environment variable without braces
+        # 1. Present environment variable without braces
         assert CheckBase(name="sub_env", value="$VARIABLE").raw_value == "$VARIABLE"
         assert CheckBase(name="sub_env", value="$VARIABLE").value == "my value"
+
+        # 2. Present environment variable with braces
+        assert CheckBase(name="sub_env", value="${VARIABLE}").raw_value == "${VARIABLE}"
+        assert CheckBase(name="sub_env", value="${VARIABLE}").value == "my value"
+
+        # 3. Missing environment variable with braces substitute to empty string
+        assert CheckBase(name="sub_env", value="${MISSING}").raw_value == "${MISSING}"
+        assert CheckBase(name="sub_env", value="${MISSING}").value == ""
+
+        # 4. Disable substitution
+        #   4.1. Use the env_substitute=False flag without brace
         assert (
             CheckBase(name="sub_env", value="$VARIABLE", env_substitute=False).value
             == "$VARIABLE"
         )
+
+        #   4.2. Use the substitute=False flag without brace
         assert (
             CheckBase(name="sub_env", value="$VARIABLE", substitute=False).value
             == "$VARIABLE"
         )
 
-        # Present environment variable with braces
-        assert CheckBase(name="sub_env", value="${VARIABLE}").raw_value == "${VARIABLE}"
-        assert CheckBase(name="sub_env", value="${VARIABLE}").value == "my value"
+        #   4.3. Use the substitute=False flag with brace
         assert (
             CheckBase(name="sub_env", value="${VARIABLE}", substitute=False).value
             == "${VARIABLE}"
         )
 
-        # Missing environment variable without braces
-        assert CheckBase(name="sub_env", value="$MISSING").raw_value == "$MISSING"
-        assert CheckBase(name="sub_env", value="$MISSING").value == ""
+        #   4.4. Use string literal with and without brace
+        assert CheckBase(name="sub_env", value="'$VARIABLE'").value == "$VARIABLE"
+        assert CheckBase(name="sub_env", value="'${VARIABLE}'").value == "${VARIABLE}"
+
+        #   4.5. Use the substitute=False flag without brace for missing variable
         assert (
             CheckBase(name="sub_env", value="$MISSING", substitute=False).value
             == "$MISSING"
         )
+
+        #   4.6. Use string literal for missing variable
+        assert CheckBase(name="sub_env", value="'$MISSING'").value == "$MISSING"
 
 
 def test_check_base_flatten():
