@@ -151,44 +151,25 @@ class FullTerm(Term):
         )
         level = kwargs.get("level", self.format_kwargs["level"])
 
-        # Substitute text without ANSI codes
-        text = f"{msg}{status}"
-
-        # Wrap string (without ANSI codes)
         # The first 4 characters are for the status checkbox--e.g. "[✔] "
         check_len = len(check) + 3 if len(check) > 0 else 4
 
         # subsequent indenting comes from the level
         if self.use_level:
             level = level + 1
-            initial_indent = " " * (2 * level - check_len)
-            subsequent_indent = " " * 2 * level
+            indent = " " * (2 * level - check_len)
         else:
-            initial_indent = ""
-            subsequent_indent = " " * check_len
+            indent = ""
 
-        # Wrap the text without ANSI codes
-        text_lines = textwrap.wrap(
-            text,
-            initial_indent=initial_indent,
-            subsequent_indent=subsequent_indent,
-            tabsize=4,
-        )
-        text = "\n".join(text_lines)
-
-        # Add the ANSI codes to the wrapped string
-        status_len = len(status)
-        text = (
-            f"{text[:-status_len]}{style(status, **style_status)}"
-            if status_len > 0
-            else text
-        )
-
-        # Add the colored start
+        # Add indent, colored start, color msg and colored status
         check_str = f"[{style(check, **style_check)}]" if check else "    "
-        text = f"{check_str}{style(text, **style_msg)}"
+        text = (
+            f"{check_str}"
+            f"{indent}"
+            f"{style(msg, **style_msg)}"
+            f"{style(status, **style_status)}"
+        )
 
-        # Color the status
         return text
 
     def p_h1(self, msg: str, nl: bool = True, **kwargs):

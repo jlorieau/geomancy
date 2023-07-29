@@ -59,8 +59,8 @@ def test_check_path_env_substitution(tmp_path):
     tmp_file.parent.mkdir()
     tmp_file.touch()
 
-    path = tmp_path / "{ENV}" / "exists.txt"
-    assert "{ENV}" in str(path)  # not substituted yet
+    path = tmp_path / "$ENV" / "exists.txt"
+    assert "$ENV" in str(path)  # not substituted yet
 
     with pytest.MonkeyPatch.context() as mp:
         # Make sure the ENV variable hasn't been created yet
@@ -68,11 +68,8 @@ def test_check_path_env_substitution(tmp_path):
 
         # The variable doesn't exist so the check should fail
         check = CheckPath(name="PathEnvVariable", value=path)
-        assert "{ENV}" in check.value  # Not substituted yet
         assert not check.check().passed
 
         # Set the ENV variable, and it should now work
         mp.setenv("ENV", ENV)
-        assert "{ENV}" not in check.value  # Substituted
-        assert ENV in check.value
         assert check.check().passed

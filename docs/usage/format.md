@@ -1,5 +1,18 @@
+---
+myst:
+  substitutions:
+    check_base_args: |
+      `desc`: str (Optional)
+      : The description for the check
+
+      `substitute`: bool (Optional)
+      : Whether to [substitute](#environment-substitution) environment variables in
+        check values<br>
+        __default__: True<br>
+        __aliases__: ``substitute``, ``env_substitute``
+---
 (file-format)=
-# File format for Checks
+# Checks Files
 
 The checks file is formatted in [yaml](https://yaml.org) or [toml](https://toml.io/en/),
 and it contains a listing of checks and, optionally, configuration options
@@ -18,7 +31,7 @@ under the ``[tool.geomancy]`` section.
 checks:
   Username:
     desc: The current username
-    checkEnv: "{USER}"
+    checkEnv: "$USER"
     regex: "[a-z_][a-z0-9_-]*[$]?"
 ```
 :::
@@ -26,7 +39,7 @@ checks:
 ```toml
 [checks.Username]
 desc = "The current username"
-checkEnv = "{USER}"
+checkEnv = "$USER"
 regex = "[a-z_][a-z0-9_-]*[$]?"
 ```
 :::
@@ -34,7 +47,7 @@ regex = "[a-z_][a-z0-9_-]*[$]?"
 ```toml
 [tool.geomancy.checks.Username]
 desc = "The current username"
-checkEnv = "{USER}"
+checkEnv = "$USER"
 regex = "[a-z_][a-z0-9_-]*[$]?"
 ```
 :::
@@ -164,16 +177,28 @@ ENV_SUBSTITUTE_DEFAULT = true
 
 The following describes the various checks and their options.
 
+:::{versionchanged} 0.9.3
+Environment variables are now referenced by the name preceded by a ``$`` and
+optional braces. e.g. ``$USER`` or ``${USER}``
+:::
+
 ### checkEnv
 
 Check the existence and, optionally, the value of an environment variable.
 
-:checkEnv: Environment variable to check, wrapped in curly braces for
-substitution. <br>
-__aliases__: ``checkEnv``, ``CheckEnv``
-:desc: _(Optional)_ The description for the check
-:regex: _(Optional)_ A regular expression to check against the environment
-variable value
+:::{card}
+Parameters
+^^^
+`checkEnv`: str
+: Environment variable to check, wrapped in curly braces for substitution. <br>
+  __aliases__: ``checkEnv``, ``CheckEnv``
+
+{{check_base_args}}
+
+`regex`: str (Optional)
+: A regular expression to check against the environment variable
+  value
+:::
 
 ::::{tab-set}
 :::{tab-item} Example 1 (yaml)
@@ -183,7 +208,7 @@ checks:
   Environment:
     Username:
       desc: The current username
-      checkEnv: "{USER}"
+      checkEnv: "$USER"
       regex: "[a-z_][a-z0-9_-]*[$]?"
 ```
 :::
@@ -192,7 +217,7 @@ The ``checkEnv`` check in TOML format.
 ```toml
 [checks.Environment.Username]
 desc = "The current username"
-checkEnv = "{USER}"
+checkEnv = "$USER"
 regex = "[a-z_][a-z0-9_-]*[$]?"
 ```
 :::
@@ -210,10 +235,16 @@ Username = { checkEnv = "{USER}", regex = "[a-z_][a-z0-9_-]*[$]?" }
 Check the existence and, optionally, the version of available executables or
 commands.
 
-:checkExec: Executable to check. Additionally, an optional version check
-can be added with a test operator. <br>
-__aliases__: ``checkExec``, ``CheckExec``
-:desc: _(Optional)_ The description for the check
+:::{card}
+Parameters
+^^^
+`checkExec`: str
+: Executable to check. Additionally, an optional version check can be added
+  with a test operator. <br>
+  __aliases__: ``checkExec``, ``CheckExec``
+
+{{check_base_args}}
+:::
 
 ::::{tab-set}
 :::{tab-item} Example 1 (yaml)
@@ -253,14 +284,21 @@ Python = { checkExec = "python3>=3.11" }
 
 ### checkPath
 
-Check the existence and, optionally, the type of a path.
+Check the existence and, optionally, the type of path.
 
-:checkPath: Path to check, which may include environment variables wrapped
-in curly braces for substitution. <br>
-__aliases__: ``checkPath``, ``CheckPath``
-:desc: _(Optional)_ The description for the check
-:type: _(Optional)_ Additionally check whether the path corresponds to a
-valid ``'file'`` or ``'dir'``.
+:::{card}
+Parameters
+^^^
+`checkPath`: str
+: Path to check, which may include environment variables for substitution. <br>
+  __aliases__: ``checkPath``, ``CheckPath``
+
+{{check_base_args}}
+
+`type`: str (Optional)
+: Additionally check whether the path corresponds to a valid ``'file'`` or
+  ``'dir'``.
+:::
 
 ::::{tab-set}
 :::{tab-item} Example 1 (yaml)
@@ -296,11 +334,17 @@ Pyproject = { checkPath = "./pyproject.toml", type = "file" }
 Checks whether the python package is installed and, optionally, check its
 version.
 
-:checkPythonPkg: Python package to check. Additionally, an optional version
-check can be added with a test operator. <br>
-__aliases__: ``checkPythonPkg``, ``CheckPythonPkg``,
-``checkPythonPackage``, ``CheckPythonPackage``
-:desc: _(Optional)_ The description for the check
+:::{card}
+Parameters
+^^^
+`checkPythonPkg`: str
+: Python package to check. Additionally, an optional version check can be added
+  with a test operator. <br>
+  __aliases__: ``checkPythonPkg``, ``CheckPythonPkg``, ``checkPythonPackage``,
+  ``CheckPythonPackage``
+
+{{check_base_args}}
+:::
 
 ::::{tab-set}
 :::{tab-item} Example 1 (yaml)
@@ -334,11 +378,19 @@ geomancy = { checkPythonPkg = "geomancy>=0.1" }
 
 Check groups are sections which contain one or more child checks.
 
-:desc: _(Optional)_ The description for the check section
-:subchecks: _(Optional)_ Either ``'all'`` to require that all sub-checks
-pass or ``'any'`` to require that only one sub-check passes.<br>
-Default: ``'all'``<br>
-__aliases__: ``condition``
+:::{card}
+Parameters
+^^^
+`desc`: str (Optional)
+: The description for the check group
+
+`subchecks`: str (Optional)
+: The pass condition for the sub-checks of the group. Can be either ``'all'``
+  to require that all sub-checks pass or ``'any'`` to require that only one
+  sub-check passes.<br>
+  __default__: ``'all'``<br>
+  __aliases__: ``condition``
+:::
 
 ::::{tab-set}
 :::{tab-item} Example 1 (yaml)
@@ -347,6 +399,7 @@ The following is a check group ``ChecksFile`` with 2 checks, ``Geomancy`` and
 ```yaml
 checksFiles:
   desc: Checks that at least one checks file exists
+  subchecks: any
 
   Geomancy:
     desc: Check for the 'geomancy.toml' file
@@ -386,6 +439,46 @@ subchecks = "any"
 
 Geomancy = { checkPath = "examples/geomancy.toml", type = "file" }
 Pyproject = { checkPath = "examples/pyproject.toml", type = "file" }
+```
+:::
+::::
+
+
+## Tips and Tricks
+
+### Unwanted environment substitution
+
+Environment variables are substituted by default in the values passed to
+checks. This can be avoided by setting ``substitute`` to False or by
+using a literal with single quotes.
+
+::::{tab-set}
+:::{tab-item} Substitute (yaml)
+```yaml
+MyOddFilename:
+  checkPath: myfile$.txt
+  substitution: False
+```
+:::
+:::{tab-item} Literal string (yaml)
+Use triple (3) single quotes
+```yaml
+MyOddFilename:
+  checkPath: '''myfile$.txt'''
+```
+:::
+:::{tab-item} Substitute (toml)
+```yaml
+[MyOddFilename]
+checkpath='myfile$.txt'
+substitution=false
+```
+:::
+:::{tab-item} Literal string (toml)
+Use triple (4) single quotes
+```yaml
+[MyOddFilename]
+checkpath=''''myfile$.txt''''
 ```
 :::
 ::::

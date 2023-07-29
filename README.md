@@ -30,7 +30,7 @@ resources, or for checking environments that use the
 
         Username:
           desc: The current username
-          checkEnv: "{USER}"
+          checkEnv: "$USER"
           regex: "[a-z_][a-z0-9_-]*[$]?"
 
       Paths:
@@ -61,7 +61,7 @@ resources, or for checking environments that use the
     =============================== .geomancy.toml ================================
         checks (9 checks)
     [✔]   Environment (1 checks)
-    [✔]     Check environment variable '{USER}'...passed
+    [✔]     Check environment variable '$USER'...passed
     [✔]   Paths (2 checks)
     [✔]     Check path 'examples/geomancy.toml'...passed
     [✔]     Check path 'examples/pyproject.toml'...passed
@@ -76,26 +76,33 @@ resources, or for checking environments that use the
 
 ## Features
 <!-- start features -->
-``geomancy`` can:
+Geomancy checks include:
 
-- __Environment variables__. Check environment variables are properly set and,
-  optionally, check that they have valid values
+- __Environment variables__ are properly set and, optionally,
+  check that they have valid values with regular expressions
   ([checkEnv](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkenv))
-- __Paths__. Check file and directory path existence
+- __Paths__ exist and whether they're files or directories
   ([checkPath](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkpath))
-- __Executables__. Check executables are available and, optionally, have the
-  minimum or correct versions
+- __Executables__ are available and, optionally, have the minimum or correct
+  versions
   ([checkExec](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkexec))
-- __Python Packages__. Check python packages are available and, optionally,
-  have the minimum or correct versions
+- __Python packages__ are available and, optionally, have the minimum or
+  correct versions
   ([checkPythonPkg](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkpythonpkg))
-- __Group Checks__. Nested group checks with conditional (all or any) pass
+- __Group checks__ to nested groups of checks with conditional (all or any) pass
   criteria ([groups of checks](https://geomancy.readthedocs.io/en/latest/usage/index.html#check-groups))
-- __Environment Substitution__. Substitute parameter values from environment
-  variables. ex: ``checkPath: {HOME}/.geomancy.toml``
-- __Multiple Formats__. Checks files can be in yaml (e.g. ``.geomancy.yaml``)
-  or in [toml](https://toml.io/en/) (e.g. ``.geomancy.toml`` or
-  ``pyproject.toml``)
+
+Additionally, geomancy can:
+
+- __Load environment files__ for
+  [checks](https://geomancy.readthedocs.io/en/latest/usage/cmd_checks.html#environment-files)
+  or for [running](https://geomancy.readthedocs.io/en/latest/usage/cmd_run.html#running-environments)
+  shell commands
+- __Substitute environment variables__ in check values e.g.:
+  ``checkPath: {HOME}/.geomancy.toml``
+- __Load checks in multiple formats__ including [yaml](https://yaml.org)
+  (e.g. ``.geomancy.yaml``) or in [toml](https://toml.io/en/)
+  (e.g. ``.geomancy.toml`` or ``pyproject.toml``)
 <!-- end features -->
 
 ## Documentation

@@ -6,28 +6,15 @@ import codecs
 import logging
 from pathlib import Path
 
-__all__ = ("parse_env", "load_env")
+__all__ = ("sub_env", "parse_env", "load_env")
 
 logger = logging.getLogger(__name__)
 
-
-# Regex to match "name=value" pairs from an env file
-env_re = re.compile(
-    r"""
-    ^\s*(?P<name>[a-zA-Z_][a-zA-Z0-9_]*)  # Variable name
-    \s*=\s*  # operator to assign value
-    ((?P<quote>["|']{1,3})\s*(?P<qvalue>.+?)\s*(?P=quote)[^'"\n]*|  # quoted value
-     (?P<value>[^'"\n]+))  # non-quoted value
-    \s*$
-    """,
-    re.MULTILINE | re.VERBOSE | re.DOTALL,
-)
-
 # Regex to match environment variables for subsitution--e.g. ${NAME} or $NAME
 sub_re = re.compile(
-    r"[$]"
-    r"((?P<name_nobrace>[a-zA-Z_][a-zA-Z0-9_:\-?+]*)|"
-    r" \{(?P<name_brace>[a-zA-Z_][a-zA-Z0-9_\s:\-?+]*)\})",
+    r"[$]"  # Start with a '$'. e.g. $NAME
+    r"((?P<name_nobrace>[a-zA-Z_][a-zA-Z0-9_:\-?+]*)|"  # e.g. $NAME
+    r" \{(?P<name_brace>[a-zA-Z_][a-zA-Z0-9_\s:\-?+]*)\})",  # e.g ${NAME}
     re.VERBOSE,
 )
 
@@ -41,6 +28,29 @@ sub_alt_re = re.compile(
     re.VERBOSE,
 )
 
+# Regex to match environment variable names
+env_name = r"(?P<name>[a-zA-Z_][a-zA-Z0-9_]*)"  # env variable name
+env_name_re = re.compile(env_name)
+
+# Regex to match environment variable values with substitution
+env_value = (
+    # Quoted value--e.g. "My $VAR" or 'My $VAR'--allowing for escaped quotes
+    r"""((?P<quote>["|']{1,3})(?P<qvalue>(?:\\.|[^"'\\])+)(?P=quote)[^'"\n]*|"""
+    # Unquoted value--e.g. My $VAR
+    r"""(?P<value>[^'"\n]+))"""
+)
+env_value_re = re.compile(
+    env_value,
+    re.MULTILINE | re.DOTALL,
+)
+
+# Regex to match "name=value" pairs from an env file
+env_name_value_re = re.compile(
+    r"^\s*{env_name}\s*=\s*{env_value}\s*$".format(
+        env_name=env_name, env_value=env_value
+    ),
+    re.MULTILINE | re.DOTALL,
+)
 
 # Regex to strip comments to the end of a line--# and not escaped values, \#
 comment_re = re.compile(r"(^|\s+)(#.+)$")
@@ -50,7 +60,9 @@ comment_re = re.compile(r"(^|\s+)(#.+)$")
 escaped_quote_re = re.compile(r"\\(['\"])")
 
 
-def sub_env(string: str, missing_default: str = "", **kwargs) -> str:
+def sub_env(
+    string: str, missing_default: str = "", strip_values: bool = True, **kwargs
+) -> str:
     """Try to substitute environment variables in the string.
 
     Parameters
@@ -59,6 +71,8 @@ def sub_env(string: str, missing_default: str = "", **kwargs) -> str:
         The string to substituted
     missing_default
         Missing environment variables will have this value placed instead
+    strip_values
+        Remove whitespace at the start and end of non-quoted values
     kwargs
         In addition to os.environ, search the given kwargs for matches.
 
@@ -68,6 +82,22 @@ def sub_env(string: str, missing_default: str = "", **kwargs) -> str:
         Raised if an environment variable was not found and the :?/? error
         error is specified
         e.g. ${MISSING?not found!}
+
+    Returns
+    -------
+    substituted_str
+        The string with environment variables substituted
+
+    Notes
+    -----
+    This function follows the docker compose_ format.
+    - Environment variable names are preceded with a '$' character and may
+      include braces. e.g. ``$VAR_NAME`` or ``${VAR_NAME}``
+    - Environment variables names may include directives for default values
+      (``${MISSING-default}``), errors for missing values (``${missing?error``)
+      or replacement values (``${MISSING+replace}``)
+
+    .. _compose: https://docs.docker.com/compose/environment-variables/env-file/
     """
 
     # Substitute environment variables in values
@@ -89,7 +119,8 @@ def sub_env(string: str, missing_default: str = "", **kwargs) -> str:
         replace = alt_d["alt"] if alt_d and alt_d["replace"] else None
 
         if name in os.environ:
-            # found match in environment variables (replace will replace its value)
+            # found match in environment variables ('replace' will
+            # replace the returned value)
             return os.environ[name] if replace is None else replace
 
         elif name in kwargs and not replace:
@@ -105,11 +136,53 @@ def sub_env(string: str, missing_default: str = "", **kwargs) -> str:
         else:
             return missing_default
 
-    return sub_re.sub(sub_func, string)
+    # Parse the string like an environment variable value, which may contain
+    # single quotes, double quotes or may be unquoted
+    match = env_value_re.match(string)
+    groupdict = match.groupdict() if match is not None else None
+    if groupdict is None:
+        return string
+
+    # Try to parse the value based on the type of quoting
+    if "value" in groupdict and groupdict["value"]:
+        # Strip comments for non-quoted strings
+        value = groupdict["value"]
+        value = comment_re.sub(r"\1", value)  # Remove comments
+
+        # Substitute values for non-quoted values
+        value = sub_re.sub(sub_func, value)
+
+        # Strip whitespace, if specified
+        return value.strip() if strip_values else value
+
+    elif "qvalue" in groupdict and groupdict["qvalue"]:
+        # Retrieve quoted value and quote type
+        value = groupdict["qvalue"]
+        quote = groupdict["quote"]
+
+        # Substitute escaped quotes
+        value = escaped_quote_re.sub(r"\1", value)
+
+        # Double-quote values may be substituted
+        if '"' in quote:  # double quoted
+            # process escape characters, e.g. \\t -> \t
+            value = codecs.decode(value, "unicode_escape")
+
+            # substitute values for double quoted values
+            return sub_re.sub(sub_func, value)
+
+        # Single-quoted values are used literally--i.e. without substitution
+        elif "'" in quote:
+            return value
+
+    else:
+        raise NotImplementedError
 
 
 def parse_env(string: str, strip_values: bool = True) -> dict:
-    """Parse a string in env format into a dict
+    """Parse a string in env format into a dict.
+
+    See :func:`sub_env` for details on substitution.
 
     Parameters
     ----------
@@ -127,41 +200,18 @@ def parse_env(string: str, strip_values: bool = True) -> dict:
 
     # Convert string into a dict
     env_vars = dict()
-    for match in env_re.finditer(string):
-        groupdict = match.groupdict()
-        name = groupdict["name"]
+    for match in env_name_value_re.finditer(string):
+        name = match.group(1)  # name (group 1)
 
-        if "value" in groupdict and groupdict["value"]:
-            # Strip comments for non-quoted strings
-            value = groupdict["value"].strip()
-            value = comment_re.sub(r"\1", value)
+        # env_value match. Keep full group, including quotes so that sub_env can parse
+        # the value
+        rest = match.group(2)
 
-            # Substitute values for non-quoted values
-            value = sub_env(value, **env_vars)
+        # Substitute environment variables in the value
+        value = sub_env(rest, strip_values=strip_values, **env_vars)
 
-            env_vars[name] = value.strip() if strip_values else value
-
-        elif "qvalue" in groupdict and groupdict["qvalue"]:
-            # Retrieve quoted value and quote type
-            value = groupdict["qvalue"]
-            quote = groupdict["quote"]
-
-            # Substitute escaped quotes
-            value = escaped_quote_re.sub(r"\1", value)
-
-            # Double-quote values may be substituted
-            # Single-quoted values are used literally--i.e. without substitution
-            if '"' in quote:  # double quoted
-                # process escape characters, e.g. \\t -> \t
-                value = codecs.decode(value, "unicode_escape")
-
-                # substitute environment variables
-                value = sub_env(value, **env_vars)
-
-            env_vars[name] = value
-
-        else:
-            raise NotImplementedError
+        # Add the new name-value pair in the env_vars
+        env_vars[name] = value
 
     return env_vars
 

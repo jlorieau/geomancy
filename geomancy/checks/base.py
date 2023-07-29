@@ -7,8 +7,9 @@ from inspect import isabstract
 from collections import namedtuple
 from time import process_time
 
-from .utils import sub_env, all_subclasses, pop_first
+from .utils import all_subclasses, pop_first
 from ..config import Parameter
+from ..environment import sub_env
 from ..cli import Term
 
 __all__ = ("CheckBase", "CheckException", "CheckResult")
@@ -23,7 +24,13 @@ CheckResult = namedtuple("CheckResult", "passed msg status", defaults=("", ""))
 
 
 class CheckBase(ABC):
-    """Check base class and grouper"""
+    """Check base class and grouper
+
+    .. versionchanged:: 0.9.3
+        Switch to :meth:`environment.sub_env` for value substitutions, which
+        require a '$' character  and allow different expansion rules like
+        defaults, errors and replacements.
+    """
 
     # Unprocessed value for the check
     raw_value: str
@@ -50,11 +57,13 @@ class CheckBase(ABC):
 
     # The condition for children results to be considered a pass
     condition: t.Callable = all
-    condition_aliases = ("condition", "subchecks")  # other names for variable
+    condition_aliases = ("subchecks", "condition")  # other names for variable
 
     # The default value for env_substitute
     env_substitute_default = Parameter("CHECKBASE.ENV_SUBSTITUTE_DEFAULT", default=True)
-    env_substitute_aliases = ("env_substitute",)  # other names for variable
+
+    # Alternative parameter names for env_substitute
+    env_substitute_aliases = ("substitute", "env_substitute")
 
     # The maximum recursion depth of the load function
     max_level = Parameter("CHECKBASE.MAX_LEVEL", default=10)
@@ -74,9 +83,8 @@ class CheckBase(ABC):
 
         # Parse kwargs, which may use different aliases
         condition = pop_first(kwargs, *self.condition_aliases, default=None)
-        self.env_substitute = (
-            pop_first(kwargs, *self.env_substitute_aliases, default=None)
-            or self.env_substitute_default
+        self.env_substitute = pop_first(
+            kwargs, *self.env_substitute_aliases, default=self.env_substitute_default
         )
 
         # Make sure the condition values are allowed
@@ -103,6 +111,19 @@ class CheckBase(ABC):
         return len(self.children)
 
     @property
+    def value(self) -> t.Any:
+        """Check's value with optional environment substitution"""
+        if self.env_substitute and self.raw_value is not None:
+            subbed = sub_env(self.raw_value)
+            return subbed if subbed is not None else self.raw_value
+        else:
+            return self.raw_value
+
+    @value.setter
+    def value(self, v):
+        self.raw_value = str(v) if v is not None else None
+
+    @property
     def count(self, all: bool = True) -> int:
         """The number of children
 
@@ -115,19 +136,6 @@ class CheckBase(ABC):
         # flatten() returns this check, so the count is subtracted by 1 to only
         # count sub-checks
         return len(self.flatten()) - 1 if all else len(self.children)
-
-    @property
-    def value(self) -> t.Any:
-        """Check's value with optional environment substitution"""
-        if self.env_substitute and self.raw_value is not None:
-            subbed = sub_env(self.raw_value)
-            return subbed if subbed is not None else self.raw_value
-        else:
-            return self.raw_value
-
-    @value.setter
-    def value(self, v):
-        self.raw_value = str(v) if v is not None else None
 
     @property
     def is_collection(self) -> bool:

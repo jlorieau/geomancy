@@ -3,7 +3,25 @@ import os
 
 import pytest
 
-from geomancy.environment import parse_env, load_env
+from geomancy.environment import sub_env, parse_env, load_env
+
+
+def test_sub_env():
+    """Test environment variable substitutions with sub_env"""
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setenv("VAR1", "variable1")
+        mp.setenv("VAR2", "variable2")
+        mp.delenv("MISSING", raising=False)
+
+        # Test with braces and with $
+        assert sub_env("${VAR1}") == "variable1"
+        assert sub_env("${VAR2}") == "variable2"
+        assert sub_env("${MISSING}") == ''
+
+        # Test without braces and with $
+        assert sub_env("$VAR1") == "variable1"
+        assert sub_env("$VAR2") == "variable2"
+        assert sub_env("$MISSING") == ''
 
 
 def test_parse_env_docker_rules():

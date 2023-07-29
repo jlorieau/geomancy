@@ -2,6 +2,7 @@
 The 'check' subcommand
 """
 import typing as t
+import sys
 import logging
 import tomllib
 
@@ -106,4 +107,8 @@ def check(checks_files, env):
         )
 
     # Run the checks
-    return all(check.check() for check in checks)
+    passed = all(check.check().passed for check in checks)
+    if not passed:
+        exit(1)
+
+    return passed

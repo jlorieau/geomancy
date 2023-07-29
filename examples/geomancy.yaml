@@ -10,10 +10,10 @@ checks:
 
     Path:
       decs: Paths to search for executables
-      checkEnv: "{PATH}"
+      checkEnv: "$PATH"
     Username:
       desc: The current username
-      checkEnv: "{USER}"
+      checkEnv: "$USER"
       regex: "[a-z_][a-z0-9_-]*[$]?"
 
   Paths:

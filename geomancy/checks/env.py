@@ -5,7 +5,7 @@ import typing as t
 import re
 
 from .base import CheckBase, CheckResult
-from .utils import sub_env
+from ..environment import sub_env
 from ..config import Parameter
 
 
@@ -42,7 +42,7 @@ class CheckEnv(CheckBase):
             status = "empty string"
         elif isinstance(self.regex, str) and re.match(self.regex, value) is None:
             # Check the regex, if specified
-            status = "value does not match regex " "'{regex}'".format(regex=self.regex)
+            status = f"does not match regex '{self.regex}'"
         else:
             # All checks passed!
             status = "passed"
