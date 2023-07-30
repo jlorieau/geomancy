@@ -264,6 +264,11 @@ class CheckBase(ABC):
             if isabstract(cls_type):
                 continue
 
+            # Make sure class name isn't alreay in the dict
+            assert (
+                cls_type.__name__ not in d
+            ), f"class {cls_type.__name__} already registered class"
+
             # Add the class name directly
             d[cls_type.__name__] = cls_type
 
@@ -273,6 +278,13 @@ class CheckBase(ABC):
                 # Aliases should not create name collisions
                 assert alias not in d, f"Duplicate alias name '{alias}'"
 
+                # Make sure the alias doesn't match a class that's already
+                # registered
+                assert (
+                    alias not in d
+                ), f"Alias {alias} already matches a registered class"
+
+                # Add alias
                 d[alias] = cls_type
         return d
 
