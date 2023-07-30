@@ -9,13 +9,13 @@ checks:  # Nested checks
 
     checkMacOS:
       desc: MacOS 10.9 or later (released 2013)
-      checkPlatform: "macOS >= 10.9"
+      checkOS: "macOS >= 10.9"
     checkLinuxOS:
       desc: Linux 4.0 or later (released 2015)
-      checkPlatform: "Linux >= 3.0"
+      checkOS: "Linux >= 3.0"
     checkWindows:
       desc: Windows 10 or later (released 2015)
-      checkPlatform: "Windows >= 10"
+      checkOS: "Windows >= 10"
 
   Environment:
     desc: Check environment variables common to all development environments

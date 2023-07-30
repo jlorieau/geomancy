@@ -24,7 +24,7 @@ class CheckPlatform(CheckVersion):
         default="Check platform '{check.raw_value}'...",
     )
 
-    aliases = ("checkPlatform",)
+    aliases = ("checkOS", "checkPlatform")
 
     def get_current_platform(self) -> str:
         """Retrieve the OS platform name"""
