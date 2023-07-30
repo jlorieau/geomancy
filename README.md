@@ -78,19 +78,21 @@ resources, or for checking environments that use the
 <!-- start features -->
 Geomancy checks include:
 
+- __Operating systems__ meet the minimum required versions
+  ([checkOS](https://geomancy.readthedocs.io/en/latest/usage/format.html#checkplatform))
 - __Environment variables__ are properly set and, optionally,
   check that they have valid values with regular expressions
-  ([checkEnv](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkenv))
+  ([checkEnv](https://geomancy.readthedocs.io/en/latest/usage/format.html#checkenv))
 - __Paths__ exist and whether they're files or directories
-  ([checkPath](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkpath))
+  ([checkPath](https://geomancy.readthedocs.io/en/latest/usage/format.html#checkpath))
 - __Executables__ are available and, optionally, have the minimum or correct
   versions
-  ([checkExec](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkexec))
+  ([checkExec](https://geomancy.readthedocs.io/en/latest/usage/format.html#checkexec))
 - __Python packages__ are available and, optionally, have the minimum or
   correct versions
-  ([checkPythonPkg](https://geomancy.readthedocs.io/en/latest/usage/index.html#checkpythonpkg))
+  ([checkPythonPkg](https://geomancy.readthedocs.io/en/latest/usage/format.html#checkpythonpkg))
 - __Group checks__ to nested groups of checks with conditional (all or any) pass
-  criteria ([groups of checks](https://geomancy.readthedocs.io/en/latest/usage/index.html#check-groups))
+  criteria ([groups of checks](https://geomancy.readthedocs.io/en/latest/usage/format.html#check-groups))
 
 Additionally, geomancy can:
 

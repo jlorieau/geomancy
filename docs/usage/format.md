@@ -329,6 +329,75 @@ Pyproject = { checkPath = "./pyproject.toml", type = "file" }
 :::
 ::::
 
+### checkPlatform
+
+Check the current platform and, optionally, its minimum version.
+
+:::{card}
+Parameters
+^^^
+`checkPlatform`: str
+: Operating system to check. Additionally, an optional version check can be added
+  with a test operator. <br>
+  __aliases__: ``checkOS``, ``checkPlatform``
+
+{{check_base_args}}
+:::
+
+::::{tab-set}
+:::{tab-item} Example 1 (yaml)
+The ``checkPlatform`` check in YAML format.
+```yaml
+check:
+  OperatingSystem:
+    desc: Check the minimum operating system versions
+    subchecks: any
+
+    checkMacOS:
+      desc: MacOS 10.9 or later (released 2013)
+      checkOS: "macOS >= 10.9"
+    checkLinuxOS:
+      desc: Linux 4.0 or later (released 2015)
+      checkOS: "Linux >= 3.0"
+    checkWindows:
+      desc: Windows 10 or later (released 2015)
+      checkOS: "Windows >= 10"
+```
+:::
+:::{tab-item} Example 2 (toml)
+The ``checkPlatfor`` check in TOML format.
+```toml
+[checks.OperatingSystem]
+desc = "Check the minimum operating system versions"
+subchecks = "any"
+
+    [checks.OperatingSystem.checkMacOS]
+    desc = "MacOS 10.9 or later (released 2013)"
+    checkOS = "macOS >= 10.9"
+
+    [checks.OperatingSystem.checkLinuxOS]
+    desc = "Linux 4.0 or later (released 2015)"
+    checkOS = "Linux >= 3.0"
+
+    [checks.OperatingSystem.checkWindows]
+    desc = "Windows 10 or later (released 2015)"
+    checkOS = "Windows >= 10"
+```
+:::
+:::{tab-item} Example 3 (toml)
+The ``checkPlatform`` check in abbreviated TOML format.
+```toml
+[checks.OperatingSystem]
+desc = "Check the minimum operating system versions"
+subchecks = "any"
+
+checkMacOS = {desc = "MacOS 10.9 or later (released 2013)", checkOS = "macOS >= 10.9"}
+checkLinuxOS = {desc = "Linux 4.0 or later (released 2015)", checkOS = "Linux >= 3.0"}
+checkWindows = {desc = "Windows 10 or later (released 2015)", checkOS = "Windows >= 10"}
+```
+:::
+::::
+
 ### checkPythonPkg
 
 Checks whether the python package is installed and, optionally, check its
