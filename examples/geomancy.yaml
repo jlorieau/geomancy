@@ -15,7 +15,7 @@ checks:  # Nested checks
       checkPlatform: "Linux >= 3.0"
     checkWindows:
       desc: Windows 10 or later (released 2015)
-      checkPlatform: "Windows >= 10.0"
+      checkPlatform: "Windows >= 10"
 
   Environment:
     desc: Check environment variables common to all development environments
