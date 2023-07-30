@@ -35,7 +35,8 @@ class CheckVersion(CheckBase):
 
     @abstractmethod
     def get_current_version(self) -> t.Union[None, t.Tuple[int]]:
-        """Get the current version, or None if it can't be found."""
+        """Get the current version as a tuple of integers, or None if it can't
+        be found."""
         return None
 
     def check(self, level: int = 0) -> CheckResult:
@@ -58,7 +59,7 @@ class CheckVersion(CheckBase):
                 and op is not None
                 and not op(current_version, version)
             ):
-                status = f"version={'.'.join(map(str, current_version))}"
+                status = f"incorrect version=" f"{'.'.join(map(str, current_version))}"
             else:
                 status = "passed"
                 passed = True

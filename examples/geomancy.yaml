@@ -1,20 +1,39 @@
-# Configuration options
-config:
+config:  # Configuration options
   CHECKBASE:
     env_substitute: True
 
-# Nested changes
-checks:
+checks:  # Nested checks
+  OperatingSystem:
+    desc: Check the minimum operating system versions
+    subchecks: any
+
+    checkMacOS:
+      desc: MacOS 10.9 or later (released 2013)
+      checkOS: "macOS >= 10.9"
+    checkLinuxOS:
+      desc: Linux 4.0 or later (released 2015)
+      checkOS: "Linux >= 3.0"
+    checkWindows:
+      desc: Windows 10 or later (released 2015)
+      checkOS: "Windows >= 10"
+
   Environment:
     desc: Check environment variables common to all development environments
 
     Path:
       decs: Paths to search for executables
-      checkEnv: "$PATH"
+      checkEnv: $PATH
     Username:
-      desc: The current username
-      checkEnv: "$USER"
-      regex: "[a-z_][a-z0-9_-]*[$]?"
+      subchecks: any
+
+      UnixUsername:  # Username on linux and macOS
+        desc: The current username
+        checkEnv: $USER
+        regex: "[a-z_][a-z0-9_-]*[$]?"
+      WindowsUsername:  # Username on Windows
+        desc: The current username
+        checkEnv: $USERNAME
+        regex: "[a-z_][a-z0-9_-]*[$]?"
 
   Paths:
     desc: Checks the existence of needed files and directories

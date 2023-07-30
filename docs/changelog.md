@@ -10,6 +10,19 @@ deprecations section.
 
 <!-- towncrier release notes start -->
 
+## [0.9.4](https://github.com/jlorieau/geomancy/tree/0.9.4) - 2023-07-29
+
+
+### Features
+
+- [#14](https://github.com/jlorieau/geomancy/issues/14). Added checkPlatform check for checking minimum OS versions
+
+
+### Improved Documentation
+
+- [#14](https://github.com/jlorieau/geomancy/issues/14). Added documentation for checkPlatform check
+
+
 ## [0.9.3](https://github.com/jlorieau/geomancy/tree/0.9.3) - 2023-07-29
 
 

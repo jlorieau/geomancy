@@ -13,9 +13,17 @@ desc = "Check environment variables common to all development environments"
     checkEnv = "$PATH"
 
     [checks.Environment.Username]
-    desc = "The current username"
-    checkEnv = "$USER"
-    regex = "[a-z_][a-z0-9_-]*[$]?"
+    subchecks = "any"
+
+        [checks.Environment.Username.UnixUsername]  # linux and macOS
+        desc = "The current username"
+        checkEnv = "$USER"
+        regex = "[a-z_][a-z0-9_-]*[$]?"
+
+        [checks.Environment.Username.WindowsUsername]  # windows
+        desc = "The current username"
+        checkEnv = "$USERNAME"
+        regex = "[a-z_][a-z0-9_-]*[$]?"
 
 [checks.Paths]
 desc = "Checks the existence of needed files and directories"
