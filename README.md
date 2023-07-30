@@ -21,7 +21,9 @@ resources, or for checking environments that use the
 
 ## Quickstart
 <!-- start quickstart -->
-1. Create a ``.geomancy.yaml`` file with checks.
+1. Create a ``.geomancy.yaml`` file with checks. See
+   [examples/geomancy.yaml](https://github.com/jlorieau/geomancy/blob/main/examples/geomancy.yaml)
+   for an example of all checks.
 
     ```yaml
     checks:
