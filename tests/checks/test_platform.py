@@ -12,3 +12,7 @@ def test_check_platform():
 
     # Windows 10 was released in 2015
     check_windows = CheckPlatform(name="checkWindows", value="Windows >= 10")
+
+    assert any(
+        check.check().passed for check in (check_macos, check_linux, check_windows)
+    )
