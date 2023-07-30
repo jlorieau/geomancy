@@ -9,8 +9,8 @@
 [![Documentation Status](https://readthedocs.org/projects/geomancy/badge/?version=latest)](https://geomancy.readthedocs.io/en/latest/?badge=latest)
 <!-- end badges -->
 <!-- start intro -->
-The ``geomancy`` tool makes it easy to check and validate environments, such
-as development, testing and production.
+Geomancy makes it easy to check and validate environments, such as development,
+testing and production.
 
 Environment checks and tests are helpful for testing the correct setting
 of environment variables, the installation and versions of installed
