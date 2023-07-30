@@ -1,8 +1,9 @@
 """
 Checks the platform (Operating System) and its version
 """
-import platform
 import typing as t
+import platform
+import logging
 
 from .base import CheckResult
 from .version import CheckVersion
@@ -10,6 +11,8 @@ from .utils import version_to_tuple
 from ..config import Parameter
 
 __all__ = ("CheckPlatform",)
+
+logger = logging.getLogger(__name__)
 
 
 class CheckPlatform(CheckVersion):
@@ -46,11 +49,16 @@ class CheckPlatform(CheckVersion):
         # This code follows 'platform.platform()' to some extent
         if current_platform == "macOS":
             release = platform.mac_ver()[0]
-            return version_to_tuple(release) if release else None
+            current_version = version_to_tuple(release) if release else None
         elif current_platform in ("Linux", "Windows"):
-            return version_to_tuple(uname.release) if uname.release else None
+            current_version = version_to_tuple(uname.release) if uname.release else None
         else:
-            raise NotImplementedError
+            current_version = None
+
+        logger.debug(
+            f"current_platform: {current_platform}, current_version: {current_version}"
+        )
+        return current_version
 
     def check(self, level: int = 0) -> CheckResult:
         """Check whether the OS matches and the version"""
