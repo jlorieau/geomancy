@@ -11,23 +11,14 @@ __all__ = ("CheckAWSS3",)
 logger = logging.getLogger(__name__)
 
 
-class CheckAWSS3(CheckBase):
-    """Check AWS the availability and permissions of S3 buckets"""
+class CheckAWSS3BucketAccess(CheckBase):
+    """Check AWS S3 buck availability"""
 
-    # Whether the S3 bucket should be private
-    private: bool = True
-
-    # Alternative parameter names for private
-    private_aliases = ("private",)
-
-    # The message for checking python packages
+    # The message for checking AWS S3 bucket access
     msg = Parameter(
-        "CHECKAWSS3.MSG",
-        default="Check AWS S3 bucket '{check.value}'...",
+        "CHECKAWSS3BUCKETACCESS.MSG",
+        default="Check AWS S3 bucket access '{check.value}'...",
     )
-
-    # Other names for this check
-    aliases = ("checkAWSS3", "checkAwsS3", "CheckAwsS3")
 
     # The ImportError message to display if aws modules cannot be loaded
     import_error_msg = (
@@ -37,23 +28,10 @@ class CheckAWSS3(CheckBase):
         f'`python -m pip install "geomancy[all]"`'
     )
 
-    def __init__(self, **kwargs):
-        self.private = pop_first(kwargs, *self.private_aliases, default=self.private)
-        super().__init__(**kwargs)
-
-    # def is_private(self):
-    #     """Determine if the bucket is private"""
-    #     # Get the needed modules
-    #     boto3, exceptions = self.get_modules("boto3", "botocore.exceptions")
-    #
-    #     # Get the bucket name from the check value
-    #     bucket_name = self.value.strip()
-
-    # NOTE: Move to its own subcheck of CheckAwsS3
-    def check_bucket(self, level: int = 0) -> CheckResult:
-        """Check that the bucket exists and is accessible"""
-
     def check(self, level: int = 0) -> CheckResult:
+        """Check the availability and access to S3 Bucket"""
+        msg = self.msg.format(check=self)
+
         # Get the needed modules
         boto3, exceptions = self.import_modules("boto3", "botocore.exceptions")
 
@@ -70,7 +48,7 @@ class CheckAWSS3(CheckBase):
         except exceptions.NoCredentialsError as e:
             # Unable to authenticate the client
             return CheckResult(
-                passed=False, msg=self.msg, status="Unable to locate credentials"
+                passed=False, msg=msg, status="Unable to locate credentials"
             )
 
         except exceptions.ClientError as e:
@@ -85,25 +63,21 @@ class CheckAWSS3(CheckBase):
 
             if error_msg in ("Not Found",) and error_code == "404":
                 # Couldn't find the bucket
-                return CheckResult(passed=False, msg=self.msg, status="not found")
+                return CheckResult(passed=False, msg=msg, status="not found")
             elif error_msg in ("Forbidden",) and error_code == "403":
                 # Do no have access to an existing bucket
-                return CheckResult(
-                    passed=False, msg=self.msg, status="access forbidden"
-                )
+                return CheckResult(passed=False, msg=msg, status="access forbidden")
             else:
-                return CheckResult(passed=False, msg=self.msg, status="unknown reason")
+                return CheckResult(passed=False, msg=msg, status="unknown reason")
 
         except exceptions.ParamValidationError as e:
             # The bucket name failed validation
             report = e.kwargs["report"] if "report" in e.kwargs else None
 
             if isinstance(report, str):
-                return CheckResult(passed=False, msg=self.msg, status=report)
+                return CheckResult(passed=False, msg=msg, status=report)
             else:
-                return CheckResult(
-                    passed=False, msg=self.msg, status="invalid bucket name"
-                )
+                return CheckResult(passed=False, msg=msg, status="invalid bucket name")
 
         # Parse the response
         metadata = (
@@ -117,7 +91,39 @@ class CheckAWSS3(CheckBase):
 
         if return_code == 200:
             # Successfully probed S3 bucket
-            return CheckResult(passed=True, msg=self.msg, status="passed")
+            return CheckResult(passed=True, msg=msg, status="passed")
         else:
             # It failed, and I don't know why
-            return CheckResult(passed=False, msg=self.msg, status="unknown reason")
+            return CheckResult(passed=False, msg=msg, status="unknown reason")
+
+
+class CheckAWSS3(CheckBase):
+    """Check AWS the availability and permissions of S3 buckets"""
+
+    # Whether to check that the bucket is private
+    private: bool = True
+
+    # Alternative parameter names for private
+    private_aliases = ("private",)
+
+    # The message for checking AWS Buckets
+    msg = Parameter(
+        "CHECKAWSS3.MSG",
+        default="Check AWS S3 bucket '{check.value}'...",
+    )
+
+    # Other names for this check
+    aliases = ("checkAWSS3", "checkAwsS3", "CheckAwsS3")
+
+    def __init__(self, **kwargs):
+        # Set up keyword arguments
+        self.private = pop_first(kwargs, *self.private_aliases, default=self.private)
+
+        # Set up the rest of the class
+        super().__init__(**kwargs)
+
+        # Replace children with bucket sub-checls
+        self.children.clear()
+        self.children += [
+            CheckAWSS3BucketAccess(name=f"{self.name}Access", value=self.value)
+        ]
