@@ -7,6 +7,7 @@ from abc import ABC
 from inspect import isabstract
 import importlib
 from collections import namedtuple
+from dataclasses import dataclass
 from time import process_time
 
 from .utils import all_subclasses, pop_first
@@ -22,7 +23,21 @@ class CheckException(Exception):
 
 
 # Storage class for the results of checks
-CheckResult = namedtuple("CheckResult", "passed msg status", defaults=("", ""))
+@dataclass(frozen=True, slots=True, weakref_slot=True)
+class CheckResult:
+    """The result of a check"""
+
+    # Whether the check passed
+    passed: bool
+
+    # The check result message use for displaying the check result
+    msg: str = ""
+
+    # The check result status--e.g. 'passed', 'failed', 'not found'
+    status: str = ""
+
+    # The flat list of CheckResults from children checks
+    _child_results: t.Union[None, t.List["CheckResult"]] = None
 
 
 class CheckBase(ABC):
@@ -408,4 +423,4 @@ class CheckBase(ABC):
             # Print the message
             term.p_h1(msg, style_msg=style_msg)
 
-        return CheckResult(passed=passed, msg="", status="")
+        return CheckResult(passed=passed, msg="", status="", _child_results=results)
