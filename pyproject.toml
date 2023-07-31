@@ -7,6 +7,16 @@ name = "geomancy"
 authors = [
     {name = "Justin Lorieau"},
 ]
+keywords = [
+   ".env",
+    "dotenv",
+    "env",
+    "env var",
+    "environment",
+    "environment variable",
+    "deployment",
+    "validation"
+]
 readme = "README.md"
 requires-python = ">=3.11"
 classifiers = [
@@ -20,7 +30,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Topic :: Software Development :: Bug Tracking",
     "Topic :: Software Development :: Debuggers",
-    "Topic :: Software Development :: Documentation",
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Testing",
     "Topic :: Software Development :: Testing :: Acceptance",
@@ -30,7 +39,11 @@ classifiers = [
     "Development Status :: 4 - Beta",
     ]
 dynamic = ["version", "description"]
-dependencies = ["pyyaml>=6.0", "click>=8.1", "click-default-group"]
+dependencies = [
+    "pyyaml>=6.0",  # Parsing YAML for checks (CheckBase) and Config
+    "click>=8.1",  # Tool to develop CLI
+    "click-default-group",  # All default click subcommands. e.g. geo -> geo check
+]
 
 [tool.setuptools]
 packages = ["geomancy"]
@@ -40,18 +53,27 @@ version = {attr = "geomancy.__version__"}
 description = {file = "geomancy/__description__.txt"}
 
 [project.optional-dependencies]
-dev = [
-    "pytest>=7.4",
-    "twine>=4.0",
-    "black[d]",
-    "build"
+
+all = [
+    "boto3>=1.28",  # AWS CDK for checking Amazon services
+]
+aws = [  # For AWS functionality
+    "boto3>=1.28",  # AWS CDK for checking Amazon services
+]
+dev = [  # For development
+    "pytest>=7.4",  # Testing framework
+    "twine>=4.0",  # Manage package uploads
+    "build",  # Manage package builds
+    "black[d]",  # Code formatter
+    "vcrpy<5.0",  # Mock http interactions (pytest-recording 0.12.2 doesn't with with vcrpy>=5)
+    "pytest-recording"  # Implementation of vcrpy in pytest
     ]
-docs = [
-    "sphinx",
-    "sphinx-book-theme",
-    "sphinx_design>=0.4",
-    "myst-parser>=2.0",
-    "towncrier",
+docs = [  # For building documentation
+    "sphinx",  # Document generator
+    "sphinx-book-theme",  # Document theme
+    "sphinx_design>=0.4",  # Extra document components
+    "myst-parser>=2.0",  # Support for markdown in documentation
+    "towncrier",  # changelog manager and producer
 ]
 
 [project.scripts]
