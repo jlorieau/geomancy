@@ -2,8 +2,10 @@
 Abstract base class for checks
 """
 import typing as t
+from types import ModuleType
 from abc import ABC
 from inspect import isabstract
+import importlib
 from collections import namedtuple
 from time import process_time
 
@@ -50,20 +52,21 @@ class CheckBase(ABC):
     # This check (and children) are enabled
     enabled: bool = True
 
-    # If True (default), environment variables in variable_name or
-    # variable_value are substituted with the values of other environment
-    # variables.
-    env_substitute: bool
-
     # The condition for children results to be considered a pass
     condition: t.Callable = all
     condition_aliases = ("subchecks", "condition")  # other names for variable
+
+    # Substitute environment variables in check values.
+    env_substitute: bool
 
     # The default value for env_substitute
     env_substitute_default = Parameter("CHECKBASE.ENV_SUBSTITUTE_DEFAULT", default=True)
 
     # Alternative parameter names for env_substitute
     env_substitute_aliases = ("substitute", "env_substitute")
+
+    # The import_module() exception message to use if a module is missing
+    import_error_msg = "Missing dependency '{exception}'"
 
     # The maximum recursion depth of the load function
     max_level = Parameter("CHECKBASE.MAX_LEVEL", default=10)
@@ -133,9 +136,9 @@ class CheckBase(ABC):
             If True, count all the immediate and nested level children.
             If False, only count the immediate level children.
         """
-        # flatten() returns this check, so the count is subtracted by 1 to only
+        # flatten returns this check, so the count is subtracted by 1 to only
         # count sub-checks
-        return len(self.flatten()) - 1 if all else len(self.children)
+        return len(self.flatten) - 1 if all else len(self.children)
 
     @property
     def is_collection(self) -> bool:
@@ -150,104 +153,13 @@ class CheckBase(ABC):
             child.__class__ in (CheckBase,) for child in self.children
         )
 
-    def check(self, level: int = 0) -> CheckResult:
-        """Performs the checks of this check and of children.
-
-        Parameters
-        ----------
-        level
-            The current depth level of the check
-
-        Returns
-        -------
-        result
-            The result of the check
-        """
-        term = Term.get()
-
-        # Print a heading and start timer
-        msg = self.msg.format(check=self)
-        start_time = None
-        if level == 0:
-            # Top level heading
-            term.p_h1(msg=msg, level=level)
-            start_time = process_time()
-        elif self.is_collection:
-            # Collection checks print right away since we don't need to wait to
-            # see the results of "check" for children
-            term.p_h2(
-                msg=msg,
-                level=level,
-                status=f" ({self.count} checks)",
-                style_status={"reset": True},
-            )
-
-        # Run all children checks
-        results = []
-        for child in self.children:
-            result = child.check(level=level + 1)
-            results.append(result)
-
-        # Determine if this check passed based on the condition
-        passed = self.condition(result.passed for result in results)
-
-        # Print this check's results
-        if passed and not self.is_collection:
-            term.p_pass(
-                msg=msg,
-                level=level,
-                status=f" ({self.count} checks)",
-                style_status={"reset": True},
-                style_msg={"bold": True},
-            )
-        elif not passed and not self.is_collection:
-            term.p_fail(
-                msg=msg,
-                level=level,
-                status=f" ({self.count} checks)",
-                style_status={"reset": True},
-                style_msg={"bold": True},
-            )
-
-        for result in results:
-            if result.msg == "":
-                # This result has already been handled and printed
-                continue
-            elif result.passed:
-                term.p_pass(msg=result.msg, status=result.status, level=level + 1)
-            elif passed:
-                # If the child check failed but this check passed, then it's a
-                # warning
-                term.p_warn(msg=result.msg, status=result.status, level=level + 1)
-            else:
-                # If the child check failed and this check failed, then it's a
-                # fail
-                term.p_fail(msg=result.msg, status=result.status, level=level + 1)
-
-        # Print terminal information if this is the root check
-        if level == 0:
-            msg = f"{'PASSED' if passed else 'FAILED'}. {self.count} checks"
-
-            # Add timing info, if available
-            if start_time is not None:
-                total_time = process_time() - start_time
-                msg += f" in {total_time:.2f}s"
-
-            # Determine the message color
-            style_msg = {"bold": True}
-            style_msg["fg"] = "green" if passed else "red"
-
-            # Print the message
-            term.p_h1(msg, style_msg=style_msg)
-
-        return CheckResult(passed=passed, msg="", status="")
-
+    @property
     def flatten(self) -> t.List["CheckBase"]:
         """Return a flattened list of this check (first item) and children
         checks"""
         flattened = [self]
         for child in self.children:
-            flattened += child.flatten()
+            flattened += child.flatten
         return flattened
 
     @classmethod
@@ -368,3 +280,132 @@ class CheckBase(ABC):
 
         # Create a check grouping, first, by parsing the other arguments
         return CheckBase(name=name, children=found_checks, **other_d)
+
+    @classmethod
+    def import_modules(
+        cls, *names: str
+    ) -> t.Union[ModuleType, t.Tuple[ModuleType, ...]]:
+        """Retrieve import modules give my the module name(s).
+
+        This method is useful for loading modules for checks that require
+        additional dependencies, which are not be installed--aws and the
+        boto3 dependency, for example.
+
+        Parameters
+        ----------
+        names
+            The names of modules to return
+
+        Returns
+        -------
+        modules
+            The loaded module(s)
+
+        Raises
+        ------
+        ImportError
+            Raised if the modules couldn't be found, which can happen because
+            the 'aws' extra dependency wasn't installed.
+        """
+        modules = []
+
+        try:
+            for name in names:
+                module = importlib.import_module(name)
+                modules.append(module)
+        except ImportError as ie:
+            msg = cls.import_error_msg.format(exception=ie)
+            raise ImportError(msg)
+        return modules[0] if len(modules) == 1 else tuple(modules)
+
+    def check(self, level: int = 0) -> CheckResult:
+        """Performs the checks of this check and of children.
+
+        Parameters
+        ----------
+        level
+            The current depth level of the check
+
+        Returns
+        -------
+        result
+            The result of the check
+        """
+        term = Term.get()
+
+        # Print a heading and start timer
+        msg = self.msg.format(check=self)
+        start_time = None
+        if level == 0:
+            # Top level heading
+            term.p_h1(msg=msg, level=level)
+            start_time = process_time()
+        elif self.is_collection:
+            # Collection checks print right away since we don't need to wait to
+            # see the results of "check" for children
+            term.p_h2(
+                msg=msg,
+                level=level,
+                status=f" ({self.count} checks)",
+                style_status={"reset": True},
+            )
+
+        # Run all children checks
+        results = []
+        for child in self.children:
+            result = child.check(level=level + 1)
+            results.append(result)
+
+        # Determine if this check passed based on the condition
+        passed = self.condition(result.passed for result in results)
+
+        # Print this check's results
+        if passed and not self.is_collection:
+            term.p_pass(
+                msg=msg,
+                level=level,
+                status=f" ({self.count} checks)",
+                style_status={"reset": True},
+                style_msg={"bold": True},
+            )
+        elif not passed and not self.is_collection:
+            term.p_fail(
+                msg=msg,
+                level=level,
+                status=f" ({self.count} checks)",
+                style_status={"reset": True},
+                style_msg={"bold": True},
+            )
+
+        for result in results:
+            if result.msg == "":
+                # This result has already been handled and printed
+                continue
+            elif result.passed:
+                term.p_pass(msg=result.msg, status=result.status, level=level + 1)
+            elif passed:
+                # If the child check failed but this check passed, then it's a
+                # warning
+                term.p_warn(msg=result.msg, status=result.status, level=level + 1)
+            else:
+                # If the child check failed and this check failed, then it's a
+                # fail
+                term.p_fail(msg=result.msg, status=result.status, level=level + 1)
+
+        # Print terminal information if this is the root check
+        if level == 0:
+            msg = f"{'PASSED' if passed else 'FAILED'}. {self.count} checks"
+
+            # Add timing info, if available
+            if start_time is not None:
+                total_time = process_time() - start_time
+                msg += f" in {total_time:.2f}s"
+
+            # Determine the message color
+            style_msg = dict(bold=True)
+            style_msg["fg"] = "green" if passed else "red"
+
+            # Print the message
+            term.p_h1(msg, style_msg=style_msg)
+
+        return CheckResult(passed=passed, msg="", status="")

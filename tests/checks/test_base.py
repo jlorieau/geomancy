@@ -1,9 +1,11 @@
 """
 Test the environment variable check class
 """
-from geomancy.checks import CheckBase
+import types
 
 import pytest
+
+from geomancy.checks import CheckBase
 
 
 # A dummy CheckBase subclass for tests
@@ -64,7 +66,7 @@ def test_check_base_env_substitution():
 
 
 def test_check_base_flatten():
-    """Test the CheckBase.flatten() method"""
+    """Test the CheckBase.flatten property"""
     # Create a CheckBase tree
     sub11 = CheckBase(name="sub11")
     sub12 = CheckBase(name="sub12")
@@ -73,7 +75,7 @@ def test_check_base_flatten():
     root = CheckBase(name="root", children=[sub1, sub2])
 
     # Check the flattened tree
-    flattened = root.flatten()
+    flattened = root.flatten
 
     assert len(flattened) == 5
     assert flattened[0] == root
@@ -126,7 +128,7 @@ def test_check_base_load_nested():
     assert check.name == "base check"
 
     # Validate the check tree
-    flattened = check.flatten()
+    flattened = check.flatten
     assert len(flattened) == 4
 
     # Validate class types
@@ -152,3 +154,15 @@ def test_check_base_load_nested():
     assert flattened[1].children == [flattened[2], flattened[3]]
     assert flattened[2].children == []
     assert flattened[3].children == []
+
+
+def test_check_base_import_modules():
+    """Test the CheckBase import_modules method"""
+    # Try a present module
+    other_types = CheckBase.import_modules("types")
+    assert isinstance(other_types, types.ModuleType)  # We got a module back
+    assert other_types == types
+
+    # Try a missing module
+    with pytest.raises(ImportError):
+        CheckBase.import_modules("nonexist-missing")
