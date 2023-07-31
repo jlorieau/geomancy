@@ -4,6 +4,21 @@ from pathlib import Path
 import pytest
 
 
+@pytest.fixture(scope="module")
+def vcr_config():
+    """A fixture to configure pytest-recording"""
+    return {
+        "filter_headers": [
+            "authorization",
+            "User-Agent",
+            "X-Amz-Date",
+            "X-Amz-Content-SHA256",
+            "amz-sdk-invocation-id",
+            "amz-sdk-request",
+        ]
+    }
+
+
 @pytest.fixture
 def test_env_file() -> dict:
     """Filename and expected values for the 'environment/test.env' file."""
