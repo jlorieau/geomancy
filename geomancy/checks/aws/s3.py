@@ -102,7 +102,7 @@ class CheckAWSS3BucketPrivate(CheckBase):
     # The message for checking AWS S3 bucket access
     msg = Parameter(
         "CHECKAWSS3BUCKETPRIVATE.MSG",
-        default="Check AWS S3 bucket with only private access '{check.value}'...",
+        default="Check AWS S3 bucket private '{check.value}'...",
     )
 
     # The ImportError message to display if aws modules cannot be loaded
@@ -202,12 +202,12 @@ class CheckAWSS3(CheckBase):
     # Other names for this check
     aliases = ("checkAWSS3", "checkAwsS3", "CheckAwsS3", "checkS3", "CheckS3")
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         # Set up keyword arguments
         self.private = pop_first(kwargs, *self.private_aliases, default=self.private)
 
         # Set up the rest of the class
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
         # Replace children with bucket sub-checls
         self.children.clear()
