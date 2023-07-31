@@ -62,13 +62,15 @@ class CheckPlatform(CheckVersion):
 
     def check(self, level: int = 0) -> CheckResult:
         """Check whether the OS matches and the version"""
+        msg = self.msg.format(check=self)
+
         # Get the OS name checked against
         name, op, version = self.value
         current_platform = self.get_current_platform()
 
         if current_platform.lower() != name.lower():
             # Failed check if the platform doesn't match this check
-            return CheckResult(passed=False, msg=self.msg, status="wrong platform")
+            return CheckResult(passed=False, msg=msg, status="wrong platform")
 
         # Check the version, as usual
         return super().check(level=level)
