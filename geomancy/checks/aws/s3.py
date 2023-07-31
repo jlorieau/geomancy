@@ -1,58 +1,17 @@
 """Checks for AWS resources"""
 import typing as t
-from types import ModuleType
 import logging
-import importlib
 
-from .base import CheckBase, CheckResult
-from .utils import pop_first
-from ..config import Parameter
+from ..base import CheckBase, CheckResult
+from ..utils import pop_first
+from ...config import Parameter
 
-__all__ = "CheckAwsS3"
+__all__ = ("CheckAWSS3",)
 
 logger = logging.getLogger(__name__)
 
 
-class CheckAWSBase(CheckBase):
-    """An abstract base class for setting up boto3 and AWS"""
-
-    @classmethod
-    def get_modules(cls, *module_names: str) -> t.Tuple[ModuleType, ...]:
-        """Retrieve (and cache) the boto3 and botocore modules.
-
-        Parameters
-        ----------
-        module_names
-            The names of modules to return
-
-        Returns
-        -------
-        modules
-            The loaded modules
-
-        Raises
-        ------
-        ImportError
-            Raised if the modules couldn't be found, which can happen because
-            the 'aws' extra dependency wasn't installed.
-        """
-        modules = []
-
-        try:
-            for module_name in module_names:
-                module = importlib.import_module(module_name)
-                modules.append(module)
-        except ImportError as ie:
-            raise ImportError(
-                f"The 'aws' dependency is not installed: {ie}. "
-                f"Please reinstall with the '[aws]' or '[all]' extra install "
-                f'`python -m pip install "geomancy[aws]"` or '
-                f'`python -m pip install "geomancy[all]"`'
-            )
-        return tuple(modules)
-
-
-class CheckAWSS3(CheckAWSBase):
+class CheckAWSS3(CheckBase):
     """Check AWS the availability and permissions of S3 buckets"""
 
     # Whether the S3 bucket should be private
@@ -67,7 +26,16 @@ class CheckAWSS3(CheckAWSBase):
         default="Check AWS S3 bucket '{check.value}'...",
     )
 
+    # Other names for this check
     aliases = ("checkAWSS3", "checkAwsS3", "CheckAwsS3")
+
+    # The ImportError message to display if aws modules cannot be loaded
+    import_error_msg = (
+        "The 'aws' dependency is not installed: {exception}. "
+        f"Please reinstall with the '[aws]' or '[all]' extra install "
+        f'`python -m pip install "geomancy[aws]"` or '
+        f'`python -m pip install "geomancy[all]"`'
+    )
 
     def __init__(self, **kwargs):
         self.private = pop_first(kwargs, *self.private_aliases, default=self.private)
@@ -87,7 +55,7 @@ class CheckAWSS3(CheckAWSBase):
 
     def check(self, level: int = 0) -> CheckResult:
         # Get the needed modules
-        boto3, exceptions = self.get_modules("boto3", "botocore.exceptions")
+        boto3, exceptions = self.import_modules("boto3", "botocore.exceptions")
 
         # Get the bucket name from the check value
         bucket_name = self.value.strip()
