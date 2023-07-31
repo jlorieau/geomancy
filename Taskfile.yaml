@@ -21,7 +21,7 @@ tasks:
   install:
     desc: Install the package in development (edit) mode
     cmds:
-      - python -m pip install -e ".[dev,docs]"
+      - python -m pip install -e ".[all,dev,docs]"
     sources:
       - pyproject.toml
 
