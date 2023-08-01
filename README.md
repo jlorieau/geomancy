@@ -37,16 +37,16 @@ resources, or for checking environments that use the
 
       Paths:
         desc: Checks the existence of needed files and directories
-        subchecks: any  # at least one of the files must be present
+        subchecks: "any" # at least one of the files must be present
 
-          Geomancy:
-            desc: Check for the 'geomancy.toml' file
-            checkPath: examples/geomancy.toml
-            type: file
-          Pyproject:
-            desc: Check for 'pyproject.toml' file
-            checkPath: examples/pyproject.toml
-            type: file
+        Geomancy:
+          desc: Check for the 'geomancy.toml' file
+          checkPath: examples/geomancy.toml
+          type: file
+        Pyproject:
+          desc: Check for 'pyproject.toml' file
+          checkPath: examples/pyproject.toml
+          type: file
 
       Executables:
         desc: Check the availability of commands and their versions
@@ -59,17 +59,14 @@ resources, or for checking environments that use the
 2. Use ``geo`` to run the checks.
 
     ```shell
-    $ geo
-    =============================== .geomancy.toml ================================
-        checks (9 checks)
-    [✔]   Environment (1 checks)
-    [✔]     Check environment variable '$USER'...passed
-    [✔]   Paths (2 checks)
-    [✔]     Check path 'examples/geomancy.toml'...passed
-    [✔]     Check path 'examples/pyproject.toml'...passed
-    [✔]   Executables (1 checks)
-    [✔]     Check executable 'python3>=3.11'...passed
-    ========================== PASSED.  8 checks in 0.01s =========================
+    $ geo check
+    [✔] .geomancy.yaml...passed
+    [✔]   checks...passed
+    [✔]     Environment...passed
+    [✔]       Check environment variable '$USER'......passed
+    [✔]     Paths...passed
+    [✔]       Check path 'examples/geomancy.toml'......passed
+    [✔]       Check path 'examples/pyproject.toml'......passed
     ```
 
     (By default, ``geomancy`` will search ``.geomancy.y[a]ml``, ``geomancy.y[a]ml``
