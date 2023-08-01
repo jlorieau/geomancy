@@ -74,7 +74,7 @@ def test_check_env_regex(
 
 def test_check_base_types_dict():
     """Test the CheckBase.types_dict() method for the CheckEnv class."""
-    types = CheckEnv.types_dict()
+    types = CheckEnv.types()
 
     # Verify CheckEnv entries and aliases
     assert types["CheckEnv"] == CheckEnv
