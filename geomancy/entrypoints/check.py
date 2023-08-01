@@ -2,16 +2,18 @@
 The 'check' subcommand
 """
 import typing as t
-import sys
 import logging
 import tomllib
+import time
+from concurrent.futures import ThreadPoolExecutor
 
 import click
+from rich.live import Live
 import yaml
 
 from .environment import env_options
 from .utils import filepaths
-from ..checks import CheckBase
+from ..checks import Check
 from ..config import Config
 
 __all__ = ("check",)
@@ -65,7 +67,7 @@ def check(checks_files, env):
     """Run checks"""
     logger.debug(f"check_files={checks_files}")
 
-    # Convert the checks_files into root checks
+    # Convert the checks_files into checks
     checks = []
     for checks_file in checks_files:
         # Parse the file by filetype
@@ -92,23 +94,34 @@ def check(checks_files, env):
                 config.update(config_section)
 
         # Load the rest into a root CheckBase
-        check = CheckBase.load(d, name=str(checks_file))
+        check = Check.load(d, name=str(checks_file))
         if check is not None:
             checks.append(check)
 
     # Create a root check, if there are a lot of checks
     if len(checks) > 1:
-        checks = [CheckBase(name=f"Checking {len(checks)} files", children=checks)]
-    elif len(checks) == 0:
+        check = Check(name=f"Checking {len(checks)} files", children=checks)
+    elif len(checks) == 1:
+        check = checks[0]
+    else:
         plural = True if len(checks_files) > 1 else False
         raise MissingChecks(
             f"No checks were found in the file{'s' if plural else ''}: "
             f"{', '.join(map(str, checks_files))}."
         )
 
-    # Run the checks
-    passed = all(check.check().passed for check in checks)
-    if not passed:
+    # Run the checks, display the results to the terminal
+    with ThreadPoolExecutor() as executor:
+        result = check.check(executor=executor)
+
+        with Live(result.rich_table(), refresh_per_second=4) as live:
+            while not result.done:
+                time.sleep(0.5)
+                live.update(result.rich_table())
+            # Print the final table
+            live.update(result.rich_table())
+
+    if not result.passed:
         exit(1)
 
-    return passed
+    return result.passed
