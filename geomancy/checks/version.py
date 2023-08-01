@@ -2,13 +2,13 @@
 import typing as t
 from abc import abstractmethod
 
-from .base import CheckBase, CheckResult
+from .base import Check, Result, Executor
 from .utils import name_and_version
 
 __all__ = ("CheckVersion",)
 
 
-class CheckVersion(CheckBase):
+class CheckVersion(Check):
     """An abstract Check for package and program versions"""
 
     # If true, the result of get_current_version must not be None
@@ -25,13 +25,13 @@ class CheckVersion(CheckBase):
         t.Union[str, None], t.Union[t.Callable, None], t.Union[t.Tuple[int], None]
     ]:
         """Get the package name, comparison operator and version tuple."""
-        value = CheckBase.value.fget(self)
+        value = Check.value.fget(self)
         name, op, version = name_and_version(value)
         return name, op, version
 
     @value.setter
     def value(self, v):
-        CheckBase.value.fset(self, v)
+        Check.value.fset(self, v)
 
     @abstractmethod
     def get_current_version(self) -> t.Union[None, t.Tuple[int]]:
@@ -39,12 +39,11 @@ class CheckVersion(CheckBase):
         be found."""
         return None
 
-    def check(self, level: int = 0) -> CheckResult:
+    def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         """Check whether the current version is compatible with the version
         specified in the value."""
         name, op, version = self.value
         current_version = self.get_current_version()
-        passed = False
 
         if name is None:
             status = "missing"
@@ -62,8 +61,5 @@ class CheckVersion(CheckBase):
                 status = f"incorrect version=" f"{'.'.join(map(str, current_version))}"
             else:
                 status = "passed"
-                passed = True
 
-        return CheckResult(
-            passed=passed, msg=self.msg.format(check=self), status=status
-        )
+        return Result(msg=self.msg.format(check=self), status=status)
