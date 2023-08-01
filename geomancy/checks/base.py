@@ -430,7 +430,7 @@ class Check:
             raise ImportError(msg)
         return modules[0] if len(modules) == 1 else tuple(modules)
 
-    def check(self, executor: Executor, level: int = 0) -> Result:
+    def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         """Performs this check and the children checks.
 
         Parameters
@@ -446,6 +446,10 @@ class Check:
         result
             The result of the check
         """
+        assert (
+            executor is not None
+        ), "An executor must be specified to run children checks"
+
         # check children
         child_results = []
         for child in self.children:
