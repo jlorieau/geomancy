@@ -80,6 +80,8 @@ resources, or for checking environments that use the
 <!-- start features -->
 Geomancy checks include:
 
+- __AWS__ resources exist and are securely setup
+  ([checkS3](https://geomancy.readthedocs.io/en/latest/usage/format.html#checkawss3))
 - __Operating systems__ meet the minimum required versions
   ([checkOS](https://geomancy.readthedocs.io/en/latest/usage/format.html#checkplatform))
 - __Environment variables__ are properly set and, optionally,
@@ -98,6 +100,7 @@ Geomancy checks include:
 
 Additionally, geomancy can:
 
+- __Check with multiple threads__ to speed up checks with concurrency
 - __Load environment files__ for
   [checks](https://geomancy.readthedocs.io/en/latest/usage/cmd_checks.html#environment-files)
   or for [running](https://geomancy.readthedocs.io/en/latest/usage/cmd_run.html#running-environments)
