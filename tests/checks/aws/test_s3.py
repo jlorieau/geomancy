@@ -19,7 +19,7 @@ def test_check_aws_s3_missing():
 
     # Validate the result of the first child check, CheckAWSS3BucketAccess,
     # which could not find the bucket
-    child_results = result._child_results
+    child_results = result.children
     assert not child_results[0].passed
     assert child_results[0].status == "not found"
 
@@ -37,7 +37,7 @@ def test_check_aws_s3_forbidden():
 
     # Validate the result of the first child check, CheckAWSS3BucketAccess,
     # which found that the bucket access is forbidden
-    child_results = result._child_results
+    child_results = result.children
     assert not child_results[0].passed
     assert child_results[0].status == "access forbidden"
 
@@ -54,7 +54,7 @@ def test_check_aws_s3_invalid():
 
     # Validate the result of the first child check, CheckAWSS3BucketAccess,
     # which found the bucket name to be invalid
-    child_results = result._child_results
+    child_results = result.children
     assert not child_results[0].passed
     assert child_results[0].status.startswith("Invalid bucket name")
 
@@ -76,7 +76,7 @@ def test_check_aws_s3_without_public_access_block():
 
     # Validate the result of the second child check, CheckAWSS3BucketAccess,
     # which found the bucket name to be invalid
-    child_results = result._child_results
+    child_results = result.children
     assert child_results[1].passed
 
 
@@ -96,7 +96,7 @@ def test_check_aws_s3_public_policy():
 
     # Validate the result of the second child check, CheckAWSS3BucketAccess,
     # which found the bucket name to be invalid
-    child_results = result._child_results
+    child_results = result.children
     assert not child_results[1].passed
     assert child_results[1].status.startswith("publicly accessible")
 
@@ -117,7 +117,7 @@ def test_check_aws_s3_public_acl():
 
     # Validate the result of the second child check, CheckAWSS3BucketAccess,
     # which found the bucket name to be invalid
-    child_results = result._child_results
+    child_results = result.children
     assert not child_results[1].passed
     assert child_results[1].status.startswith("publicly accessible")
 
@@ -134,6 +134,6 @@ def test_check_aws_s3_valid():
 
     # Validate the result of the first child check, CheckAWSS3BucketAccess,
     # which found an accessible bucket
-    child_results = result._child_results
+    child_results = result.children
     assert child_results[0].passed
     assert child_results[0].status.startswith("passed")

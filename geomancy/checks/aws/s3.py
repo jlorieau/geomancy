@@ -2,7 +2,7 @@
 import typing as t
 import logging
 
-from ..base import CheckBase, CheckResult
+from ..base import Check, Result, Executor
 from ..utils import pop_first
 from ...config import Parameter
 
@@ -19,7 +19,7 @@ import_error_msg = (
 )
 
 
-class CheckAWSS3BucketAccess(CheckBase):
+class CheckAWSS3BucketAccess(Check):
     """Check AWS S3 bucket availability"""
 
     # The message for checking AWS S3 bucket access
@@ -31,7 +31,7 @@ class CheckAWSS3BucketAccess(CheckBase):
     # The ImportError message to display if aws modules cannot be loaded
     import_error_msg = import_error_msg
 
-    def check(self, level: int = 0) -> CheckResult:
+    def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         """Check the availability and access to S3 Bucket"""
         msg = self.msg.format(check=self)
 
@@ -46,9 +46,7 @@ class CheckAWSS3BucketAccess(CheckBase):
 
         except exceptions.NoCredentialsError as e:
             # Unable to authenticate the client
-            return CheckResult(
-                passed=False, msg=msg, status="Unable to locate credentials"
-            )
+            return Result(msg=msg, status="Unable to locate credentials")
 
         except exceptions.ClientError as e:
             response = e.response
@@ -62,21 +60,21 @@ class CheckAWSS3BucketAccess(CheckBase):
 
             if error_msg in ("Not Found",) and error_code == "404":
                 # Couldn't find the bucket
-                return CheckResult(passed=False, msg=msg, status="not found")
+                return Result(msg=msg, status="not found")
             elif error_msg in ("Forbidden",) and error_code == "403":
                 # Do no have access to an existing bucket
-                return CheckResult(passed=False, msg=msg, status="access forbidden")
+                return Result(msg=msg, status="access forbidden")
             else:
-                return CheckResult(passed=False, msg=msg, status="unknown reason")
+                return Result(msg=msg, status="unknown reason")
 
         except exceptions.ParamValidationError as e:
             # The bucket name failed validation
             report = e.kwargs["report"] if "report" in e.kwargs else None
 
             if isinstance(report, str):
-                return CheckResult(passed=False, msg=msg, status=report)
+                return Result(msg=msg, status=report)
             else:
-                return CheckResult(passed=False, msg=msg, status="invalid bucket name")
+                return Result(msg=msg, status="invalid bucket name")
 
         # Parse the response
         metadata = (
@@ -90,13 +88,13 @@ class CheckAWSS3BucketAccess(CheckBase):
 
         if return_code == 200:
             # Successfully probed S3 bucket
-            return CheckResult(passed=True, msg=msg, status="passed")
+            return Result(msg=msg, status="passed")
         else:
             # It failed, and I don't know why
-            return CheckResult(passed=False, msg=msg, status="unknown reason")
+            return Result(msg=msg, status="unknown reason")
 
 
-class CheckAWSS3BucketPrivate(CheckBase):
+class CheckAWSS3BucketPrivate(Check):
     """Check AWS S3 buck availability"""
 
     # The message for checking AWS S3 bucket access
@@ -108,7 +106,7 @@ class CheckAWSS3BucketPrivate(CheckBase):
     # The ImportError message to display if aws modules cannot be loaded
     import_error_msg = import_error_msg
 
-    def check(self, level: int = 0) -> CheckResult:
+    def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         """Check the availability and access to S3 Bucket.
 
         See: https://stackoverflow.com/a/59002759/9099988
@@ -124,16 +122,14 @@ class CheckAWSS3BucketPrivate(CheckBase):
         try:
             response = s3.get_public_access_block(Bucket=bucket_name)
         except (exceptions.BotoCoreError, exceptions.ClientError):
-            return CheckResult(
-                passed=False, msg=msg, status="Couldn't access PublicAccessBlock"
-            )
+            return Result(msg=msg, status="Couldn't access PublicAccessBlock")
 
         section = response.get("PublicAccessBlockConfiguration", {})
         block_public_policy = section.get("BlockPublicPolicy")
         block_public_acls = section.get("BlockPublicAcls")
 
         if block_public_policy and block_public_acls:
-            return CheckResult(passed=True, msg=msg, status="passed")
+            return Result(msg=msg, status="passed")
 
         logger.debug(f"Bucket '{bucket_name}' does not block all public access")
 
@@ -168,14 +164,14 @@ class CheckAWSS3BucketPrivate(CheckBase):
         # If the policy is false and the acl doesn't have a grantee type of 'group',
         # then it should be private
         if not public_policy and not public_acl:
-            return CheckResult(passed=True, msg=msg, status="passed")
+            return Result(msg=msg, status="passed")
 
         # At this stage, all the checks for private have failed, and it appears
         # that the s3 bucket is publicly accessible
-        return CheckResult(passed=False, msg=msg, status="publicly accessible")
+        return Result(msg=msg, status="publicly accessible")
 
 
-class CheckAWSS3(CheckBase):
+class CheckAWSS3(Check):
     """Check AWS the availability and permissions of S3 buckets.
 
     Notes
@@ -222,3 +218,22 @@ class CheckAWSS3(CheckBase):
             self.children.append(
                 CheckAWSS3BucketPrivate(name=f"{self.name}Private", value=self.value)
             )
+
+    def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
+        """Run sub-checks in sequence, rather the Check base default.
+
+        This is done because the results of latter checks depend on earlier checks.
+        """
+        # check children
+        child_results = []
+        for child in self.children:
+            result = child.check(executor=executor, level=level + 1)
+            child_results.append(result)
+            if result.status != "passed":
+                break
+
+        return Result(
+            msg=f"[bold]{self.name}[/bold]",
+            children=child_results,
+            condition=self.condition,
+        )

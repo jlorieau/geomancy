@@ -4,4 +4,15 @@ from .path import CheckPath
 from .platform import CheckPlatform
 from .python import CheckPythonPackage
 
-__all__ = (Check, CheckException, Result)
+from .aws import CheckAWSS3
+
+__all__ = (
+    Check,
+    CheckException,
+    Result,
+    CheckEnv,
+    CheckPath,
+    CheckPlatform,
+    CheckPythonPackage,
+    CheckAWSS3,
+)
