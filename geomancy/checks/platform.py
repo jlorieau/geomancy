@@ -5,7 +5,7 @@ import typing as t
 import platform
 import logging
 
-from .base import CheckResult
+from .base import Result, Executor
 from .version import CheckVersion
 from .utils import version_to_tuple
 from ..config import Parameter
@@ -60,7 +60,7 @@ class CheckPlatform(CheckVersion):
         )
         return current_version
 
-    def check(self, level: int = 0) -> CheckResult:
+    def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         """Check whether the OS matches and the version"""
         msg = self.msg.format(check=self)
 
@@ -70,7 +70,7 @@ class CheckPlatform(CheckVersion):
 
         if current_platform.lower() != name.lower():
             # Failed check if the platform doesn't match this check
-            return CheckResult(passed=False, msg=msg, status="wrong platform")
+            return Result(msg=msg, status="wrong platform")
 
         # Check the version, as usual
         return super().check(level=level)
