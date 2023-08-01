@@ -15,7 +15,7 @@ from .utils import pop_first, all_subclasses
 from ..config import Parameter
 from ..environment import sub_env
 
-__all__ = ("Check", "CheckException", "Result")
+__all__ = ("Check", "CheckException", "Result", "Executor")
 
 
 class CheckException(Exception):
