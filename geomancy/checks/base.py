@@ -113,21 +113,46 @@ class Result:
         else:
             return False
 
-    def rich_table(self, table=None, level: int = 0) -> Table:
-        """Generate a table with rich to display this result and child results"""
+    def rich_table(
+        self, table: t.Optional[Table] = None, warning: bool = False, level: int = 0
+    ) -> Table:
+        """Generate a table with rich to display this result and child results
+
+        Parameters
+        ----------
+        table
+            The table object to add rows to. If it doesn't exist, a table will
+            be created.
+        warning
+            If True, failed checks should be labeled as warnings instead of
+            errors. This option is helpful when a parent check passes but a
+            particular child check does not.
+        level
+            The level of the result in the nested tree
+
+        Returns
+        -------
+        table
+            The formatted table
+        """
         # Create the table
         if table is None:
             table = Table(show_header=False, box=None, collapse_padding=True)
             table.add_column("Status")
             table.add_column("Value")
 
-        # Format the checkbox string and status string
+        # Format the checkbox string, status string and warning option for
+        # children results
         if self.status.lower() == "pending":
             checkbox = "[ ]"
             status = f"[yellow]{self.status}[/yellow]"
         elif self.status.lower() == "passed":
             checkbox = "[[green]:heavy_check_mark:[/green]]"
             status = f"[green]{self.status}[/green]"
+            warning |= True  # All children should be marked as warnings
+        elif warning:
+            checkbox = "[[yellow]![/yellow]]"
+            status = f"[yellow]{self.status}[/yellow]"
         else:
             checkbox = "[[red]x[/red]]"
             status = f"[red]{self.status}[/red]"
@@ -139,11 +164,11 @@ class Result:
         for child in self.children:
             if isinstance(child, Result):
                 # The child is a Result object
-                child.rich_table(table=table, level=level + 1)
+                child.rich_table(table=table, warning=warning, level=level + 1)
             elif isinstance(child, Future) and child.done():
                 # The child is a future with a result
                 result = child.result()
-                result.rich_table(table=table, level=level + 1)
+                result.rich_table(table=table, warning=warning, level=level + 1)
 
         return table
 
