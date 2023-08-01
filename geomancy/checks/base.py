@@ -31,7 +31,8 @@ class Result:
     #: Only a 'passed' status is considered a passed result
     status: str = "pending"
 
-    #: Result message used when displaying the result
+    #: Result message used when displaying the result. This may include
+    #: rich tags
     msg: str = ""
 
     #: The pass condition for children checks and their passed property values
@@ -116,23 +117,25 @@ class Result:
         """Generate a table with rich to display this result and child results"""
         # Create the table
         if table is None:
-            table = Table(show_header=False, box=None)
+            table = Table(show_header=False, box=None, collapse_padding=True)
             table.add_column("Status")
             table.add_column("Value")
 
-        # Add a row for self
+        # Format the checkbox string and status string
         if self.status.lower() == "pending":
             checkbox = "[ ]"
+            status = f"[yellow]{self.status}[/yellow]"
         elif self.status.lower() == "passed":
             checkbox = "[[green]:heavy_check_mark:[/green]]"
+            status = f"[green]{self.status}[/green]"
         else:
             checkbox = "[[red]x[/red]]"
+            status = f"[red]{self.status}[/red]"
 
-        table.add_row(
-            checkbox, Padding(f"{self.msg}...{self.status}", (0, 0, 0, 2 * level))
-        )
+        # 1. Add a row for self
+        table.add_row(checkbox, Padding(f"{self.msg}...{status}", (0, 0, 0, 2 * level)))
 
-        # Add a row for children
+        # 2. Add a row for each child
         for child in self.children:
             if isinstance(child, Result):
                 # The child is a Result object
@@ -456,4 +459,8 @@ class Check:
             result = executor.submit(child.check, executor, level + 1)
             child_results.append(result)
 
-        return Result(msg=self.name, children=child_results, condition=self.condition)
+        return Result(
+            msg=f"[bold]{self.name}[/bold]",
+            children=child_results,
+            condition=self.condition,
+        )
