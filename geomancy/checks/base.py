@@ -176,7 +176,7 @@ class Check:
     condition: t.Callable = all  # default all must pass
 
     #: Alternative parameter names (__init__ kwarg names) used to specify the condition
-    condition_aliases = ("subchecks", "condition")  # other names for variable
+    condition_aliases = ("condition", "subchecks")  # other names for variable
 
     #: Substitute environment variables in check values
     env_substitute: bool
@@ -185,7 +185,7 @@ class Check:
     env_substitute_default = Parameter("CHECKBASE.ENV_SUBSTITUTE_DEFAULT", default=True)
 
     #: Alternative parameter names (__init__ kwarg names) for env_substitute
-    env_substitute_aliases = ("substitute", "env_substitute")
+    env_substitute_aliases = ("env_substitute", "substitute")
 
     #: The import_module() exception message to use if a module is missing
     #: (see the :meth:`import_modules`)
@@ -207,7 +207,7 @@ class Check:
         name: str,
         value: t.Optional[str] = None,
         desc: str = "",
-        children: t.Optional[list["Check", ...]] = None,
+        children: t.Optional[list["Check"]] = None,
         **kwargs,
     ):
         # Set attributes
@@ -225,9 +225,9 @@ class Check:
         # Make sure the condition values are allowed
         if condition is None:
             pass
-        elif condition in ("all", "All", "ALL"):
+        elif condition.lower() == "all":
             self.condition = all
-        elif condition in ("any", "Any", "ANY"):
+        elif condition.lower() == "any":
             self.condition = any
         else:
             raise CheckException(
@@ -235,8 +235,9 @@ class Check:
             )
 
         # Check attributes
-        msg = "All children should be instances of Check"
-        assert all(isinstance(child, Check) for child in self.children), msg
+        if not all(isinstance(child, Check) for child in self.children):
+            msg = "All children should be instances of Check"
+            raise CheckException(msg)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.name})"

@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from geomancy.checks import Check, Result
+from geomancy.checks import Check, Result, CheckException
 
 
 class CheckDummy(Check):
@@ -36,9 +36,35 @@ class DefaultCheck(Check):
         return Result(msg=self.name, status=self.default_status)
 
 
-def test_check_init():
-    """Test the Check init methods"""
-    assert False
+def test_check_init_env_subtitute():
+    """Test the Check init with env_substitute specified"""
+    for kwargs, expected in (
+        ({"env_substitute": False}, False),
+        ({"substitute": False}, False),
+        ({}, True),  # default
+    ):
+        check = Check(name="EnvTest", **kwargs)
+        assert check.env_substitute == expected
+
+
+def test_check_init_condition():
+    """Test the Check init with condition specified"""
+    # 2. Test condition parameter aliases
+    for kwargs, expected in (
+        ({"condition": "all"}, all),
+        ({"condition": "any"}, any),
+        ({"subchecks": "all"}, all),
+        ({"subchecks": "any"}, any),
+        ({}, all),  # default
+    ):
+        check = Check(name="ConditionTest", **kwargs)
+        assert check.condition == expected
+
+
+def test_check_init_bad_child():
+    """Test the Check init with a non-Check child"""
+    with pytest.raises(CheckException):
+        Check(name="BadChild", children=["a"])
 
 
 def test_check_env_substitution():
