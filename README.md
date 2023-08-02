@@ -35,7 +35,7 @@ Layered environments could include a _common_ or _base_ environment, with
 additional checks for settings of _test_, _development_ and _production_
 environments.
 
-In the following checks file, the existence of environment file and secrets
+In the following checks file, the existence of an environment file and a secrets
 file can be checked based on the ``$ENV`` environment variable. (See the
 [docker environment variable parameter expansion rules](https://docs.docker.com/compose/environment-variables/env-file/#parameter-expansion))
 
