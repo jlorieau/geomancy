@@ -604,3 +604,38 @@ checkpath=''''myfile$.txt''''
 ```
 :::
 ::::
+
+### Flat Checks files
+
+Checks can be conveniently grouped by category, but this is not a strict
+requirement for checks files. For example, the following checks file
+includes checks at the root level.
+
+::::{tab-set}
+:::{tab-item} Example 1 (yaml)
+```yaml
+Geomancy:
+  desc: Check for the 'geomancy.toml' file
+  checkPath: examples/geomancy.toml
+  type: file
+
+Pyproject:
+  desc: Check for 'pyproject.toml' file
+  checkPath: examples/pyproject.toml
+  type: file
+```
+:::
+:::{tab-item} Example 2 (toml)
+```toml
+[Geomancy]
+desc = "Check for the 'geomancy.toml' file"
+checkPath = "examples/geomancy.toml"
+type = "file"
+
+[Pyproject]
+desc = "Check for 'pyproject.toml' file"
+checkPath = "examples/pyproject.toml"
+type = "file"
+```
+:::
+::::
