@@ -73,6 +73,7 @@ tasks:
       - "_static/**"
       - "conf.py"
       - "../README.md"
+      - "../geomancy/**/*.py"
 
   docs:clean:
     desc: Clean the docs build directories
