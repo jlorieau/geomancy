@@ -23,25 +23,146 @@ resources, or for checking environments that use the
 
 <!-- start features -->
 
-### Available Checks
+### Capabilities
 
 <p>
 <details>
-<summary><strong><u>AWS</u></strong> resources exist and are securely setup
-  (<a href="https://geomancy.readthedocs.io/en/latest/usage/format.html#checkawss3">checkS3</a>)
+<summary>
+<strong><u>Validation of layered and combined environments</u></strong>
 </summary>
 
-The following shows an example in yaml format. Checks can be formatted in
-toml format as well.
+Layered environments could include a _common_ or _base_ environment, with
+additional checks for settings of _test_, _development_ and _production_
+environments.
+
+In the following checks file, the existence of environment file and secrets
+file can be checked based on the ``$ENV`` environment variable. (See the
+[docker environment variable parameter expansion rules](https://docs.docker.com/compose/environment-variables/env-file/#parameter-expansion))
 
 ```yaml
-AWS:
-  TemplatesS3Bucket:
-    desc: The bucket for cloudformation templates
-    checkS3: "myproject-cfn-templates"
+checks:
+  Environment:
+    desc: Check environment variables in different deployments
+
+    CheckEnvFile:
+      desc: Check the existence of the environment file
+      checkPath: "deployments/${ENV}/.env"
+
+    CheckSecretsFile:
+      desc: Check the existence of the secrets file
+      checkPath: "deployments/${ENV}/.secrets"
+```
+
+This check file can be used to check multiple environments:
+
+```shell
+# check "dev" environment
+$ geo -e deployments/base/.env -e deployments/dev/.env checks.yaml
+...
+# check "test" environment
+$ geo -e deployments/base/.env -e deployments/test/.env checks.yaml
+...
+```
+In this case, ``deployments/dev/.env`` is an
+[environment file](https://docs.docker.com/compose/environment-variables/env-file/)
+that sets ``ENV=dev``, ``deployments/test/.env`` is an
+[environment file](https://docs.docker.com/compose/environment-variables/env-file/)
+that sets ``ENV=test``.
+</details>
+</p>
+
+<p>
+<details>
+<summary>
+<strong><u>Full environment file support</u></strong> of the docker
+<a href="https://docs.docker.com/compose/environment-variables/env-file/">env file syntax</a>
+</summary>
+
+Environment files are loaded using the ``-e/--env`` option,
+which can be layered for different environments.
+
+```shell
+# Run checks for 'dev' environment
+$ geo -e deployments/base/.env -e deployments/dev/.env check
+...
+# Run checks for 'test' environment
+$ geo -e base.env -e test.env run -- echo "Test environment"
 ```
 </details>
 </p>
+
+<p>
+<details>
+<summary>
+<strong><u>Concurrent checks with multiple threads</u></strong> to quickly probe
+I/O bound resources
+</summary>
+
+The following example concurrently checks that the 3 AWS S3 buckets are
+accessible using the
+[current credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)
+and are secured.
+
+This example is in yaml format, and checks can be formatted in toml format
+as well.
+
+```yaml
+AWS:
+  TemplateS3:
+    checkS3: myproject-cfn-templates
+  StaticS3:
+    checkS3: myproject-static
+  MediaS3:
+    checkS3: myproject-media
+
+```
+</details>
+</p>
+
+<p>
+<details>
+<summary>
+<strong><u>Load checks in multiple formats</u></strong>
+</summary>
+
+Including [yaml](https://yaml.org) (e.g. ``.geomancy.yaml``)
+
+```yaml
+checks:
+  Environment:
+    desc: Check environment variables common to all development environments
+
+    Path:
+      decs: Paths to search for executables
+      checkEnv: $PATH
+```
+
+or [toml](https://toml.io/en/) (e.g. ``.geomancy.toml``)
+
+```toml
+[checks.Environment]
+desc = "Check environment variables common to all development environments"
+
+    [checks.Environment.Path]
+    desc = "Paths to search for executables"
+    checkEnv = "$PATH"
+```
+
+or [pyproject.toml](https://peps.python.org/pep-0621/)
+
+```toml
+[tool.geomancy.checks.Environment]
+desc = "Check environment variables common to all development environments"
+
+    [tool.geomancy.checks.Environment.Path]
+    desc = "Paths to search for executables"
+    checkEnv = "$PATH"
+```
+
+</details>
+</p>
+
+### Available Checks
 
 <p>
 <details>
@@ -203,140 +324,21 @@ checks:
 </details>
 </p>
 
-### Capabilities
-
 <p>
 <details>
-<summary>
-<strong><u>Check with multiple threads</u></strong> to speed up checks with
-concurrency
+<summary><strong><u>AWS</u></strong> resources exist and are securely setup
+  (<a href="https://geomancy.readthedocs.io/en/latest/usage/format.html#checkawss3">checkS3</a>)
 </summary>
 
-The following example concurrently checks that the 3 AWS S3 buckets are
-accessible using the
-[current credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)
-and are secured.
-
-This example is in yaml format, and checks can be formatted in toml format
-as well.
+The following shows an example in yaml format. Checks can be formatted in
+toml format as well.
 
 ```yaml
 AWS:
-  TemplateS3:
-    checkS3: myproject-cfn-templates
-  StaticS3:
-    checkS3: myproject-static
-  MediaS3:
-    checkS3: myproject-media
-
+  TemplatesS3Bucket:
+    desc: The bucket for cloudformation templates
+    checkS3: "myproject-cfn-templates"
 ```
-</details>
-</p>
-
-<p>
-<details>
-<summary>
-<strong><u>Load environment files</u></strong> for
-<a href="https://geomancy.readthedocs.io/en/latest/usage/cmd_checks.html#environment-files">checks</a> or
-for <a href="https://geomancy.readthedocs.io/en/latest/usage/cmd_run.html#running-environments">running shell commands</a>
-</summary>
-
-Environment files follow the [docker](https://docs.docker.com/compose/environment-variables/env-file/)
-environment file format. Environment files are loaded using the ``-e/--env`` option,
-which can be layered for different environments.
-
-```shell
-# Run checks for 'dev' environment
-$ geo -e deployments/base/.env -e deployments/dev/.env check
-...
-# Run checks for 'test' environment
-$ geo -e base.env -e test.env run -- echo "Test environment"
-```
-</details>
-</p>
-
-<p>
-<details>
-<summary>
-<strong><u>Substitute environment variables</u></strong> in checked values
-</summary>
-
-In the following checks file, the existence of environment file and secrets
-file can be checked based on the ``$ENV`` environment variable. (See the
-[docker environment variable parameter expansion rules](https://docs.docker.com/compose/environment-variables/env-file/#parameter-expansion))
-
-```yaml
-checks:
-  Environment:
-    desc: Check environment variables in different deployments
-
-    CheckEnvFile:
-      desc: Check the existence of the environment file
-      checkPath: "deployments/${ENV}/.env"
-
-    CheckSecretsFile:
-      desc: Check the existence of the secrets file
-      checkPath: "deployments/${ENV}/.secrets"
-```
-
-This check file can be used to check multiple environments:
-
-```shell
-# check "dev" environment
-$ geo -e deployments/base/.env -e deployments/dev/.env checks.yaml
-...
-# check "test" environment
-$ geo -e deployments/base/.env -e deployments/test/.env checks.yaml
-...
-```
-In this case, ``deployments/dev/.env`` is an
-[environment file](https://docs.docker.com/compose/environment-variables/env-file/)
-that sets ``ENV=dev``, ``deployments/test/.env`` is an
-[environment file](https://docs.docker.com/compose/environment-variables/env-file/)
-that sets ``ENV=test``.
-</details>
-</p>
-
-<p>
-<details>
-<summary>
-<strong><u>Load checks in multiple formats</u></strong>
-</summary>
-
-Including [yaml](https://yaml.org) (e.g. ``.geomancy.yaml``)
-
-```yaml
-checks:
-  Environment:
-    desc: Check environment variables common to all development environments
-
-    Path:
-      decs: Paths to search for executables
-      checkEnv: $PATH
-```
-
-or [toml](https://toml.io/en/) (e.g. ``.geomancy.toml``)
-
-```toml
-[checks.Environment]
-desc = "Check environment variables common to all development environments"
-
-    [checks.Environment.Path]
-    desc = "Paths to search for executables"
-    checkEnv = "$PATH"
-```
-
-or [pyproject.toml](https://peps.python.org/pep-0621/)
-
-```toml
-[tool.geomancy.checks.Environment]
-desc = "Check environment variables common to all development environments"
-
-    [tool.geomancy.checks.Environment.Path]
-    desc = "Paths to search for executables"
-    checkEnv = "$PATH"
-```
-
 </details>
 </p>
 
