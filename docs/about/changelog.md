@@ -10,6 +10,45 @@ deprecations section.
 
 <!-- towncrier release notes start -->
 
+## [1.0.0](https://github.com/jlorieau/geomancy/tree/1.0.0) - 2023-08-02
+
+
+### Features
+
+- [#11](https://github.com/jlorieau/geomancy/issues/11). Implemented --fixture option for  [✔] .geomancy.yaml...passed                                   
+   [✔]   checks...passed                                         
+   [✔]     Executables...passed                                  
+   [✔]       Check executable 'python3 >= 3.11'...passed         
+   [✔]       Check executable 'task >= 3'...passed               
+   [✔]       Check executable 'sphinx-build >= 6.2'...passed     
+   [✔]       Check executable 'towncrier >= 23'...passed         
+   [✔]       Check executable 'twine >= 4'...passed              
+   [✔]       Check executable 'pytest >= 7'...passed             
+   [✔]       Check executable 'black >= 23'...passed             
+   [✔]     Paths...passed                                        
+   [✔]       Check path '.geomancy.yaml'...passed                
+   [✔]     PythonPackages...passed                               
+   [✔]       Check python package 'pyyaml >= 6.0'...passed       
+   [✔]       Check python package 'click >= 8.1'...passed        
+   [✔]       Check python package 'click-default-group'...passed 
+   [✔]       Check python package 'rich >= 13'...passed           to mock network requests
+- [#11](https://github.com/jlorieau/geomancy/issues/11). Implemented CheckAWSS3 for AWS buckets
+- [#33](https://github.com/jlorieau/geomancy/issues/33). Implemented multi-threaded checking with concurrent.futures
+- [#36](https://github.com/jlorieau/geomancy/issues/36). Added a project-wide .geomancy.yaml file
+
+
+### Bug Fixes
+
+- [#31](https://github.com/jlorieau/geomancy/issues/31). Fixed out-of-order rendering of check tree by implementing rich for terminal rendering
+
+
+### Improved Documentation
+
+- [#11](https://github.com/jlorieau/geomancy/issues/11). Added documentation on CheckAWSS3
+- [#32](https://github.com/jlorieau/geomancy/issues/32). Implement html5 <details> and <summary> tags in the README.md features section and documentation
+- [#34](https://github.com/jlorieau/geomancy/issues/34). Added API documentation
+
+
 ## [0.9.4](https://github.com/jlorieau/geomancy/tree/0.9.4) - 2023-07-29
 
 
