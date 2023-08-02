@@ -15,42 +15,52 @@ The following evaluates the checks listed in ``examples/geomancy.yaml``, if
 this file exists.
 ```shell
 $ geo examples/geomancy.yaml
-=========================== examples/geomancy.yaml ============================
-    checks (12 checks)
-[✔]   Environment (2 checks)
-[✔]     Check environment variable '$PATH'...passed
-[✔]     Check environment variable '$USER'...passed
-      Paths (4 checks)
-[✔]     ChecksFile (3 checks)
-[✔]       Check path 'examples/geomancy.toml'...passed
-[✔]       Check path 'examples/pyproject.toml'...passed
-[!]       Check path '.missing__.txt'...missing
-[✔]   Executables (1 checks)
-[✔]     Check executable 'python3>=3.11'...passed
-[✔]   PythonPackages (1 checks)
-[✔]     Check python package 'geomancy>=0.8'...passed
-========================= PASSED. 13 checks in 0.01s ==========================
+ [✔] examples/geomancy.yaml...passed
+ [✔]   checks...passed
+ [✔]     OperatingSystem...passed
+ [✔]       Check platform 'macOS >= 10.9'...passed
+ [!]       Check platform 'Linux >= 3.0'...wrong platform
+ [!]       Check platform 'Windows >= 10'...wrong platform
+ [✔]     Environment...passed
+ [✔]       Check environment variable '$PATH'...passed
+ [✔]       Username...passed
+ [✔]         Check environment variable '$USER'...passed
+ [!]         Check environment variable '$USERNAME'...empty string
+ [✔]     Paths...passed
+ [✔]       ChecksFile...passed
+ [✔]         Check path 'examples/geomancy.toml'...passed
+ [✔]         Check path 'examples/pyproject.toml'...passed
+ [!]         Check path '.missing__.txt'...missing
+ [✔]     Executables...passed
+ [✔]       Check executable 'python3>=3.11'...passed
+ [✔]     PythonPackages...passed
+ [✔]       Check python package 'geomancy>=0.8'...passed
 ```
 :::
 :::{tab-item} Without arguments
 When no arguments are specified, geo will search for checks in multiple locations.
 ```shell
 $ geo
-================================ geomancy.yaml ================================
-    checks (12 checks)
-[✔]   Environment (2 checks)
-[✔]     Check environment variable '$PATH'...passed
-[✔]     Check environment variable '$USER'...passed
-      Paths (4 checks)
-[✔]     ChecksFile (3 checks)
-[✔]       Check path 'examples/geomancy.toml'...passed
-[✔]       Check path 'examples/pyproject.toml'...passed
-[!]       Check path '.missing__.txt'...missing
-[✔]   Executables (1 checks)
-[✔]     Check executable 'python3>=3.11'...passed
-[✔]   PythonPackages (1 checks)
-[✔]     Check python package 'geomancy>=0.8'...passed
-========================= PASSED. 13 checks in 0.01s ==========================
+ [✔] examples/geomancy.yaml...passed
+ [✔]   checks...passed
+ [✔]     OperatingSystem...passed
+ [✔]       Check platform 'macOS >= 10.9'...passed
+ [!]       Check platform 'Linux >= 3.0'...wrong platform
+ [!]       Check platform 'Windows >= 10'...wrong platform
+ [✔]     Environment...passed
+ [✔]       Check environment variable '$PATH'...passed
+ [✔]       Username...passed
+ [✔]         Check environment variable '$USER'...passed
+ [!]         Check environment variable '$USERNAME'...empty string
+ [✔]     Paths...passed
+ [✔]       ChecksFile...passed
+ [✔]         Check path 'examples/geomancy.toml'...passed
+ [✔]         Check path 'examples/pyproject.toml'...passed
+ [!]         Check path '.missing__.txt'...missing
+ [✔]     Executables...passed
+ [✔]       Check executable 'python3>=3.11'...passed
+ [✔]     PythonPackages...passed
+ [✔]       Check python package 'geomancy>=0.8'...passed
 ```
 :::
 ::::
