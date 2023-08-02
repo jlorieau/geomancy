@@ -1,5 +1,6 @@
 """The geo CLI entrypoint"""
 import logging
+import os
 from pathlib import Path
 
 import click
@@ -42,7 +43,7 @@ def geo_cli(ctx, debug, disable_color):
     """The main entrypoint for the 'geo' CLI"""
     # Disable coloring, if specified
     if disable_color:
-        ctx.color = False
+        os.environ["NO_COLOR"] = "TRUE"
 
     # Setup logging
     logging.basicConfig(
