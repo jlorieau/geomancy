@@ -17,6 +17,8 @@ h2 {
 
 h3 {
     font-size: 1.25em;
+    margin: 1em 0;
+    padding-left: 0;
 }
 
 h4, h5, h6 {
