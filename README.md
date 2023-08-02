@@ -25,7 +25,8 @@ resources, or for checking environments that use the
 
 Geomancy checks include (click headings):
 
-<details class="ps-3 mb-3">
+<p>
+<details>
 <summary><strong><u>AWS</u></strong> resources exist and are securely setup
   (<a href="https://geomancy.readthedocs.io/en/latest/usage/format.html#checkawss3">checkS3</a>)
 </summary>
@@ -40,9 +41,10 @@ AWS:
     checkS3: "myproject-cfn-templates"
 ```
 </details>
+</p>
 
 <p>
-<details class="ps-3 mb-3">
+<details>
 <summary><strong><u>Operating systems</u></strong> meet the minimum required
   versions
   (<a href="https://geomancy.readthedocs.io/en/latest/usage/format.html#checkplatform">checkOS</a>)
@@ -67,8 +69,10 @@ OperatingSystem:
     checkOS: "Windows >= 10"
 ```
 </details>
+</p>
 
-<details class="ps-3 mb-3">
+<p>
+<details>
 <summary><strong><u>Environment variables</u></strong> are properly set and
   have valid values with regular expressions
   (<a href="https://geomancy.readthedocs.io/en/latest/usage/format.html#checkenv">checkEnv</a>)
@@ -84,8 +88,10 @@ Username:
   regex: "[a-z_][a-z0-9_-]*[$]?"
 ```
 </details>
+</p>
 
-<details class="ps-3 mb-3">
+<p>
+<details>
 <summary><strong><u>Paths</u></strong> exist and they're the right type
   (<a href="https://geomancy.readthedocs.io/en/latest/usage/format.html#checkpath">checkPath</a>)
 </summary>
@@ -100,8 +106,10 @@ PyprojectToml:
   type: file
 ```
 </details>
+</p>
 
-<details class="ps-3 mb-3">
+<p>
+<details>
 <summary><strong><u>Executables</u></strong> are available and meet minimum
   or correct versions
   (<a href="https://geomancy.readthedocs.io/en/latest/usage/format.html#checkexec">checkExec</a>)
@@ -116,8 +124,10 @@ Python:
   checkExec: "python3>=3.11"
 ```
 </details>
+</p>
 
-<details class="ps-3 mb-3">
+<p>
+<details>
 <summary><strong><u>Python packages</u></strong> are available minimum or
   correct versions
   (<a href="https://geomancy.readthedocs.io/en/latest/usage/format.html#checkpythonpkg">checkPythonPkg</a>)
@@ -133,8 +143,10 @@ PythonPackages:
     checkPythonPkg: "geomancy>=0.1"
 ```
 </details>
+</p>
 
-<details class="ps-3 mb-3">
+<p>
+<details>
 <summary><strong><u>Group checks</u></strong> and specify
   conditional (all or any) pass criteria
   (<a href="https://geomancy.readthedocs.io/en/latest/usage/format.html#check-groups">Groups of Checks</a>)
@@ -189,11 +201,13 @@ checks:
 
 ```
 </details>
+</p>
 
 
 Additionally, geomancy can (click headings):
 
-<details class="ps-3 mb-3">
+<p>
+<details>
 <summary>
 <strong><u>Check with multiple threads</u></strong> to speed up checks with
 concurrency
@@ -218,8 +232,10 @@ AWS:
 
 ```
 </details>
+</p>
 
-<details class="ps-3 mb-3">
+<p>
+<details>
 <summary>
 <strong><u>Load environment files</u></strong> for
 <a href="https://geomancy.readthedocs.io/en/latest/usage/cmd_checks.html#environment-files">checks</a> or
@@ -238,8 +254,10 @@ $ geo -e deployments/base/.env -e deployments/dev/.env check
 $ geo -e base.env -e test.env run -- echo "Test environment"
 ```
 </details>
+</p>
 
-<details class="ps-3 mb-3">
+<p>
+<details>
 <summary>
 <strong><u>Substitute environment variables</u></strong> in checked values
 </summary>
@@ -278,8 +296,10 @@ that sets ``ENV=dev``, ``deployments/test/.env`` is an
 [environment file](https://docs.docker.com/compose/environment-variables/env-file/)
 that sets ``ENV=test``.
 </details>
+</p>
 
-<details class="ps-3 mb-3">
+<p>
+<details>
 <summary>
 <strong><u>Load checks in multiple formats</u></strong>
 </summary>
@@ -319,6 +339,7 @@ desc = "Check environment variables common to all development environments"
 ```
 
 </details>
+</p>
 
 <!-- end features -->
 
