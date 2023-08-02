@@ -22,7 +22,7 @@ tasks:
   install:
     desc: Install the package in development (edit) mode
     cmds:
-      - python -m pip install -e ".[all,dev,docs]"
+      - python3 -m pip install -e ".[all,dev,docs]"
     sources:
       - pyproject.toml
 
@@ -35,7 +35,7 @@ tasks:
   upload:
     desc: Upload the package to PyPI
     cmds:
-      - python -m build
+      - python3 -m build
       - twine upload dist/*
 
   build:
