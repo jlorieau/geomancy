@@ -1,0 +1,6 @@
+checks:
+  desc: Checks for AWS features
+
+  CloudFormationTemplateS3:
+    desc: The bucket for Cloudformation templates
+    checkS3: myproject-cfn-templates
