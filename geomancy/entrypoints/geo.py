@@ -24,7 +24,7 @@ def print_version(context, parameter, value):
 
 
 @click.group(
-    cls=DefaultGroup, default="check", default_if_no_args=False, help=description
+    cls=DefaultGroup, default="check", default_if_no_args=True, help=description
 )
 @click.option("--debug", "-d", is_flag=True, help="Enable debugging information")
 @click.option(
