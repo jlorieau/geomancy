@@ -43,7 +43,8 @@ dependencies = [
     "pyyaml>=6.0",  # Parsing YAML for checks (CheckBase) and Config
     "click>=8.1",  # Tool to develop CLI
     "click-default-group",  # All default click subcommands. e.g. geo -> geo check
-    "rich>=13"  # Platform-independent terminal rendering
+    "rich>=13",  # Platform-independent terminal rendering
+    "vcrpy<5.0",  # Mock http interactions and fixtures
 ]
 
 [tool.setuptools]
@@ -66,7 +67,6 @@ dev = [  # For development
     "twine>=4.0",  # Manage package uploads
     "build",  # Manage package builds
     "black[d]",  # Code formatter
-    "vcrpy<5.0",  # Mock http interactions (pytest-recording 0.12.2 doesn't with with vcrpy>=5)
     "pytest-recording"  # Implementation of vcrpy in pytest
     ]
 docs = [  # For building documentation
