@@ -2,29 +2,182 @@
 Abstract base class for checks
 """
 import typing as t
-from abc import ABC
+import importlib
+from concurrent.futures import Future, Executor
+from types import ModuleType
 from inspect import isabstract
-from collections import namedtuple
-from time import process_time
+from dataclasses import dataclass, field
 
-from .utils import all_subclasses, pop_first
+from rich.table import Table
+from rich.padding import Padding
+
+from .utils import pop_first, all_subclasses
 from ..config import Parameter
 from ..environment import sub_env
-from ..cli import Term
 
-__all__ = ("CheckBase", "CheckException", "CheckResult")
+__all__ = ("Check", "CheckException", "Result", "Executor")
 
 
 class CheckException(Exception):
     """Exception raised when an error is encountered in the setup of a check."""
 
 
-# Storage class for the results of checks
-CheckResult = namedtuple("CheckResult", "passed msg status", defaults=("", ""))
+@dataclass(slots=True)
+class Result:
+    """A Check's result with awareness of concurrent.futures and rich
+    functionality"""
+
+    #: Result's status--e.g. 'passed', 'failed', 'not found'
+    #: Only a 'passed' status is considered a passed result
+    status: str = "pending"
+
+    #: Result message used when displaying the result. This may include
+    #: rich tags
+    msg: str = ""
+
+    #: The pass condition for children checks and their passed property values
+    condition: t.Callable = all
+
+    #: The flat list of Results or Futures from children checks
+    children: t.List[t.Union["Result", t.Awaitable["Result"]]] = field(
+        default_factory=list
+    )
+
+    @property
+    def passed(self) -> bool:
+        """Whether the check that generated this result passed.
+
+        Notes
+        -----
+        This function checks whether children results have passed, whether this
+        result has a non-pending status, and it updates "pending" status when
+        the children are done
+        """
+        # Determine whether the children have finished
+        done = True  # updated by loop below
+
+        # Get the pass conditions for children. This list should only comprise
+        # bools (True/False)
+        children_passed = []
+        for child in self.children:
+            if isinstance(child, Result):
+                # The child is a Result object
+                child_status = child.status == "passed"
+                children_passed.append(child_status)
+            elif isinstance(child, Future) and child.done():
+                # The child is a future with a result
+                result = child.result()
+                child_status = result.status == "passed"
+                children_passed.append(child_status)
+            else:
+                # The child is a future that isn't done evaluating
+                done = False
+                children_passed.append(False)
+
+        # Update the status from "pending" if this result is done (finished)
+        if self.status.lower() == "pending" and done:
+            self.status = "passed" if self.condition(children_passed) else "failed"
+
+        # Only a 'passed' status is considered a passed result
+        return self.status.lower() == "passed"
+
+    @property
+    def done(self) -> bool:
+        """Whether the check that generated this result and children checks are
+        done"""
+        # Get the done status for children. This list should only comprise
+        # bools (True/False)
+        children_done = []
+        for child in self.children:
+            if isinstance(child, Result):
+                # The child is a Result object
+                child_done = child.done  # This function
+                children_done.append(child_done)
+            elif isinstance(child, Future) and child.done():
+                # The child is a future with a result
+                result = child.result()
+                child_done = result.done  # This function
+                children_done.append(child_done)
+            else:
+                children_done.append(False)
+
+        if all(children_done) and self.status.lower() != "pending":
+            # All children are done and this result has a non-pending status
+            return True
+        elif all(children_done) and self.status.lower() == "pending":
+            # All the children are done and this result's pending. This result's
+            # status can be updated/changed from 'pending'. The passed
+            # property will do this
+            _ = self.passed  # update status from "pending" to something else
+            return True
+        else:
+            return False
+
+    def rich_table(
+        self, table: t.Optional[Table] = None, warning: bool = False, level: int = 0
+    ) -> Table:
+        """Generate a table with rich to display this result and child results
+
+        Parameters
+        ----------
+        table
+            The table object to add rows to. If it doesn't exist, a table will
+            be created.
+        warning
+            If True, failed checks should be labeled as warnings instead of
+            errors. This option is helpful when a parent check passes but a
+            particular child check does not.
+        level
+            The level of the result in the nested tree
+
+        Returns
+        -------
+        table
+            The formatted table
+        """
+        # Create the table
+        if table is None:
+            table = Table(show_header=False, box=None, collapse_padding=True)
+            table.add_column("Status")
+            table.add_column("Value")
+
+        # Format the checkbox string, status string and warning option for
+        # children results
+        if self.status.lower() == "pending":
+            checkbox = "[ ]"
+            status = f"[yellow]{self.status}[/yellow]"
+        elif self.status.lower() == "passed":
+            checkbox = "[[green]:heavy_check_mark:[/green]]"
+            status = f"[green]{self.status}[/green]"
+            warning |= True  # All children should be marked as warnings
+        elif warning:
+            checkbox = "[[yellow]![/yellow]]"
+            status = f"[yellow]{self.status}[/yellow]"
+        else:
+            checkbox = "[[red]x[/red]]"
+            status = f"[red]{self.status}[/red]"
+
+        # 1. Add a row for self
+        table.add_row(checkbox, Padding(f"{self.msg}...{status}", (0, 0, 0, 2 * level)))
+
+        # 2. Add a row for each child
+        for child in self.children:
+            if isinstance(child, Result):
+                # The child is a Result object
+                child.rich_table(table=table, warning=warning, level=level + 1)
+            elif isinstance(child, Future) and child.done():
+                # The child is a future with a result
+                result = child.result()
+                result.rich_table(table=table, warning=warning, level=level + 1)
+
+        return table
 
 
-class CheckBase(ABC):
-    """Check base class and grouper
+class Check:
+    """Check base class and tree structure.
+
+    .. versionchanged:: 1.0.0
+        Rewrite and implemented threading using concurrent.futures.
 
     .. versionchanged:: 0.9.3
         Switch to :meth:`environment.sub_env` for value substitutions, which
@@ -32,50 +185,80 @@ class CheckBase(ABC):
         defaults, errors and replacements.
     """
 
-    # Unprocessed value for the check
+    #: The name for the check
+    name: str
+
+    #: Unprocessed value for the check
     raw_value: str
 
-    # Description of the check
+    #: Description of the check
     desc: str = ""
 
-    # The message to print during the check.
+    #: The default message to include in results
     msg: str = "{check.name}"
 
-    # A list of children checks
-    children: t.List["CheckBase"]
+    #: A list of children checks
+    children: t.List["Check"]
 
-    # Alternative names for the class
-    aliases: t.Optional[t.Tuple[str, ...]] = None
+    #: The condition function to use to evaluate whether children checks have passed
+    condition: t.Callable = all  # default all must pass
 
-    # This check (and children) are enabled
-    enabled: bool = True
+    #: Alternative parameter names (__init__ kwarg names) used to specify the condition
+    condition_aliases = ("condition", "subchecks")  # other names for variable
 
-    # If True (default), environment variables in variable_name or
-    # variable_value are substituted with the values of other environment
-    # variables.
+    #: Substitute environment variables in check values
     env_substitute: bool
 
-    # The condition for children results to be considered a pass
-    condition: t.Callable = all
-    condition_aliases = ("subchecks", "condition")  # other names for variable
+    #: The default value for env_substitute
+    env_substitute_default = Parameter("CHECK.ENV_SUBSTITUTE_DEFAULT", default=True)
 
-    # The default value for env_substitute
-    env_substitute_default = Parameter("CHECKBASE.ENV_SUBSTITUTE_DEFAULT", default=True)
+    #: Alternative parameter names (__init__ kwarg names) for env_substitute
+    env_substitute_aliases = ("env_substitute", "substitute")
 
-    # Alternative parameter names for env_substitute
-    env_substitute_aliases = ("substitute", "env_substitute")
+    #: Default message and style of h1 headers
+    h1_style = Parameter(
+        "CHECK.H1_MSG", "[dodger_blue1][bold]{self.name}[/bold][/dodger_blue1]"
+    )
 
-    # The maximum recursion depth of the load function
-    max_level = Parameter("CHECKBASE.MAX_LEVEL", default=10)
+    #: Default message and style of h2 headers
+    h2_style = Parameter("CHECK.H2_MSG", "[bold]{self.name}[/bold]")
+
+    #: Default message and style of h3 headers
+    h3_style = Parameter("CHECK.H3_MSG", "[bold]{self.name}[/bold]")
+
+    #: Default message and style of h4 headers
+    h4_style = Parameter("CHECK.H4_MSG", "[bold]{self.name}[/bold]")
+
+    #: Default message and style of h5 headers
+    h5_style = Parameter("CHECK.H5_MSG", "[bold]{self.name}[/bold]")
+
+    #: Default message and style of h6 headers (and lower)
+    h6_style = Parameter("CHECK.H6_MSG", "[bold]{self.name}[/bold]")
+
+    #: The import_module() exception message to use if a module is missing
+    #: (see the :meth:`import_modules`)
+    import_error_msg = "Missing dependency '{exception}'"
+
+    #: Maximum recursion depth of the load function
+    max_level = Parameter("CHECK.MAX_LEVEL", default=15)
+
+    #: Whether this check class is available for use. Check subclasses may
+    #: require additional dependencies, which might change this flag.
+    #: (see :meth:`types`)
+    available: bool = True
+
+    #: Alternative names for the class (used by :meth:`~geomancy.checks.Check.types`)
+    aliases: t.Optional[t.Tuple[str, ...]] = None
 
     def __init__(
         self,
         name: str,
         value: t.Optional[str] = None,
         desc: str = "",
-        children: t.Optional[list["CheckBase", ...]] = None,
+        children: t.Optional[list["Check"]] = None,
         **kwargs,
     ):
+        # Set attributes
         self.name = name
         self.value = value
         self.desc = desc
@@ -90,9 +273,9 @@ class CheckBase(ABC):
         # Make sure the condition values are allowed
         if condition is None:
             pass
-        elif condition in ("all", "All", "ALL"):
+        elif condition.lower() == "all":
             self.condition = all
-        elif condition in ("any", "Any", "ANY"):
+        elif condition.lower() == "any":
             self.condition = any
         else:
             raise CheckException(
@@ -100,14 +283,14 @@ class CheckBase(ABC):
             )
 
         # Check attributes
-        msg = "All children should be instances of CheckBase"
-        assert all(isinstance(sc, CheckBase) for sc in self.children), msg
+        if not all(isinstance(child, Check) for child in self.children):
+            msg = "All children should be instances of Check"
+            raise CheckException(msg)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.name})"
 
     def __len__(self):
-        """The number of children"""
         return len(self.children)
 
     @property
@@ -124,147 +307,43 @@ class CheckBase(ABC):
         self.raw_value = str(v) if v is not None else None
 
     @property
-    def count(self, all: bool = True) -> int:
-        """The number of children
-
-        Parameters
-        ----------
-        all
-            If True, count all the immediate and nested level children.
-            If False, only count the immediate level children.
-        """
-        # flatten() returns this check, so the count is subtracted by 1 to only
-        # count sub-checks
-        return len(self.flatten()) - 1 if all else len(self.children)
-
-    @property
-    def is_collection(self) -> bool:
-        """Evaluate whether this is a collection check--i.e. it's only a
-        check that holds other check groups (BaseCheck instances).
-
-        Collection checks have headings that are printed before the results of
-        the children are evaluated.
-        """
-        collection_clses = (CheckBase,)
-        return self.__class__ in collection_clses and all(
-            child.__class__ in (CheckBase,) for child in self.children
-        )
-
-    def check(self, level: int = 0) -> CheckResult:
-        """Performs the checks of this check and of children.
-
-        Parameters
-        ----------
-        level
-            The current depth level of the check
-
-        Returns
-        -------
-        result
-            The result of the check
-        """
-        term = Term.get()
-
-        # Print a heading and start timer
-        msg = self.msg.format(check=self)
-        start_time = None
-        if level == 0:
-            # Top level heading
-            term.p_h1(msg=msg, level=level)
-            start_time = process_time()
-        elif self.is_collection:
-            # Collection checks print right away since we don't need to wait to
-            # see the results of "check" for children
-            term.p_h2(
-                msg=msg,
-                level=level,
-                status=f" ({self.count} checks)",
-                style_status={"reset": True},
-            )
-
-        # Run all children checks
-        results = []
-        for child in self.children:
-            result = child.check(level=level + 1)
-            results.append(result)
-
-        # Determine if this check passed based on the condition
-        passed = self.condition(result.passed for result in results)
-
-        # Print this check's results
-        if passed and not self.is_collection:
-            term.p_pass(
-                msg=msg,
-                level=level,
-                status=f" ({self.count} checks)",
-                style_status={"reset": True},
-                style_msg={"bold": True},
-            )
-        elif not passed and not self.is_collection:
-            term.p_fail(
-                msg=msg,
-                level=level,
-                status=f" ({self.count} checks)",
-                style_status={"reset": True},
-                style_msg={"bold": True},
-            )
-
-        for result in results:
-            if result.msg == "":
-                # This result has already been handled and printed
-                continue
-            elif result.passed:
-                term.p_pass(msg=result.msg, status=result.status, level=level + 1)
-            elif passed:
-                # If the child check failed but this check passed, then it's a
-                # warning
-                term.p_warn(msg=result.msg, status=result.status, level=level + 1)
-            else:
-                # If the child check failed and this check failed, then it's a
-                # fail
-                term.p_fail(msg=result.msg, status=result.status, level=level + 1)
-
-        # Print terminal information if this is the root check
-        if level == 0:
-            msg = f"{'PASSED' if passed else 'FAILED'}. {self.count} checks"
-
-            # Add timing info, if available
-            if start_time is not None:
-                total_time = process_time() - start_time
-                msg += f" in {total_time:.2f}s"
-
-            # Determine the message color
-            style_msg = {"bold": True}
-            style_msg["fg"] = "green" if passed else "red"
-
-            # Print the message
-            term.p_h1(msg, style_msg=style_msg)
-
-        return CheckResult(passed=passed, msg="", status="")
-
-    def flatten(self) -> t.List["CheckBase"]:
+    def flatten(self) -> t.List["Check"]:
         """Return a flattened list of this check (first item) and children
         checks"""
         flattened = [self]
         for child in self.children:
-            flattened += child.flatten()
+            flattened += child.flatten
         return flattened
 
-    @classmethod
-    def types_dict(cls) -> t.Dict[str, t.Type]:
-        """Return all the instantiatable CheckBase types in a dict."""
-        # Retrieve the base class (BaseCheck) and children classes
-        cls_types = [cls] + list(all_subclasses(cls))
+    @property
+    def count(self) -> int:
+        """The number of children, sub-children, etc, including self"""
+        # flatten returns this check, so the count is subtracted by 1 to only
+        # count sub-checks
+        return len(self.flatten)
 
-        # Create a dict with the class name string (key) and the class type
-        # (value)
+    @staticmethod
+    def types() -> t.Dict[str, t.Type]:
+        """The available types of Check classes, including aliases.
+
+        Returns
+        -------
+        types_dict
+            A dict containing the Check class or subclass name (key) and the
+            class or subclass as values. The key-value pairs are also populated
+            with alias names for Checks
+        """
+        # Retrieve the base class (Check) and children classes
+        cls_types = [Check] + list(all_subclasses(Check))
+
+        # Create a dict with the class name and type as key-value pairs
         d = dict()
         for cls_type in cls_types:
             # Skip abstract classes, which can't be instantiated
             if isabstract(cls_type):
                 continue
 
-            # Make sure class name isn't alreay in the dict
+            # Make sure class name isn't already in the dict
             assert (
                 cls_type.__name__ not in d
             ), f"class {cls_type.__name__} already registered class"
@@ -276,22 +355,15 @@ class CheckBase(ABC):
             aliases = cls_type.aliases if cls_type.aliases is not None else ()
             for alias in aliases:
                 # Aliases should not create name collisions
-                assert alias not in d, f"Duplicate alias name '{alias}'"
+                assert alias not in d, f"Alias '{alias}' already matches '{d[alias]}'."
 
-                # Make sure the alias doesn't match a class that's already
-                # registered
-                assert (
-                    alias not in d
-                ), f"Alias {alias} already matches a registered class"
-
-                # Add alias
                 d[alias] = cls_type
         return d
 
     @classmethod
     def load(
         cls, d: dict, name: str, level: int = 1, max_level: t.Optional[int] = None
-    ) -> t.Union["CheckBase", None]:
+    ) -> t.Union["Check", None]:
         """Load checks from a dict.
 
         Parameters
@@ -308,7 +380,7 @@ class CheckBase(ABC):
         Returns
         -------
         root_check
-            The loaded root CheckBase instance
+            The loaded root Check instance
         """
         # Check that the maximum recursion level hasn't been reached
         max_level = max_level if max_level is not None else cls.max_level
@@ -318,7 +390,7 @@ class CheckBase(ABC):
             raise NotImplementedError(msg)
 
         # Get a listing of the available Check types
-        check_types = cls.types_dict()
+        check_types = cls.types()
 
         # See if the dict has keys that reference Check types
         matching_keys = [k for k in d.keys() if k in check_types]
@@ -344,7 +416,7 @@ class CheckBase(ABC):
 
         # Otherwise, try parsing the children
         items = d.items()
-        found_checks = []  # Values parsed into CheckBase objects
+        found_checks = []  # Values parsed into Check objects
         other_d = dict()  # All other values
         for key, value in items:
             if not isinstance(value, dict):
@@ -355,9 +427,9 @@ class CheckBase(ABC):
                 d=value, name=key, level=level + 1, max_level=max_level
             )
 
-            # Replace the value withe CheckBase instance, if it was parsed correctly
+            # Replace the value withe Check instance, if it was parsed correctly
             # Otherwise, just place it in the parsed_dict.
-            if isinstance(return_value, CheckBase):
+            if isinstance(return_value, Check):
                 found_checks.append(return_value)
             else:
                 other_d[key] = value
@@ -367,4 +439,82 @@ class CheckBase(ABC):
             return None
 
         # Create a check grouping, first, by parsing the other arguments
-        return CheckBase(name=name, children=found_checks, **other_d)
+        return Check(name=name, children=found_checks, **other_d)
+
+    @classmethod
+    def import_modules(
+        cls, *names: str
+    ) -> t.Union[ModuleType, t.Tuple[ModuleType, ...]]:
+        """Import and return modules given by the module name(s).
+
+        This method is useful for loading modules for checks that require
+        additional dependencies, which may not be installed--aws and the
+        boto3 dependency, for example.
+
+        Parameters
+        ----------
+        names
+            The names of modules to return
+
+        Returns
+        -------
+        modules
+            The loaded module(s)
+
+        Raises
+        ------
+        ImportError
+            Raised if the modules couldn't be found, which can happen because
+            the 'aws' extra dependency wasn't installed.
+        """
+        modules = []
+
+        try:
+            for name in names:
+                module = importlib.import_module(name)
+                modules.append(module)
+        except ImportError as ie:
+            msg = cls.import_error_msg.format(exception=ie)
+            raise ImportError(msg)
+        return modules[0] if len(modules) == 1 else tuple(modules)
+
+    def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
+        """Performs this check and the children checks.
+
+        Parameters
+        ----------
+        executor
+            An object to submit or map calls asynchronously.
+            See concurrent.futures.
+        level
+            The current depth level of the check tree
+
+        Returns
+        -------
+        result
+            The result of the check
+        """
+        assert (
+            executor is not None
+        ), "An executor must be specified to run children checks"
+
+        # check children
+        child_results = []
+        for child in self.children:
+            result = executor.submit(child.check, executor, level + 1)
+            child_results.append(result)
+
+        if level == 0:
+            msg = self.h1_style.format(self=self)
+        elif level == 1:
+            msg = self.h2_style.format(self=self)
+        elif level == 2:
+            msg = self.h3_style.format(self=self)
+        elif level == 3:
+            msg = self.h4_style.format(self=self)
+        elif level == 4:
+            msg = self.h5_style.format(self=self)
+        else:
+            msg = self.h6_style.format(self=self)
+
+        return Result(msg=msg, children=child_results, condition=self.condition)

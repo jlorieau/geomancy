@@ -1,0 +1,66 @@
+interactions:
+- request:
+    body: null
+    headers: {}
+    method: HEAD
+    uri: https://testbucket-valid.s3.amazonaws.com/
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Type:
+      - application/xml
+      Date:
+      - Mon, 31 Jul 2023 10:31:58 GMT
+      Server:
+      - AmazonS3
+      x-amz-access-point-alias:
+      - 'false'
+      x-amz-bucket-region:
+      - us-east-1
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers: {}
+    method: HEAD
+    uri: https://testbucket-valid.s3.amazonaws.com/
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Type:
+      - application/xml
+      Date:
+      - Mon, 31 Jul 2023 20:09:27 GMT
+      Server:
+      - AmazonS3
+      x-amz-access-point-alias:
+      - 'false'
+      x-amz-bucket-region:
+      - us-east-1
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers: {}
+    method: GET
+    uri: https://testbucket-valid.s3.amazonaws.com/?publicAccessBlock
+  response:
+    body:
+      string: '<?xml version="1.0" encoding="UTF-8"?>
+
+        <PublicAccessBlockConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><BlockPublicAcls>true</BlockPublicAcls><IgnorePublicAcls>true</IgnorePublicAcls><BlockPublicPolicy>true</BlockPublicPolicy><RestrictPublicBuckets>true</RestrictPublicBuckets></PublicAccessBlockConfiguration>'
+    headers:
+      Date:
+      - Mon, 31 Jul 2023 20:09:28 GMT
+      Server:
+      - AmazonS3
+      Transfer-Encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+version: 1

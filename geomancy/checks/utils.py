@@ -3,7 +3,7 @@ import typing as t
 import operator
 import re
 
-__all__ = ("all_subclasses", "version_to_tuple", "name_and_version")
+__all__ = ("all_subclasses", "pop_first", "version_to_tuple", "name_and_version")
 
 __missing__ = object()  # used an argument for missing values
 

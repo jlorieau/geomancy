@@ -15,42 +15,52 @@ The following evaluates the checks listed in ``examples/geomancy.yaml``, if
 this file exists.
 ```shell
 $ geo examples/geomancy.yaml
-=========================== examples/geomancy.yaml ============================
-    checks (12 checks)
-[✔]   Environment (2 checks)
-[✔]     Check environment variable '$PATH'...passed
-[✔]     Check environment variable '$USER'...passed
-      Paths (4 checks)
-[✔]     ChecksFile (3 checks)
-[✔]       Check path 'examples/geomancy.toml'...passed
-[✔]       Check path 'examples/pyproject.toml'...passed
-[!]       Check path '.missing__.txt'...missing
-[✔]   Executables (1 checks)
-[✔]     Check executable 'python3>=3.11'...passed
-[✔]   PythonPackages (1 checks)
-[✔]     Check python package 'geomancy>=0.8'...passed
-========================= PASSED. 13 checks in 0.01s ==========================
+ [✔] examples/geomancy.yaml...passed
+ [✔]   checks...passed
+ [✔]     OperatingSystem...passed
+ [✔]       Check platform 'macOS >= 10.9'...passed
+ [!]       Check platform 'Linux >= 3.0'...wrong platform
+ [!]       Check platform 'Windows >= 10'...wrong platform
+ [✔]     Environment...passed
+ [✔]       Check environment variable '$PATH'...passed
+ [✔]       Username...passed
+ [✔]         Check environment variable '$USER'...passed
+ [!]         Check environment variable '$USERNAME'...empty string
+ [✔]     Paths...passed
+ [✔]       ChecksFile...passed
+ [✔]         Check path 'examples/geomancy.toml'...passed
+ [✔]         Check path 'examples/pyproject.toml'...passed
+ [!]         Check path '.missing__.txt'...missing
+ [✔]     Executables...passed
+ [✔]       Check executable 'python3>=3.11'...passed
+ [✔]     PythonPackages...passed
+ [✔]       Check python package 'geomancy>=0.8'...passed
 ```
 :::
 :::{tab-item} Without arguments
 When no arguments are specified, geo will search for checks in multiple locations.
 ```shell
 $ geo
-================================ geomancy.yaml ================================
-    checks (12 checks)
-[✔]   Environment (2 checks)
-[✔]     Check environment variable '$PATH'...passed
-[✔]     Check environment variable '$USER'...passed
-      Paths (4 checks)
-[✔]     ChecksFile (3 checks)
-[✔]       Check path 'examples/geomancy.toml'...passed
-[✔]       Check path 'examples/pyproject.toml'...passed
-[!]       Check path '.missing__.txt'...missing
-[✔]   Executables (1 checks)
-[✔]     Check executable 'python3>=3.11'...passed
-[✔]   PythonPackages (1 checks)
-[✔]     Check python package 'geomancy>=0.8'...passed
-========================= PASSED. 13 checks in 0.01s ==========================
+ [✔] examples/geomancy.yaml...passed
+ [✔]   checks...passed
+ [✔]     OperatingSystem...passed
+ [✔]       Check platform 'macOS >= 10.9'...passed
+ [!]       Check platform 'Linux >= 3.0'...wrong platform
+ [!]       Check platform 'Windows >= 10'...wrong platform
+ [✔]     Environment...passed
+ [✔]       Check environment variable '$PATH'...passed
+ [✔]       Username...passed
+ [✔]         Check environment variable '$USER'...passed
+ [!]         Check environment variable '$USERNAME'...empty string
+ [✔]     Paths...passed
+ [✔]       ChecksFile...passed
+ [✔]         Check path 'examples/geomancy.toml'...passed
+ [✔]         Check path 'examples/pyproject.toml'...passed
+ [!]         Check path '.missing__.txt'...missing
+ [✔]     Executables...passed
+ [✔]       Check executable 'python3>=3.11'...passed
+ [✔]     PythonPackages...passed
+ [✔]       Check python package 'geomancy>=0.8'...passed
 ```
 :::
 ::::
@@ -266,3 +276,35 @@ for substituting environment variables in values.
    ${MISSING+replaced} # ""
    ${MISSING+replaced} # ""
    ```
+
+## Other Options
+
+The following are options available to ``geo`` and``geo check``.
+
+`-e`/`--env`
+: Environment variable file(s) to load for checks
+
+`--overwrite`
+: Overwrite existing environment variables with those listed in environment
+  variable files. This option requires environment variable files to be
+  specified with `-e`/`--env`
+
+`-f`/`--fixture`
+: Load a fixture file (yaml format) for mocking network requests. If the
+  fixture does not exist, it will be created. This option is helpful for
+  testing checks files when checks require authentication.
+
+  :::{dropdown} Example
+  The following command runs the AWS checks in ``examples/aws/geomancy.yaml``,
+  which require proper authentication of the AWS client. To bypass network
+  requests, a fixture can be loaded to test this example.
+
+  ```shell
+  $ geo --fixture examples/aws/fixtures.yaml examples/aws/geomancy.yaml
+   [✔] examples/aws/geomancy.yaml...passed
+   [✔]   checks...passed
+   [✔]     CloudFormationTemplateS3...passed
+   [✔]       Check AWS S3 bucket access 'myproject-cfn-templates'......passed
+   [✔]       Check AWS S3 bucket private 'myproject-cfn-templates'......passed
+  ```
+  :::

@@ -4,23 +4,23 @@ Checks for paths
 import typing as t
 from pathlib import Path
 
-from .base import CheckBase, CheckException, CheckResult
+from .base import Check, Result, CheckException, Executor
 from ..config import Parameter
 
+__all__ = ("CheckPath",)
 
-class CheckPath(CheckBase):
+
+class CheckPath(Check):
     """Check paths for valid files and directories"""
 
-    # (Optional) the type of path expected
+    #: (Optional) the type of path expected
     type: t.Optional[str] = None
 
-    # The valid values of path types
+    #: The valid values of path types
     type_options = (None, "dir", "file")
 
-    # The message for checking environment variables
-    msg = Parameter("CHECKPATH.MSG", default="Check path '{check.value}'...")
+    msg = Parameter("CHECKPATH.MSG", default="Check path '{check.value}'")
 
-    # Alternative names for the class
     aliases = ("checkPath",)
 
     def __init__(self, *args, type: t.Optional[str] = None, **kwargs):
@@ -32,9 +32,8 @@ class CheckPath(CheckBase):
             )
         self.type = type
 
-    def check(self, level: int = 0) -> CheckResult:
+    def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         """Check paths"""
-        passed = False
         value = self.value
         path = Path(value)
 
@@ -46,7 +45,6 @@ class CheckPath(CheckBase):
             status = "not file"
         else:
             status = "passed"
-            passed = True
 
         msg = self.msg.format(check=self, status=status)
-        return CheckResult(passed=passed, msg=msg, status=status)
+        return Result(msg=msg, status=status)

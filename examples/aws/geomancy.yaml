@@ -1,0 +1,12 @@
+# This checks file conducts network requests, it requires authentication and
+# permissions to the accessed AWS resources. To test this example, run it
+# with the accompanying fixture.
+#
+# $ geo --fixture examples/aws/fixtures.yaml examples/aws/geomancy.yaml
+
+checks:
+  desc: Checks for AWS features
+
+  CloudFormationTemplateS3:
+    desc: The bucket for Cloudformation templates
+    checkS3: myproject-cfn-templates

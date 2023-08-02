@@ -10,7 +10,7 @@ __all__ = ("sub_env", "parse_env", "load_env")
 
 logger = logging.getLogger(__name__)
 
-# Regex to match environment variables for subsitution--e.g. ${NAME} or $NAME
+#: Regex to match environment variables for subsitution--e.g. ${NAME} or $NAME
 sub_re = re.compile(
     r"[$]"  # Start with a '$'. e.g. $NAME
     r"((?P<name_nobrace>[a-zA-Z_][a-zA-Z0-9_:\-?+]*)|"  # e.g. $NAME
@@ -18,8 +18,8 @@ sub_re = re.compile(
     re.VERBOSE,
 )
 
-# Regex to identify alternate variables from variable names
-# e.g. ${NAME:-default}
+#: Regex to identify alternate variables from variable names
+#: e.g. ${NAME:-default}
 sub_alt_re = re.compile(
     # Does not require a brace. e.g. $NAME
     r"(?P<name>[a-zA-Z_][a-zA-Z0-9_]*)"
@@ -28,11 +28,11 @@ sub_alt_re = re.compile(
     re.VERBOSE,
 )
 
-# Regex to match environment variable names
+#: Regex to match environment variable names
 env_name = r"(?P<name>[a-zA-Z_][a-zA-Z0-9_]*)"  # env variable name
 env_name_re = re.compile(env_name)
 
-# Regex to match environment variable values with substitution
+#: Regex to match environment variable values with substitution
 env_value = (
     # Quoted value--e.g. "My $VAR" or 'My $VAR'--allowing for escaped quotes
     r"""((?P<quote>["|']{1,3})(?P<qvalue>(?:\\.|[^"'\\])+)(?P=quote)[^'"\n]*|"""
@@ -44,7 +44,7 @@ env_value_re = re.compile(
     re.MULTILINE | re.DOTALL,
 )
 
-# Regex to match "name=value" pairs from an env file
+#: Regex to match "name=value" pairs from an env file
 env_name_value_re = re.compile(
     r"^\s*{env_name}\s*=\s*{env_value}\s*$".format(
         env_name=env_name, env_value=env_value
@@ -52,11 +52,11 @@ env_name_value_re = re.compile(
     re.MULTILINE | re.DOTALL,
 )
 
-# Regex to strip comments to the end of a line--# and not escaped values, \#
+#: Regex to strip comments to the end of a line--# and not escaped values, \#
 comment_re = re.compile(r"(^|\s+)(#.+)$")
 
-# Regex to strip backslashes from escaped quotes.
-# e.g. r"Let\'s go" -> r"Let's go"
+#: Regex to strip backslashes from escaped quotes.
+#: e.g. r"Let\'s go" -> r"Let's go"
 escaped_quote_re = re.compile(r"\\(['\"])")
 
 
@@ -79,9 +79,9 @@ def sub_env(
     Raises
     ------
     EnvironmentError
-        Raised if an environment variable was not found and the :?/? error
-        error is specified
-        e.g. ${MISSING?not found!}
+        Raised if an environment variable was not found and the ``:?``/``?``
+        error directive was specified
+        e.g. ``${MISSING?not found!}``
 
     Returns
     -------
@@ -91,7 +91,8 @@ def sub_env(
     Notes
     -----
     This function follows the docker compose_ format.
-    - Environment variable names are preceded with a '$' character and may
+
+    - Environment variable names are preceded with a ``$`` character and may
       include braces. e.g. ``$VAR_NAME`` or ``${VAR_NAME}``
     - Environment variables names may include directives for default values
       (``${MISSING-default}``), errors for missing values (``${missing?error``)

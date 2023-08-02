@@ -1,0 +1,96 @@
+interactions:
+- request:
+    body: null
+    headers: {}
+    method: HEAD
+    uri: https://testbucket-alluser-acl.s3.amazonaws.com/
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Type:
+      - application/xml
+      Date:
+      - Mon, 31 Jul 2023 20:05:37 GMT
+      Server:
+      - AmazonS3
+      x-amz-access-point-alias:
+      - 'false'
+      x-amz-bucket-region:
+      - us-east-1
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers: {}
+    method: GET
+    uri: https://testbucket-alluser-acl.s3.amazonaws.com/?publicAccessBlock
+  response:
+    body:
+      string: '<?xml version="1.0" encoding="UTF-8"?>
+
+        <PublicAccessBlockConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><BlockPublicAcls>false</BlockPublicAcls><IgnorePublicAcls>false</IgnorePublicAcls><BlockPublicPolicy>false</BlockPublicPolicy><RestrictPublicBuckets>false</RestrictPublicBuckets></PublicAccessBlockConfiguration>'
+    headers:
+      Date:
+      - Mon, 31 Jul 2023 20:05:37 GMT
+      Server:
+      - AmazonS3
+      Transfer-Encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers: {}
+    method: GET
+    uri: https://testbucket-alluser-acl.s3.amazonaws.com/?policyStatus
+  response:
+    body:
+      string: '<?xml version="1.0" encoding="UTF-8"?>
+
+        <Error><Code>NoSuchBucketPolicy</Code><Message>The bucket policy does not
+        exist</Message><BucketName>testbucket-alluser-acl</BucketName><RequestId>77NHBDZ9FA0FHJ19</RequestId><HostId>LtEEsLYdgCQbgbmSkuGN1Wd+t+1jPNelvsjpWuM6CmQ9/RbzHU+jVw9e+dM5XUoDk6FhGFCcz24BA0zNElu7t5M7qblbvFrF2dTOPTAZviA=</HostId></Error>'
+    headers:
+      Content-Type:
+      - application/xml
+      Date:
+      - Mon, 31 Jul 2023 20:05:35 GMT
+      Server:
+      - AmazonS3
+      Transfer-Encoding:
+      - chunked
+      x-amz-id-2:
+      - LtEEsLYdgCQbgbmSkuGN1Wd+t+1jPNelvsjpWuM6CmQ9/RbzHU+jVw9e+dM5XUoDk6FhGFCcz24BA0zNElu7t5M7qblbvFrF2dTOPTAZviA=
+      x-amz-request-id:
+      - 77NHBDZ9FA0FHJ19
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: null
+    headers: {}
+    method: GET
+    uri: https://testbucket-alluser-acl.s3.amazonaws.com/?acl
+  response:
+    body:
+      string: '<?xml version="1.0" encoding="UTF-8"?>
+
+        <AccessControlPolicy xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Owner><ID>545b3bb8cb662b0a427761467f86fcd57bb7119671e956385fa7d5d537ab25bd</ID><DisplayName>justin</DisplayName></Owner><AccessControlList><Grant><Grantee
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CanonicalUser"><ID>545b3bb8cb662b0a427761467f86fcd57bb7119671e956385fa7d5d537ab25bd</ID><DisplayName>justin</DisplayName></Grantee><Permission>FULL_CONTROL</Permission></Grant><Grant><Grantee
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group"><URI>http://acs.amazonaws.com/groups/global/AllUsers</URI></Grantee><Permission>READ</Permission></Grant><Grant><Grantee
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Group"><URI>http://acs.amazonaws.com/groups/global/AllUsers</URI></Grantee><Permission>READ_ACP</Permission></Grant></AccessControlList></AccessControlPolicy>'
+    headers:
+      Content-Type:
+      - application/xml
+      Date:
+      - Mon, 31 Jul 2023 20:05:37 GMT
+      Server:
+      - AmazonS3
+      Transfer-Encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+version: 1

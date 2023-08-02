@@ -1,0 +1,87 @@
+interactions:
+- request:
+    body: null
+    headers: {}
+    method: HEAD
+    uri: https://testbucket-public-policy.s3.amazonaws.com/
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Type:
+      - application/xml
+      Date:
+      - Mon, 31 Jul 2023 20:16:10 GMT
+      Server:
+      - AmazonS3
+      x-amz-access-point-alias:
+      - 'false'
+      x-amz-bucket-region:
+      - us-east-1
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers: {}
+    method: GET
+    uri: https://testbucket-public-policy.s3.amazonaws.com/?publicAccessBlock
+  response:
+    body:
+      string: '<?xml version="1.0" encoding="UTF-8"?>
+
+        <PublicAccessBlockConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><BlockPublicAcls>false</BlockPublicAcls><IgnorePublicAcls>false</IgnorePublicAcls><BlockPublicPolicy>false</BlockPublicPolicy><RestrictPublicBuckets>false</RestrictPublicBuckets></PublicAccessBlockConfiguration>'
+    headers:
+      Date:
+      - Mon, 31 Jul 2023 20:16:11 GMT
+      Server:
+      - AmazonS3
+      Transfer-Encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers: {}
+    method: GET
+    uri: https://testbucket-public-policy.s3.amazonaws.com/?policyStatus
+  response:
+    body:
+      string: '<?xml version="1.0" encoding="UTF-8"?>
+
+        <PolicyStatus xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><IsPublic>true</IsPublic></PolicyStatus>'
+    headers:
+      Date:
+      - Mon, 31 Jul 2023 20:16:11 GMT
+      Server:
+      - AmazonS3
+      Transfer-Encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers: {}
+    method: GET
+    uri: https://testbucket-public-policy.s3.amazonaws.com/?acl
+  response:
+    body:
+      string: '<?xml version="1.0" encoding="UTF-8"?>
+
+        <AccessControlPolicy xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Owner><ID>545b3bb8cb662b0a427761467f86fcd57bb7119671e956385fa7d5d537ab25bd</ID><DisplayName>justin</DisplayName></Owner><AccessControlList><Grant><Grantee
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="CanonicalUser"><ID>545b3bb8cb662b0a427761467f86fcd57bb7119671e956385fa7d5d537ab25bd</ID><DisplayName>justin</DisplayName></Grantee><Permission>FULL_CONTROL</Permission></Grant></AccessControlList></AccessControlPolicy>'
+    headers:
+      Content-Type:
+      - application/xml
+      Date:
+      - Mon, 31 Jul 2023 20:16:11 GMT
+      Server:
+      - AmazonS3
+      Transfer-Encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+version: 1

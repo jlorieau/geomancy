@@ -1,18 +1,20 @@
-"""Checks are used to validate an environment"""
-
-from .base import CheckBase, CheckException
+from .base import Check, CheckException, Result
 from .env import CheckEnv
-from .path import CheckPath
 from .exec import CheckExec
+from .path import CheckPath
 from .platform import CheckPlatform
 from .python import CheckPythonPackage
 
+from .aws import CheckAWSS3
+
 __all__ = (
-    CheckBase,
+    Check,
     CheckException,
+    Result,
     CheckEnv,
-    CheckPath,
     CheckExec,
+    CheckPath,
     CheckPlatform,
     CheckPythonPackage,
+    CheckAWSS3,
 )

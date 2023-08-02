@@ -10,11 +10,6 @@
 :end-before: <!-- end intro -->
 ```
 
-```{include} ../README.md
-:start-after: <!-- start quickstart -->
-:end-before: <!-- end quickstart -->
-```
-
 ## Features
 
 ```{include} ../README.md
@@ -36,10 +31,29 @@ usage/cmd_checks
 usage/cmd_run
 usage/format
 ```
+
+```{toctree}
+:hidden:
+:caption: Checks
+:maxdepth: 1
+
+checks/core
+checks/aws
+```
+
+```{toctree}
+:hidden:
+:caption: Guides
+:maxdepth: 1
+
+guides/tips_and_tricks
+```
+
 ```{toctree}
 :hidden:
 :caption: About the Project
 :maxdepth: 1
 
-changelog
+about/changelog
+about/api/index
 ```

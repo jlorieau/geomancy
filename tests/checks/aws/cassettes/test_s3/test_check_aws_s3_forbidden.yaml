@@ -1,0 +1,44 @@
+interactions:
+- request:
+    body: null
+    headers: {}
+    method: HEAD
+    uri: https://docker.s3.amazonaws.com/
+  response:
+    body:
+      string: ''
+    headers:
+      Connection:
+      - close
+      Content-Type:
+      - application/xml
+      Date:
+      - Sun, 30 Jul 2023 23:03:39 GMT
+      Server:
+      - AmazonS3
+      x-amz-bucket-region:
+      - eu-west-1
+    status:
+      code: 400
+      message: Bad Request
+- request:
+    body: null
+    headers: {}
+    method: HEAD
+    uri: https://docker.s3.eu-west-1.amazonaws.com/
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Type:
+      - application/xml
+      Date:
+      - Sun, 30 Jul 2023 23:03:39 GMT
+      Server:
+      - AmazonS3
+      x-amz-bucket-region:
+      - eu-west-1
+    status:
+      code: 403
+      message: Forbidden
+version: 1

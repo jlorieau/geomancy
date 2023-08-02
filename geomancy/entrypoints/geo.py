@@ -1,5 +1,6 @@
 """The geo CLI entrypoint"""
 import logging
+import os
 from pathlib import Path
 
 import click
@@ -24,7 +25,7 @@ def print_version(context, parameter, value):
 
 
 @click.group(
-    cls=DefaultGroup, default="check", default_if_no_args=False, help=description
+    cls=DefaultGroup, default="check", default_if_no_args=True, help=description
 )
 @click.option("--debug", "-d", is_flag=True, help="Enable debugging information")
 @click.option(
@@ -42,7 +43,7 @@ def geo_cli(ctx, debug, disable_color):
     """The main entrypoint for the 'geo' CLI"""
     # Disable coloring, if specified
     if disable_color:
-        ctx.color = False
+        os.environ["NO_COLOR"] = "TRUE"
 
     # Setup logging
     logging.basicConfig(
