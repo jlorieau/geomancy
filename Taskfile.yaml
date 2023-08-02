@@ -71,6 +71,7 @@ tasks:
       - "**/*.md"
       - "**/*.rst"
       - "_static/**"
+      - "conf.py"
       - "../README.md"
 
   docs:clean:
