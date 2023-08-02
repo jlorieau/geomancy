@@ -22,7 +22,7 @@ class CheckExec(CheckVersion):
     # The message for checking executables
     msg = Parameter(
         "CHECKEXEC.MSG",
-        default="Check executable '{check.raw_value}'...",
+        default="Check executable '{check.raw_value}'",
     )
 
     # Alternative names for the class

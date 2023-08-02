@@ -20,7 +20,7 @@ class CheckPythonPackage(CheckVersion):
     # The message for checking python packages
     msg = Parameter(
         "CHECKPYTHONPACKAGE.MSG",
-        default="Check python package '{check.raw_value}'...",
+        default="Check python package '{check.raw_value}'",
     )
 
     aliases = ("checkPythonPackage", "checkPythonPkg", "CheckPythonPkg")

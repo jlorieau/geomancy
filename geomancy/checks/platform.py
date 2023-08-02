@@ -21,7 +21,7 @@ class CheckPlatform(CheckVersion):
     # The message for checking python packages
     msg = Parameter(
         "CHECKPLATFORM.MSG",
-        default="Check platform '{check.raw_value}'...",
+        default="Check platform '{check.raw_value}'",
     )
 
     aliases = ("checkOS", "checkPlatform")

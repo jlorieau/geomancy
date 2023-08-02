@@ -20,7 +20,7 @@ class CheckPath(Check):
     type_options = (None, "dir", "file")
 
     # The message for checking environment variables
-    msg = Parameter("CHECKPATH.MSG", default="Check path '{check.value}'...")
+    msg = Parameter("CHECKPATH.MSG", default="Check path '{check.value}'")
 
     # Alternative names for the class
     aliases = ("checkPath",)

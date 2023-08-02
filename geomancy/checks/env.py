@@ -18,7 +18,7 @@ class CheckEnv(Check):
     # The message for checking environment variables
     msg = Parameter(
         "CHECKENV.MSG",
-        default="Check environment variable '{check.raw_value}'...",
+        default="Check environment variable '{check.raw_value}'",
     )
 
     # Alternative names for the class
