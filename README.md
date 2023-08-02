@@ -23,7 +23,7 @@ resources, or for checking environments that use the
 
 <!-- start features -->
 
-Geomancy checks include (click headings):
+### Available Checks
 
 <p>
 <details>
@@ -204,7 +204,7 @@ checks:
 </p>
 
 
-Additionally, geomancy can (click headings):
+### Capabilities
 
 <p>
 <details>
