@@ -66,7 +66,7 @@ tasks:
     desc: Build the docs (and examples)
     dir: docs
     cmds:
-      - "../{{.SPHINX_BUILD}} -M html {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} -E -a {{.SPHINX_OPTS}}"
+      - "../{{.SPHINX_BUILD}} -M html {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} -E -a -W {{.SPHINX_OPTS}}"
     sources:
       - "**/*.md"
       - "**/*.rst"
