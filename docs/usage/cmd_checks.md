@@ -266,3 +266,35 @@ for substituting environment variables in values.
    ${MISSING+replaced} # ""
    ${MISSING+replaced} # ""
    ```
+
+## Other Options
+
+The following are options available to ``geo`` and``geo check``.
+
+`-e`/`--env`
+: Environment variable file(s) to load for checks
+
+`--overwrite`
+: Overwrite existing environment variables with those listed in environment
+  variable files. This option requires environment variable files to be
+  specified with `-e`/`--env`
+
+`-f`/`--fixture`
+: Load a fixture file (yaml format) for mocking network requests. If the
+  fixture does not exist, it will be created. This option is helpful for
+  testing checks files when checks require authentication.
+
+  :::{dropdown} Example
+  The following command runs the AWS checks in ``examples/aws/geomancy.yaml``,
+  which require proper authentication of the AWS client. To bypass network
+  requests, a fixture can be loaded to test this example.
+
+  ```shell
+  $ geo --fixture examples/aws/fixtures.yaml examples/aws/geomancy.yaml
+   [✔] examples/aws/geomancy.yaml...passed
+   [✔]   checks...passed
+   [✔]     CloudFormationTemplateS3...passed
+   [✔]       Check AWS S3 bucket access 'myproject-cfn-templates'......passed
+   [✔]       Check AWS S3 bucket private 'myproject-cfn-templates'......passed
+  ```
+  :::
