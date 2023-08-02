@@ -10,11 +10,6 @@
 :end-before: <!-- end intro -->
 ```
 
-```{include} ../README.md
-:start-after: <!-- start quickstart -->
-:end-before: <!-- end quickstart -->
-```
-
 ## Features
 
 ```{include} ../README.md
