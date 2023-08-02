@@ -54,5 +54,6 @@ guides/tips_and_tricks
 :caption: About the Project
 :maxdepth: 1
 
-changelog
+about/changelog
+about/api/index
 ```

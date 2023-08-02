@@ -27,7 +27,12 @@ author = "J Lorieau"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["myst_parser", "sphinx_design"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "myst_parser",
+    "sphinx_design",
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -45,7 +50,8 @@ myst_enable_extensions = ["colon_fence", "deflist", "fieldlist", "substitution"]
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_book_theme"
+html_theme = "furo"
+html_title = ""
 html_logo = "_static/geomancy_logo.svg"
 
 # Add any paths that contain custom static files (such as style sheets) here,

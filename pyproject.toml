@@ -71,7 +71,7 @@ dev = [  # For development
     ]
 docs = [  # For building documentation
     "sphinx",  # Document generator
-    "sphinx-book-theme",  # Document theme
+    "furo>=2023",  # Document theme
     "sphinx_design>=0.4",  # Extra document components
     "myst-parser>=2.0",  # Support for markdown in documentation
     "towncrier",  # changelog manager and producer
@@ -85,7 +85,7 @@ addopts = "--doctest-modules"
 
 [tool.towncrier]
 package = "geomancy"
-filename = "docs/changelog.md"
+filename = "docs/about/changelog.md"
 directory = "changelog/"
 template = "changelog/changelog_template.jinja"
 start_string = "<!-- towncrier release notes start -->\n"
