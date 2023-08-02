@@ -13,16 +13,14 @@ __all__ = ("CheckPath",)
 class CheckPath(Check):
     """Check paths for valid files and directories"""
 
-    # (Optional) the type of path expected
+    #: (Optional) the type of path expected
     type: t.Optional[str] = None
 
-    # The valid values of path types
+    #: The valid values of path types
     type_options = (None, "dir", "file")
 
-    # The message for checking environment variables
     msg = Parameter("CHECKPATH.MSG", default="Check path '{check.value}'")
 
-    # Alternative names for the class
     aliases = ("checkPath",)
 
     def __init__(self, *args, type: t.Optional[str] = None, **kwargs):

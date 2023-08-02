@@ -247,7 +247,7 @@ class Check:
     #: (see :meth:`types`)
     available: bool = True
 
-    #: Alternative names for the class (used by types)
+    #: Alternative names for the class (used by :meth:`~geomancy.checks.Check.types`)
     aliases: t.Optional[t.Tuple[str, ...]] = None
 
     def __init__(

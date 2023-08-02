@@ -36,16 +36,16 @@ class Config(metaclass=ConfigMeta):
     is because the Config was designed to be configured on the fly.
     """
 
-    # The root singleton instance
+    #: The root singleton instance
     _instance: t.Optional["Config"] = None
 
-    # The thread lock
+    #: The thread lock
     _lock: Lock = Lock()
 
-    # The regex to validate key names
+    #: The regex to validate key names
     key_regex = re.compile(r"^[_A-Za-z][_A-Za-z0-9]*$")
 
-    # Different names for subsections in a dict which could contain config settings
+    #: Different names for subsections in a dict which could contain config settings
     section_aliases = ("config", "Config")
 
     def __new__(cls, root: bool = True):
@@ -377,13 +377,13 @@ class Parameter:
 
     __slots__ = ("key", "_config")
 
-    # The key/name of the parameter in the Config
+    #: The key/name of the parameter in the Config
     key: str
 
-    # The delimiter used for splitting keys
+    #: The delimiter used for splitting keys
     delim: str = "."
 
-    # A reference to the Config() singleton
+    #: A reference to the Config() singleton
     _config: Config
 
     def __init__(self, key, default=missing):

@@ -74,6 +74,7 @@ docs = [  # For building documentation
     "furo>=2023",  # Document theme
     "sphinx_design>=0.4",  # Extra document components
     "myst-parser>=2.0",  # Support for markdown in documentation
+    "sphinx-remove-toctrees",  # Remove links in toctrees (useful for autosummary)
     "towncrier",  # changelog manager and producer
 ]
 

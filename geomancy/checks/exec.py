@@ -15,17 +15,15 @@ __all__ = ("CheckExec",)
 class CheckExec(CheckVersion):
     """Check for the presence and version of executables"""
 
-    # The executable may exist and be installed, but get_current_version
-    # may not be able to identify the current version
+    #: The executable may exist and be installed, but get_current_version
+    #: may not be able to identify the current version
     require_current_version = False
 
-    # The message for checking executables
     msg = Parameter(
         "CHECKEXEC.MSG",
         default="Check executable '{check.raw_value}'",
     )
 
-    # Alternative names for the class
     aliases = ("checkExec",)
 
     @property

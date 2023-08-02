@@ -32,6 +32,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "myst_parser",
     "sphinx_design",
+    "sphinx_remove_toctrees",  # Remove autosummary stubs from tocs
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -58,3 +59,6 @@ html_logo = "_static/geomancy_logo.svg"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+# Remove the autosummary stub links from toctrees
+remove_from_toctrees = ["about/api/generated/*"]

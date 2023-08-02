@@ -11,11 +11,11 @@ __all__ = ("CheckVersion",)
 class CheckVersion(Check):
     """An abstract Check for package and program versions"""
 
-    # If true, the result of get_current_version must not be None
-    # Set to True if get_current_version should return a version if the command
-    # or package exists
-    # Set to False if get_current_version may not be able to return the
-    # version, even if the command or package is installed or present
+    #: If true, the result of get_current_version must not be None
+    #: Set to True if get_current_version should return a version if the command
+    #: or package exists
+    #: Set to False if get_current_version may not be able to return the
+    #: version, even if the command or package is installed or present
     require_current_version: bool = True
 
     @property

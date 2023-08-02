@@ -12,16 +12,14 @@ from ..config import Parameter
 class CheckEnv(Check):
     """Check the current environment variables."""
 
-    # (Optional) regex to match the environment variable value
+    #: (Optional) regex to match the environment variable value
     regex: t.Optional[t.Tuple[str, ...]] = None
 
-    # The message for checking environment variables
     msg = Parameter(
         "CHECKENV.MSG",
         default="Check environment variable '{check.raw_value}'",
     )
 
-    # Alternative names for the class
     aliases = ("checkEnv",)
 
     def __init__(self, *args, regex: t.Optional[str] = None, **kwargs):

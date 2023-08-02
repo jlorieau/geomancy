@@ -10,7 +10,7 @@ __all__ = ("CheckAWSS3",)
 
 logger = logging.getLogger(__name__)
 
-# The error message to show when AWS modules can't be imported
+#: The error message to show when AWS modules can't be imported
 import_error_msg = (
     "The 'aws' dependency is not installed: {exception}. "
     "Please reinstall with the '[aws]' or '[all]' extra install "
@@ -22,13 +22,11 @@ import_error_msg = (
 class CheckAWSS3BucketAccess(Check):
     """Check AWS S3 bucket availability"""
 
-    # The message for checking AWS S3 bucket access
     msg = Parameter(
         "CHECKAWSS3BUCKETACCESS.MSG",
         default="Check AWS S3 bucket access '{check.value}'...",
     )
 
-    # The ImportError message to display if aws modules cannot be loaded
     import_error_msg = import_error_msg
 
     def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
@@ -97,13 +95,11 @@ class CheckAWSS3BucketAccess(Check):
 class CheckAWSS3BucketPrivate(Check):
     """Check AWS S3 buck availability"""
 
-    # The message for checking AWS S3 bucket access
     msg = Parameter(
         "CHECKAWSS3BUCKETPRIVATE.MSG",
         default="Check AWS S3 bucket private '{check.value}'...",
     )
 
-    # The ImportError message to display if aws modules cannot be loaded
     import_error_msg = import_error_msg
 
     def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
@@ -178,24 +174,23 @@ class CheckAWSS3(Check):
     -----
     The child checks are meant to verify the accessibility of the bucket as well
     as optionally test for the best security practices`. Current, these include:
-        - Default private access (CheckAWSS3BucketPrivate)
+
+    - Default private access (CheckAWSS3BucketPrivate)
 
     See: https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html
     """
 
-    # Whether to check that the bucket is private
+    #: Whether to check that the bucket is private
     private: bool = True
 
-    # Alternative parameter names for private
+    #: Alternative parameter names for private
     private_aliases = ("private",)
 
-    # The message for checking AWS Buckets
     msg = Parameter(
         "CHECKAWSS3.MSG",
         default="Check AWS S3 bucket '{check.value}'...",
     )
 
-    # Other names for this check
     aliases = ("checkAWSS3", "checkAwsS3", "CheckAwsS3", "checkS3", "CheckS3")
 
     def __init__(self, *args, **kwargs):
