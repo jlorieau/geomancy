@@ -49,10 +49,10 @@ tasks:
       cmds:
           - "../{{.SPHINX_BUILD}} -M html {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} -E -a {{.SPHINX_OPTS}}"
       sources:
-          - "README.md"
           - "**/*.md"
           - "**/*.rst"
           - "_static/**"
+          - "../README.md"
 
   docs:clean:
       desc: Clean the docs build directories
