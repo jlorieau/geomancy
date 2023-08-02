@@ -18,6 +18,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.11"]
+    env:
+        AWS_ACCESS_KEY_ID: MOCK_ACCESS_KEY_ID
+        AWS_SECRET_ACCESS_KEY: MOCK_SECRET_ACCESS_KEY
+        AWS_SECURITY_TOKEN: MOCK_SECURITY_TOKEN
+        AWS_SESSION_TOKEN: MOCK_SESSION_TOKEN
 
     steps:
       - uses: actions/checkout@v3
