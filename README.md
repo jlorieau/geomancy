@@ -203,7 +203,6 @@ checks:
 </details>
 </p>
 
-
 ### Capabilities
 
 <p>
