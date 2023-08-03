@@ -1,7 +1,7 @@
 from . import checks, config, environment
 
 # Project version
-__version__ = (1, 1, 0)  # Major, minor, patch, stage
+__version__ = (1, 1, 1)  # Major, minor, patch, stage
 
 
 def get_version(version=__version__):
@@ -9,7 +9,7 @@ def get_version(version=__version__):
 
     Examples
     --------
-    >>> get_version((0, 1, 0, 'b'))
+    >>> get_version((0, 1, 1, 'b'))
     '0.1.0b'
     >>> get_version((1, 0, 0))
     '1.0.0'
