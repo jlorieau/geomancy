@@ -86,13 +86,11 @@ addopts = "--doctest-modules"
 
 [tool.towncrier]
 package = "geomancy"
-filename = "docs/about/changelog.md"
-directory = "changelog/"
-template = "changelog/changelog_template.jinja"
-start_string = "<!-- towncrier release notes start -->\n"
-underlines = ["", "", ""]
-title_format = "## [{version}](https://github.com/jlorieau/geomancy/tree/{version}) - {project_date}"
-issue_format = "[#{issue}](https://github.com/jlorieau/geomancy/issues/{issue})"
+filename = "docs/about/changelog.rst"
+directory = "changelog"
+template = "changelog/_template.rst"
+title_format = "`{name} {version} <https://github.com/jlorieau/geomancy/tree/{version}>`_ - {project_date}"
+issue_format = "`#{issue} <https://github.com/jlorieau/geomancy/issues/{issue}>`_"
 
     [[tool.towncrier.type]]
     directory = "breaking"
