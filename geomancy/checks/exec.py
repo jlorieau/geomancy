@@ -1,5 +1,6 @@
 """
-Checks for executables
+Check the existence and, optionally, the version of available executables or
+commands.
 """
 import typing as t
 from shutil import which

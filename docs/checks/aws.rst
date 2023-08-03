@@ -1,0 +1,62 @@
+AWS
+===
+
+The following describes Amazon Web Services (`AWS <https://aws.amazon.com>`_)
+checks.
+
+checkAwsS3
+----------
+
+.. automodule:: geomancy.checks.aws.s3
+  :noindex:
+
+.. card::
+
+    Parameters
+    ^^^
+
+    `checkAwsS3`: str
+        | The S3 bucket to probe using the currently configured AWS credentials.
+        | *aliases*: `checkS3`, `CheckS3`, `checkAWSS3`, `checkAwsS3`,
+          `CheckAwsS3`
+
+    `private`: bool
+        | Whether to check the public availability of the bucket.
+        | *default*: True
+
+    .. include:: snippets/common_args.rst
+
+.. tab-set::
+
+    .. tab-item:: Example 1 (yaml)
+
+        The `checkAwsS3` check in YAML format.
+
+        .. code-block:: yaml
+
+            checks:
+              AWS:
+                TemplatesS3Bucket:
+                  desc: The bucket for cloudformation templates
+                  checkS3: "myproject-cfn-templates"
+
+    .. tab-item:: Example 2 (toml)
+
+        The `checkAwsS3` check in TOML format.
+
+        .. code-block:: toml
+
+            [checks.AWS.TemplatesS3Bucket]
+            desc = "The bucket for cloudformation templates"
+            checkS3 = "myproject-cfn-templates"
+
+    .. tab-item:: Example 3 (toml)
+
+        The ``checkAwsS3`` check in abbreviated TOML format.
+
+        .. code-block:: toml
+
+            [checks.AWS]
+            TemplatesS3Bucket = {desc = "The bucket for cloudformation templates", checkS3 = "myproject-cfn-templates"}
+
+.. versionadded:: 1.0.0

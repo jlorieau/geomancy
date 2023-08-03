@@ -25,20 +25,12 @@ quickstart
 ```{toctree}
 :hidden:
 :caption: Usage
-:maxdepth: 1
+:maxdepth: 2
 
 usage/cmd_checks
 usage/cmd_run
 usage/format
-```
-
-```{toctree}
-:hidden:
-:caption: Checks
-:maxdepth: 1
-
-checks/core
-checks/aws
+checks/index
 ```
 
 ```{toctree}

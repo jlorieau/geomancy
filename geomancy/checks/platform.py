@@ -1,5 +1,5 @@
 """
-Checks the platform (Operating System) and its version
+Check the current platform (operating system) and, optionally, its minimum version.
 """
 import typing as t
 import platform

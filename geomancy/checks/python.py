@@ -1,5 +1,6 @@
 """
-Checks for python environment and packages
+Checks whether the python package is installed and, optionally, check its
+version.
 """
 import typing as t
 import logging

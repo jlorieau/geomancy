@@ -1,5 +1,5 @@
 """
-Checks for environment variables
+Check the existence and, optionally, the value of an environment variable.
 """
 import typing as t
 import re
