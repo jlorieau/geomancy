@@ -1,4 +1,11 @@
-"""Checks for AWS resources"""
+"""Check AWS `S3 buckets`_ and `security settings`_.
+
+- Existence and accessibility
+- Public access is disabled
+
+.. _S3 buckets: https://aws.amazon.com/s3/
+.. _security settings: https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html
+"""
 import typing as t
 import logging
 
@@ -180,7 +187,7 @@ class CheckAWSS3(Check):
     See: https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html
     """
 
-    #: Whether to check that the bucket is private
+    #: Check that a bucket is private and fail if it is publicly accessible
     private: bool = True
 
     #: Alternative parameter names for private

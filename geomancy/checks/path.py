@@ -1,5 +1,5 @@
 """
-Checks for paths
+Check the existence and, optionally, the type of path.
 """
 import typing as t
 from pathlib import Path

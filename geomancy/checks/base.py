@@ -1,5 +1,5 @@
 """
-Abstract base class for checks
+Check base class and check groups that contain one or more child checks.
 """
 import typing as t
 import importlib

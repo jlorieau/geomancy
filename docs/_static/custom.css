@@ -24,3 +24,13 @@ h3 {
 h4, h5, h6 {
     font-size: 1.0em;
 }
+
+/* Format sequential definition lists to display together--no extra spaces */
+dl {
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+
+dd {
+    margin-block-start: 0.25em;
+}
