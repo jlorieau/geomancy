@@ -1,0 +1,53 @@
+interactions:
+- request:
+    body: Action=GetCallerIdentity&Version=2011-06-15
+    headers:
+      Content-Length:
+      - '43'
+    method: POST
+    uri: https://sts.amazonaws.com/
+  response:
+    body:
+      string: "<ErrorResponse xmlns=\"https://sts.amazonaws.com/doc/2011-06-15/\">\n
+        \ <Error>\n    <Type>Sender</Type>\n    <Code>InvalidClientTokenId</Code>\n
+        \   <Message>The security token included in the request is invalid.</Message>\n
+        \ </Error>\n  <RequestId>22222222-2222-2222-2222-222222222222</RequestId>\n</ErrorResponse>\n"
+    headers:
+      Content-Length:
+      - '306'
+      Content-Type:
+      - text/xml
+      Date:
+      - Thu, 03 Aug 2023 23:03:47 GMT
+      x-amzn-RequestId:
+      - 22222222-2222-2222-2222-222222222222
+    status:
+      code: 403
+      message: Forbidden
+- request:
+    body: Action=GetCallerIdentity&Version=2011-06-15
+    headers:
+      Content-Length:
+      - '43'
+    method: POST
+    uri: https://sts.amazonaws.com/
+  response:
+    body:
+      string: "<GetCallerIdentityResponse xmlns=\"https://sts.amazonaws.com/doc/2011-06-15/\">\n
+        \ <GetCallerIdentityResult>\n    <Arn>arn:aws:iam::333333333333:user/tester</Arn>\n
+        \   <UserId>AAAAAAAAAAAAAAAAAAAAA</UserId>\n    <Account>333333333333</Account>\n
+        \ </GetCallerIdentityResult>\n  <ResponseMetadata>\n    <RequestId>22222222-2222-2222-2222-222222222222</RequestId>\n
+        \ </ResponseMetadata>\n</GetCallerIdentityResponse>\n"
+    headers:
+      Content-Length:
+      - '405'
+      Content-Type:
+      - text/xml
+      Date:
+      - Thu, 03 Aug 2023 23:03:47 GMT
+      x-amzn-RequestId:
+      - 22222222-2222-2222-2222-222222222222
+    status:
+      code: 200
+      message: OK
+version: 1
