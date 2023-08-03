@@ -9,6 +9,15 @@ deprecations section.
 
 .. towncrier release notes start
 
+`geomancy 1.1.0 <https://github.com/jlorieau/geomancy/tree/1.1.0>`_ - 2023-08-03
+================================================================================
+
+Improved Documentation
+----------------------
+
+- `#40 <https://github.com/jlorieau/geomancy/issues/40>`_. Converted Sphinx documentation from markdown sources to restructured text
+
+
 `geomancy 1.0.0 <https://github.com/jlorieau/geomancy/tree/1.0.0>`_ - 2023-08-02
 ================================================================================
 
