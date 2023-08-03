@@ -30,7 +30,7 @@ quickstart
 usage/cmd_checks
 usage/cmd_run
 usage/format
-checks/index
+usage/checks/index
 ```
 
 ```{toctree}
