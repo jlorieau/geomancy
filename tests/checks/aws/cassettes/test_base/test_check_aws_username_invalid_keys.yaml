@@ -1,0 +1,27 @@
+interactions:
+- request:
+    body: Action=GetUser&Version=2010-05-08
+    headers:
+      Content-Length:
+      - '33'
+    method: POST
+    uri: https://iam.amazonaws.com/
+  response:
+    body:
+      string: "<ErrorResponse xmlns=\"https://iam.amazonaws.com/doc/2010-05-08/\">\n
+        \ <Error>\n    <Type>Sender</Type>\n    <Code>InvalidClientTokenId</Code>\n
+        \   <Message>The security token included in the request is invalid.</Message>\n
+        \ </Error>\n  <RequestId>99999999-9999-9999-9999-999999999999</RequestId>\n</ErrorResponse>\n"
+    headers:
+      Content-Length:
+      - '306'
+      Content-Type:
+      - text/xml
+      Date:
+      - Fri, 04 Aug 2023 16:13:01 GMT
+      x-amzn-RequestId:
+      - 99999999-9999-9999-9999-999999999999
+    status:
+      code: 403
+      message: Forbidden
+version: 1
