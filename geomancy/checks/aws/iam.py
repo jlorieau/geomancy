@@ -19,8 +19,6 @@ from ...config import Parameter
 
 logger = logging.getLogger(__name__)
 
-__all__ = ("CheckAWSIAMAccessKeyAge",)
-
 
 class CheckAWSIAMAuthentication(CheckAWS):
     """Checks that the AWS profile can be authenticated"""
@@ -50,6 +48,52 @@ class CheckAWSIAMAuthentication(CheckAWS):
 
         arn = response["Arn"]
         return Result(status=f"passed. ARN='{arn}'")
+
+
+class CheckAWSIAMRootAccess(CheckAWS):
+    """Check the presence of AWS account (root) access Keys
+
+    see: https://aws.amazon.com/blogs/security/an-easier-way-to-determine-the-presence-of-aws-account-access-keys/ # noqa
+    """
+
+    msg = Parameter(
+        "CHECKAWSIAMROOTACCESS.MSG", default="Check AWS IAM root keys are not present"
+    )
+
+    def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
+        boto3, exceptions = self.import_modules("boto3", "botocore.exceptions")
+
+        # Get the IAM client
+        try:
+            iam = self.client("iam")
+            response = iam.get_account_summary()
+        except (exceptions.ProfileNotFound, exceptions.ClientError):
+            return Result(status="failed to authenticate host", msg=self.msg)
+
+        # See if the expected items are in the response and fail if they aren't
+        if (
+            "SummaryMap" not in response
+            or "AccountAccessKeysPresent" not in response["SummaryMap"]
+            or "AccountSigningCertificatesPresent" not in response["SummaryMap"]
+        ):
+            logger.debug(str(response))
+            return Result(status="failed to retrieve account summary")
+
+        summary = response["SummaryMap"]
+        has_account_access_key = summary["AccountAccessKeysPresent"] != 0
+        has_account_signing_certs = summary["AccountSigningCertificatesPresent"] != 0
+        print(summary)
+        # Track statuses that amount to a fail
+        statuses = []
+        if has_account_access_key:
+            statuses.append("account has root access keys")
+        if has_account_signing_certs:
+            statuses.append("account has signing certificates")
+
+        if statuses:
+            return Result(status=f"failed ({' and '.join(statuses)})", msg=self.msg)
+        else:
+            return Result(status="passed", msg=self.msg)
 
 
 class CheckAWSIAMAccessKeyAge(CheckAWS):
