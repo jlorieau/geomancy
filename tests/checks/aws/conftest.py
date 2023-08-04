@@ -23,16 +23,21 @@ def vcr_config(vcr_config):
         request.headers.clear()
 
         # Replace body string
-        body = request.body.decode("UTF-8")
+        if request.body is not None:
+            body = request.body.decode("UTF-8")
 
-        # username substitutions
-        body = re.sub(r"(?<=UserName=)(\w+)", test_aws_username, body)
+            # username substitutions
+            body = re.sub(r"(?<=UserName=)(\w+)", test_aws_username, body)
 
-        request.body = body.encode("ascii")
+            request.body = body.encode("ascii")
         return request
 
     def scrub_response(response):
         """Scrub AWS PII from response"""
+        # Remove unneeded header entries
+        for entry in ("x-amz-request-id", "x-amz-id-2"):
+            response["headers"].pop(entry, None)
+
         # Substitute strings in body
         body = response["body"]
         s = body["string"].decode("UTF-8")  # bytes -> string
