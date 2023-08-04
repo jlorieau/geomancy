@@ -18,6 +18,8 @@ import_error_msg = (
 class CheckAWS(Check, ABC):
     """Abstract base class for AWS checks"""
 
+    import_error_msg = import_error_msg
+
     #: Profile name to use to authenticate the AWS client, str
     profile_default = Parameter("CHECKAWS.PROFILE", None)
 
