@@ -145,10 +145,10 @@ class Result:
 
         # Format the checkbox string, status string and warning option for
         # children results
-        if self.status.lower() == "pending":
+        if self.status.lower().startswith("pending"):
             checkbox = "[ ]"
             status = f"[yellow]{self.status}[/yellow]"
-        elif self.status.lower() == "passed":
+        elif self.status.lower().startswith("passed"):
             checkbox = "[[green]:heavy_check_mark:[/green]]"
             status = f"[green]{self.status}[/green]"
             warning |= True  # All children should be marked as warnings
