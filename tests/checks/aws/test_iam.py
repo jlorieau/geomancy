@@ -5,59 +5,60 @@ from unittest.mock import patch
 import pytest
 
 from geomancy.checks.aws.iam import (
-    CheckAWSIAMAuthentication,
-    CheckAWSIAMRootAccess,
-    CheckAWSIAMAccessKeyAge,
+    CheckAwsIamAuthentication,
+    CheckAwsIamRootAccess,
+    CheckAwsIamAccessKeyAge,
+    CheckAwsIam,
 )
 
 
 @pytest.mark.vcr
 def test_check_aws_iam_authentication():
-    """Test the CheckAWSIAMAuthentication check"""
-    # 1. Test with an invalid profile
-    profile = "invalid_profile"
-    check = CheckAWSIAMAuthentication(name="Checker", profile=profile)
-    assert check.profile == profile
-
-    result = check.check()
-    assert not result.passed
-    assert result.status == "failed to find profile"
-
-    # 2. Test with invalid keys
-    with pytest.MonkeyPatch.context() as mp:
-        # Invalid keys
-        mp.setenv("AWS_ACCESS_KEY_ID", "INVALID")
-        mp.setenv("AWS_SECRET_ACCESS_KEY", "INVALID")
-        mp.setenv("AWS_SESSION_TOKEN", "INVALID")
-
-        check = CheckAWSIAMAuthentication(name="Checker")
-        assert check.profile is None
-
-        result = check.check()
-        assert not result.passed
-        assert result.status == "failed to authenticate with tokens"
-
-    # 3. Test with a valid key
-    check = CheckAWSIAMAuthentication(name="Checker")
+    """Test the CheckAwsIamAuthentication check"""
+    check = CheckAwsIamAuthentication(name="Checker")
     result = check.check()
 
     assert result.passed
     assert result.status.startswith("passed")
 
 
+@pytest.mark.block_network
+def test_check_aws_iam_authentication_invalid_profile():
+    """Test the CheckAwsIamAuthentication check with and invalid profile"""
+    # 1. Test with an invalid profile
+    profile = "invalid_profile"
+    check = CheckAwsIamAuthentication(name="Checker", profile=profile)
+    assert check.profile == profile
+
+    result = check.check()
+    assert not result.passed
+    assert result.status == "failed (profile not found)"
+
+
+@pytest.mark.vcr
+def test_check_aws_iam_authentication_invalid_keys(aws_invalid):
+    """Test the CheckAwsIamAuthentication check with invalid AWS keys"""
+    check = CheckAwsIamAuthentication(name="Checker")
+    assert check.profile is None
+
+    result = check.check()
+    assert not result.passed
+    assert result.status == "failed (can't authenticate with given tokens)"
+
+
 @pytest.mark.parametrize("mode", ("has_root_keys", "has_signing_certs", "neither"))
 @pytest.mark.vcr
 def test_check_aws_iam_root_access(mode):
-    """Test the CheckAWSIAMRootAccess check"""
-    check = CheckAWSIAMRootAccess(name="CheckRoot")
+    """Test the CheckAwsIamRootAccess check"""
+    check = CheckAwsIamRootAccess(name="CheckRoot")
     result = check.check()
 
     if mode == "has_root_keys":
         assert not result.passed
-        assert "account has root access keys" in result.status
+        assert result.status == "failed (account has root access keys)"
     elif mode == "has_signing_certs":
         assert not result.passed
-        assert "account has signing certificates" in result.status
+        assert result.status == "failed (account has signing certificates)"
     else:
         assert result.passed
 
@@ -65,10 +66,10 @@ def test_check_aws_iam_root_access(mode):
 @pytest.mark.parametrize("age_days", (30, 120))
 @pytest.mark.vcr
 def test_check_aws_iam_access_key_age(age_days):
-    """Test the CheckAWSIAMAccessKeyAge check"""
+    """Test the CheckAwsIamAccessKeyAge check"""
     # The following test was run with and the cassette modified to meet
     # the number of days in 'age_days'
-    check = CheckAWSIAMAccessKeyAge(name="AccessKeyAge")
+    check = CheckAwsIamAccessKeyAge(name="AccessKeyAge")
 
     # Create a mockdatetime to pin a date
     class mockdatetime(datetime.datetime):
@@ -85,3 +86,21 @@ def test_check_aws_iam_access_key_age(age_days):
         assert result.passed
     else:
         assert not result.passed
+
+
+@pytest.mark.vcr
+def test_check_aws_iam():
+    """Test the CheckAwsIam check with a valid profile"""
+    check = CheckAwsIam(name="CheckIAM")
+
+    # By default, the other CheckAwsIam classes should be children
+    for cls in (
+        CheckAwsIamAccessKeyAge,
+        CheckAwsIamRootAccess,
+        CheckAwsIamAuthentication,
+    ):
+        assert cls in [type(child) for child in check.children]
+
+    # The test should pass normally for a valid profile (see cassette)
+    result = check.check()
+    assert result.passed
