@@ -1,9 +1,7 @@
 interactions:
 - request:
     body: Action=GetUser&Version=2010-05-08
-    headers:
-      Content-Length:
-      - '33'
+    headers: {}
     method: POST
     uri: https://iam.amazonaws.com/
   response:
@@ -18,9 +16,8 @@ interactions:
       Content-Type:
       - text/xml
       Date:
-      - Fri, 04 Aug 2023 16:13:01 GMT
-      x-amzn-RequestId:
-      - 99999999-9999-9999-9999-999999999999
+      - Fri, 04 Aug 2023 19:05:30 GMT
+      x-amzn-RequestId: 99999999-9999-9999-9999-999999999999
     status:
       code: 403
       message: Forbidden
