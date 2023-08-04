@@ -3,9 +3,9 @@ best practices.
 
 Checks include:
 
-- Authentication with the default or specified profile
-- Access key age (90 days)
-
+- Authentication with the default profile or a specified profile
+- Access keys need to be rotated (age >90 days)
+- Root keys and signing certificates have not been created.
 
 .. _IAM: https://aws.amazon.com/iam/
 """
@@ -191,6 +191,13 @@ class CheckAwsIam(CheckAws):
 
     #: Aliases for the key_age parameter
     key_age_aliases = ("key_age", "age")
+
+    msg = Parameter(
+        "CHECK_AWS_IAM.MSG",
+        default="Check AWS IAM permissions",
+    )
+
+    aliases = ("checkAWSIAM", "checkAwsIAM", "CheckAwsIAM", "checkIAM", "CheckIAM")
 
     def __init__(self, *args, **kwargs):
         # Set up keyword arguments
