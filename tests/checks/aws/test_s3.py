@@ -2,6 +2,7 @@
 import pytest
 
 
+from geomancy.checks.aws.base import CheckAws
 from geomancy.checks.aws.s3 import (
     CheckAwsS3,
     CheckAwsS3BucketAccess,
@@ -11,12 +12,22 @@ from geomancy.checks.aws.s3 import (
 # Basic accessibility tests
 
 
-# @pytest.mark.parametrize(
-#     "cls", (CheckAwsS3, CheckAwsS3BucketAccess, CheckAwsS3BucketAccess)
-# )
-# def test_check_aws_profile(cls):
-#     """Test that CheckAws profiles are properly loaded"""
-#     assert False
+@pytest.mark.parametrize(
+    "cls", (CheckAwsS3, CheckAwsS3BucketAccess, CheckAwsS3BucketPrivate)
+)
+def test_check_aws_s3_profile(cls):
+    """Test that CheckAwsS3* profiles are properly loaded"""
+    # Create the check with a custom profile
+    custom_profile = "custom_profile"
+    check = cls(name="CheckProfile", profile=custom_profile)
+
+    assert check.profile == custom_profile
+
+    # If the class has children (CheckAwsS3) check those too
+    for child in check.children:
+        if not isinstance(child, CheckAws):
+            continue
+        assert child.profile == custom_profile
 
 
 @pytest.mark.vcr

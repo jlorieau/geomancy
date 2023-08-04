@@ -4,12 +4,37 @@ from unittest.mock import patch
 
 import pytest
 
+from geomancy.checks.aws.base import CheckAws
 from geomancy.checks.aws.iam import (
     CheckAwsIamAuthentication,
     CheckAwsIamRootAccess,
     CheckAwsIamAccessKeyAge,
     CheckAwsIam,
 )
+
+
+@pytest.mark.parametrize(
+    "cls",
+    (
+        CheckAwsIam,
+        CheckAwsIamAccessKeyAge,
+        CheckAwsIamRootAccess,
+        CheckAwsIamAuthentication,
+    ),
+)
+def test_check_aws_iam_profile(cls):
+    """Test that CheckAwsIam* profiles are properly loaded"""
+    # Create the check with a custom profile
+    custom_profile = "custom_profile"
+    check = cls(name="CheckProfile", profile=custom_profile)
+
+    assert check.profile == custom_profile
+
+    # If the class has children (CheckAwsS3) check those too
+    for child in check.children:
+        if not isinstance(child, CheckAws):
+            continue
+        assert child.profile == custom_profile
 
 
 @pytest.mark.vcr
