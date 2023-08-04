@@ -51,7 +51,7 @@ class CheckAwsIamAuthentication(CheckAws):
             return Result(status="failed (can't verify identity with STS)", msg=msg)
 
         arn = response["Arn"]
-        return Result(status=f"passed. ARN='{arn}'")
+        return Result(status=f"passed (ARN='{arn}')", msg=msg)
 
 
 class CheckAwsIamAccessKeyAge(CheckAws):
