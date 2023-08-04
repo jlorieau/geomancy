@@ -1,9 +1,7 @@
 interactions:
 - request:
     body: Action=GetAccountSummary&Version=2010-05-08
-    headers:
-      Content-Length:
-      - '43'
+    headers: {}
     method: POST
     uri: https://iam.amazonaws.com/
   response:
@@ -51,9 +49,8 @@ interactions:
       Content-Type:
       - text/xml
       Date:
-      - Fri, 04 Aug 2023 10:52:01 GMT
-      x-amzn-RequestId:
-      - 99999999-9999-9999-9999-999999999999
+      - Fri, 04 Aug 2023 18:59:04 GMT
+      x-amzn-RequestId: 99999999-9999-9999-9999-999999999999
     status:
       code: 200
       message: OK

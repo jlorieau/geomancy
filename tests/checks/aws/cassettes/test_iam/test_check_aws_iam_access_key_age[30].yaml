@@ -1,17 +1,15 @@
 interactions:
 - request:
     body: Action=GetUser&Version=2010-05-08
-    headers:
-      Content-Length:
-      - '33'
+    headers: {}
     method: POST
     uri: https://iam.amazonaws.com/
   response:
     body:
       string: "<GetUserResponse xmlns=\"https://iam.amazonaws.com/doc/2010-05-08/\">\n
-        \ <GetUserResult>\n    <User>\n      <Path>/</Path>\n      <UserName>testuser</UserName>\n
-        \     <Arn>arn:aws:iam::888888888888:user/testuser</Arn>\n      <UserId>AAAAAAAAAAAAAAAAAAAAA</UserId>\n
-        \     <CreateDate>2023-07-05T16:55:34Z</CreateDate>\n    </User>\n  </GetUserResult>\n
+        \ <GetUserResult>\n    <User>\n      <Path>/</Path>\n      <UserName>mytestuser</UserName>\n
+        \     <Arn>arn:aws:iam::888888888888:user/mytestuser</Arn>\n      <UserId>888888888888</UserId>\n
+        \     <CreateDate>2023-03-15T16:55:34Z</CreateDate>\n    </User>\n  </GetUserResult>\n
         \ <ResponseMetadata>\n    <RequestId>99999999-9999-9999-9999-999999999999</RequestId>\n
         \ </ResponseMetadata>\n</GetUserResponse>\n"
     headers:
@@ -20,9 +18,33 @@ interactions:
       Content-Type:
       - text/xml
       Date:
-      - Fri, 04 Aug 2023 10:16:10 GMT
-      x-amzn-RequestId:
-      - 99999999-9999-9999-9999-999999999999
+      - Fri, 04 Aug 2023 18:59:41 GMT
+      x-amzn-RequestId: 99999999-9999-9999-9999-999999999999
+    status:
+      code: 200
+      message: OK
+- request:
+    body: Action=ListAccessKeys&Version=2010-05-08&UserName=mytestuser
+    headers: {}
+    method: POST
+    uri: https://iam.amazonaws.com/
+  response:
+    body:
+      string: "<ListAccessKeysResponse xmlns=\"https://iam.amazonaws.com/doc/2010-05-08/\">\n
+        \ <ListAccessKeysResult>\n    <IsTruncated>false</IsTruncated>\n    <AccessKeyMetadata>\n
+        \     <member>\n        <AccessKeyId>YYYYYYYYYYYYYYYYYYYY</AccessKeyId>\n
+        \       <UserName>mytestuser</UserName>\n        <Status>Active</Status>\n
+        \       <CreateDate>2023-07-05T12:14:09Z</CreateDate>\n      </member>\n    </AccessKeyMetadata>\n
+        \ </ListAccessKeysResult>\n  <ResponseMetadata>\n    <RequestId>99999999-9999-9999-9999-999999999999</RequestId>\n
+        \ </ResponseMetadata>\n</ListAccessKeysResponse>\n"
+    headers:
+      Content-Length:
+      - '556'
+      Content-Type:
+      - text/xml
+      Date:
+      - Fri, 04 Aug 2023 18:59:41 GMT
+      x-amzn-RequestId: 99999999-9999-9999-9999-999999999999
     status:
       code: 200
       message: OK
