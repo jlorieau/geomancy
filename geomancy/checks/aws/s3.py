@@ -193,7 +193,7 @@ class CheckAwsS3(CheckAws):
         default="Check AWS S3 bucket '{check.value}'",
     )
 
-    aliases = ("checkAWSS3", "checkAwsS3", "CheckAwsS3", "checkS3", "CheckS3")
+    aliases = ("checkAWSS3", "CheckAWSS3", "checkS3", "CheckS3")
 
     def __init__(self, *args, **kwargs):
         # Set up keyword arguments
