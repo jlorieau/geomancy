@@ -27,8 +27,10 @@ class Result:
     """A Check's result with awareness of concurrent.futures and rich
     functionality"""
 
-    #: Result's status--e.g. 'passed', 'failed', 'not found'
+    #: Result's status--e.g. 'passed', 'failed', 'pending
     #: Only a status that **starts with** 'passed' is considered a passed result
+    #: By convention, this string should start with 'passed', 'failed', 'warning'
+    #: or 'pending'. e.g. 'failed to find file'
     status: str = "pending"
 
     #: Result message used when displaying the result. This may include
