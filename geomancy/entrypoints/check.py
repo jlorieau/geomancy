@@ -11,7 +11,6 @@ from contextlib import ExitStack
 import click
 from rich.live import Live
 import yaml
-import vcr
 
 from .environment import env_options
 from .utils import filepaths
@@ -66,17 +65,10 @@ def validate_checks_files(
 # Setup 'check' command
 @click.command
 @env_options
-@click.option(
-    "-f",
-    "--fixture",
-    required=False,
-    type=click.Path(),
-    help="Fixture to replace network requests",
-)
 @click.argument("checks_files", nargs=-1, type=str, callback=validate_checks_files)
-def check(checks_files, env, fixture):
+def check(checks_files, env):
     """Run checks"""
-    logger.debug(f"check_files={checks_files}, env={env}, fixture={fixture}")
+    logger.debug(f"check_files={checks_files}, env={env}")
 
     # Convert the checks_files into checks
     checks = []
@@ -125,24 +117,6 @@ def check(checks_files, env, fixture):
         # Set up the context managers
         executor = stack.enter_context(ThreadPoolExecutor())  # concurrent.futures
         live = stack.enter_context(Live(refresh_per_second=4))  # rich live display
-
-        if fixture is not None:
-            # Request header items to remove before saving
-            filter_headers = {
-                "Authorization",
-                "User-Agent",
-                "X-Amz-Content-SHA256",
-                "X-Amz-Date",
-                "amz-sdk-invocation-id",
-                "amz-sdk-request",
-            }
-            filter_headers.update(config.CLI.VCR.ADDITIONAL_FILTER_HEADERS)
-            kwargs = {
-                "record_mode": config.CLI.VCR.RECORD_MODE,
-                "filter_headers": list(filter_headers),
-            }
-
-            stack.enter_context(vcr.use_cassette(fixture, **kwargs))  # vcr fixtures
 
         # Run the checks, display the results to the terminal
         result = check.check(executor=executor)
