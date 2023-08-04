@@ -216,22 +216,18 @@ class CheckAwsIam(CheckAws):
 
         # Add sub-checks
         # 1. CheckAwsIamAuthentication
-        check_auth_kwargs = kwargs.copy()
-        check_auth_kwargs["name"] = f"{self.name}Authentication"
-        check_auth = CheckAwsIamAuthentication(*args, **kwargs)
-        self.children.append(check_auth)
+        child = CheckAwsIamAuthentication(*args, **kwargs)
+        child.name = f"{self.name}Authentication"
+        self.children.append(child)
 
         # 2. CheckAwsIamAccessKeyAge
         if isinstance(self.key_age, int):
-            check_age_kwargs = kwargs.copy()
-            check_age_kwargs["name"] = f"{self.name}AccessKeyAge"
-            check_age_kwargs["key_age"] = self.key_age
-            check_age = CheckAwsIamAccessKeyAge(*args, **kwargs)
-            self.children.append(check_age)
+            child = CheckAwsIamAccessKeyAge(*args, **kwargs)
+            child.name = f"{self.name}AccessKeyAge"
+            self.children.append(child)
 
         # 3. CheckAwsIAMRootAccess
         if self.root_access:
-            check_root_kwargs = kwargs.copy()
-            check_root_kwargs["name"] = f"{self.name}RootAccess"
-            check_root = CheckAwsIamRootAccess(*args, **kwargs)
-            self.children.append(check_root)
+            child = CheckAwsIamRootAccess(*args, **kwargs)
+            child.name = f"{self.name}RootAccess"
+            self.children.append(child)

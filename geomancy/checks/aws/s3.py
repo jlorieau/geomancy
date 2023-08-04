@@ -206,12 +206,12 @@ class CheckAwsS3(CheckAws):
         self.children.clear()
 
         # Bucket accessibility check
-        kwargs_child = kwargs.copy()
-        kwargs_child["name"] = f"{self.name}Access"
-        self.children.append(CheckAwsS3BucketAccess(*args, **kwargs_child))
+        child = CheckAwsS3BucketAccess(*args, **kwargs)
+        child.name = f"{self.name}Access"
+        self.children.append(child)
 
         # Bucket public access
         if self.private:
-            kwargs_child = kwargs.copy()
-            kwargs_child["name"] = f"{self.name}Private"
-            self.children.append(CheckAwsS3BucketPrivate(*args, **kwargs))
+            child = CheckAwsS3BucketPrivate(*args, **kwargs)
+            child.name = f"{self.name}Private"
+            self.children.append(child)
