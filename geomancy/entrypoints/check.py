@@ -21,7 +21,7 @@ from .utils import filepaths
 from ..checks import Check
 from ..config import Config
 
-__all__ = ("check",)
+__all__ = ("check_cmd",)
 
 # Setup logger and configuration
 logger = logging.getLogger(__name__)
@@ -65,10 +65,10 @@ def validate_checks_files(
 
 
 # Setup 'check' command
-@click.command
+@click.command(name="check")
 @env_options
 @click.argument("checks_files", nargs=-1, type=str, callback=validate_checks_files)
-def check(checks_files, env):
+def check_cmd(checks_files, env):
     """Run checks"""
     logger.debug(f"check_files={checks_files}, env={env}")
 

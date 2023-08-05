@@ -6,9 +6,9 @@ from pathlib import Path
 import click
 from click_default_group import DefaultGroup
 
-from .check import check
-from .run import run
-from .config import config
+from .check import check_cmd
+from .run import run_cmd
+from .config import config_cmd
 from .. import get_version
 
 logger = logging.getLogger(__name__)
@@ -77,6 +77,6 @@ def geo_cli(ctx, debug, disable_color):
 
 
 # Add sub-commands
-geo_cli.add_command(check)
-geo_cli.add_command(run)
-geo_cli.add_command(config)
+geo_cli.add_command(check_cmd)  # noqa
+geo_cli.add_command(run_cmd)  # noqa
+geo_cli.add_command(config_cmd)  # noqa

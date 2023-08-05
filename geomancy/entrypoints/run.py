@@ -8,15 +8,15 @@ import click
 
 from .environment import env_options
 
-__all__ = ("run",)
+__all__ = ("run_cmd",)
 
 logger = logging.getLogger(__name__)
 
 
-@click.command(context_settings={"ignore_unknown_options": True})
+@click.command(name="run", context_settings={"ignore_unknown_options": True})
 @env_options
 @click.argument("args", nargs=-1)
-def run(args, env):
+def run_cmd(args, env):
     """Run command within environment"""
     logger.debug(f"args={args}, env={env}")
 
