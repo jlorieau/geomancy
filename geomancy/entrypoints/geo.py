@@ -1,5 +1,5 @@
 """The geo CLI entrypoint"""
-import logging
+import logging, logging.config
 import os
 from pathlib import Path
 
@@ -46,9 +46,33 @@ def geo_cli(ctx, debug, disable_color):
         os.environ["NO_COLOR"] = "TRUE"
 
     # Setup logging
-    logging.basicConfig(
-        level=logging.DEBUG if debug else None,
-        format="%(levelname)s:%(name)s: %(message)s",
+    logging.config.dictConfig(
+        {
+            "version": 1,
+            "formatters": {
+                "standard": {"format": "%(levelname)s:%(name)s: %(message)s"},
+            },
+            "handlers": {
+                "default": {
+                    "level": "DEBUG" if debug else "WARNING",
+                    "formatter": "standard",
+                    "class": "logging.StreamHandler",
+                    "stream": "ext://sys.stdout",  # Default is stderr
+                },
+            },
+            "loggers": {
+                "": {  # root logger
+                    "handlers": ["default"],
+                    "level": "WARNING",
+                    "propagate": False,
+                },
+                "geomancy": {  # geomancy logs
+                    "handlers": ["default"],
+                    "level": "DEBUG" if debug else "INFO",
+                    "propagate": False,
+                },
+            },
+        }
     )
 
 
