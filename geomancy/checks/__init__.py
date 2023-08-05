@@ -4,6 +4,7 @@ from .exec import CheckExec
 from .path import CheckPath
 from .platform import CheckPlatform
 from .python import CheckPythonPackage
+from .test import CheckSleep
 
 from . import aws
 
@@ -16,5 +17,6 @@ __all__ = (
     CheckPath,
     CheckPlatform,
     CheckPythonPackage,
+    CheckSleep,
     aws,
 )
