@@ -129,6 +129,21 @@ class Result:
         else:
             return False
 
+    @property
+    def finished(self) -> t.List["Result"]:
+        """Return a flat list of currently finished results"""
+        finished = []
+        for child in self.children:
+            if isinstance(child, Result):
+                finished += child.finished  # this function
+            elif isinstance(child, Future) and child.done():
+                result = child.result()
+                finished += result.finished  # this function
+
+        if self.done:
+            finished = [self] + finished
+        return finished
+
     def rich_table(
         self, table: t.Optional[Table] = None, warning: bool = False, level: int = 0
     ) -> Table:

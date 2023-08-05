@@ -252,32 +252,6 @@ def test_check_import_modules():
         Check.import_modules("nonexist-missing")
 
 
-# noinspection GrazieInspection
-def test_check_result_done():
-    """Test Check.check and Result.done methods together."""
-
-    # Create a check with a thread-locking sub-check
-    sub = HangCheck(name="HangCheck")
-    check = Check(name="root", children=[sub])
-
-    # Create an executor to run the checks
-    with ThreadPoolExecutor() as executor:
-        result = check.check(executor=executor)
-
-        # The 'sub' has the thread hanged and can't finish its check
-        assert not result.done
-
-        # Releasing the thread lock should allow 'sub' to finish its check
-        sub.locked = False
-
-        # The release might not be instantaneously after releasing the lock,
-        # so we wait until the 'sub' check is done
-        while not result.done:
-            pass
-        assert result.done
-
-
-# noinspection GrazieInspection
 @pytest.mark.parametrize("condition", ("all", "any"))
 def test_check_result_passed(condition):
     """Test Check.check and Result.passed methods together (all condition."""
@@ -325,3 +299,55 @@ def test_check_result_passed(condition):
 
         assert not result.passed  # all children checks fail
         assert result.status == "failed"
+
+
+def test_check_result_done():
+    """Test Check.check and Result.done methods together."""
+
+    # Create a check with a thread-locking sub-check
+    sub = HangCheck(name="HangCheck")
+    check = Check(name="root", children=[sub])
+
+    # Create an executor to run the checks
+    with ThreadPoolExecutor() as executor:
+        result = check.check(executor=executor)
+
+        # The 'sub' has the thread hanged and can't finish its check
+        assert not result.done
+
+        # Releasing the thread lock should allow 'sub' to finish its check
+        sub.locked = False
+
+        # The release might not be instantaneously after releasing the lock,
+        # so we wait until the 'sub' check is done
+        while not result.done:
+            pass
+        assert result.done
+
+
+def test_check_result_finished():
+    """Test Check.check and Result.finished methods together."""
+
+    # Create a check with a thread-locking sub-check
+    sub = HangCheck(name="HangCheck")
+    check = Check(name="root", children=[sub])
+
+    # Create an executor to run the checks
+    with ThreadPoolExecutor() as executor:
+        result = check.check(executor=executor)
+
+        # The 'sub1' and 'sub2 has the thread hanged and can't finish their checks
+        assert not result.done
+        assert result.finished == []  # nothing is finished
+
+        # Release thread locks and check that it's finished
+        sub.locked = False
+
+        # The release might not be instantaneously after releasing the lock,
+        # so we wait until the 'sub' check is done
+        while not result.done:
+            pass
+
+        assert result.done
+        assert len(result.finished) == 2
+        assert all(isinstance(r, Result) for r in result.finished)
