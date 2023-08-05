@@ -21,6 +21,9 @@ class CheckAws(Check):
     import_error_msg = import_error_msg
 
     #: Profile name to use to authenticate the AWS client, str
+    profile: t.Optional[str]
+
+    #: Default for profile
     profile_default = Parameter("CHECK_AWS.PROFILE", None)
 
     def __init__(self, *args, profile: t.Optional[str] = None, **kwargs):
