@@ -1,1 +1,0 @@
-Added documentation on CheckAwsIam check for AWS authentication

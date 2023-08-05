@@ -9,6 +9,24 @@ deprecations section.
 
 .. towncrier release notes start
 
+`geomancy 1.1.1 <https://github.com/jlorieau/geomancy/tree/1.1.1>`_ - 2023-08-05
+================================================================================
+
+Features
+--------
+
+- `#35 <https://github.com/jlorieau/geomancy/issues/35>`_. Added CheckAwsIam for checking AWS authentication and security settings
+- `#35 <https://github.com/jlorieau/geomancy/issues/35>`_. Implemented CheckAws with the 'profile' argument to specify different credential profiles
+- `#43 <https://github.com/jlorieau/geomancy/issues/43>`_. Implemented validation checks for consistency with Result statuses
+- `#46 <https://github.com/jlorieau/geomancy/issues/46>`_. Added a progressbar and status bar to the terminal output
+
+
+Improved Documentation
+----------------------
+
+- `#35 <https://github.com/jlorieau/geomancy/issues/35>`_. Added documentation on CheckAwsIam check for AWS authentication
+
+
 `geomancy 1.1.0 <https://github.com/jlorieau/geomancy/tree/1.1.0>`_ - 2023-08-03
 ================================================================================
 
