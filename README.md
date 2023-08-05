@@ -388,14 +388,16 @@ AWS:
 2. Use ``geo`` to run the checks.
 
     ```shell
-    $ geo check
-    [✔] .geomancy.yaml...passed
+    [✔] test.yaml...passed
     [✔]   checks...passed
     [✔]     Environment...passed
-    [✔]       Check environment variable '$USER'......passed
+    [✔]       Check environment variable '$USER'...passed
     [✔]     Paths...passed
-    [✔]       Check path 'examples/geomancy.toml'......passed
-    [✔]       Check path 'examples/pyproject.toml'......passed
+    [✔]       Check path 'examples/geomancy.toml'...passed
+    [✔]       Check path 'examples/pyproject.toml'...passed
+    [✔]     Executables...passed
+    [✔]       Check executable 'python3>=3.11'...passed
+    ================================= 9 passed in 0.51s ==================================
     ```
 
     (By default, ``geomancy`` will search ``.geomancy.y[a]ml``, ``geomancy.y[a]ml``
