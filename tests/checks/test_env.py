@@ -3,6 +3,7 @@ Test the environment variable check class
 """
 import os
 
+import pytest
 from pytest import MonkeyPatch
 
 from geomancy.checks import CheckEnv
@@ -49,9 +50,11 @@ def test_check_env_name_substitution(
         assert check.check().passed
 
 
-def test_check_env_regex(
-    variable_name="VARIABLE_NAME", variable_value="dev", regex="dev|prod|local"
-):
+@pytest.mark.parametrize("regex", ("dev|prod|local", "(dev|prod|local)"))
+def test_check_env_regex(regex):
+    variable_name = "VARIABLE_NAME"
+    variable_value = "dev"
+
     # Make sure the variable name isn't in the environment already
     assert variable_name not in os.environ
 
@@ -59,17 +62,21 @@ def test_check_env_regex(
     with MonkeyPatch.context() as mp:
         mp.setenv(variable_name, variable_value)
 
-        # The regex should match
+        # 1. The regex should match
         check1 = CheckEnv(name="regex1", value=f"${variable_name}", regex=regex)
-        assert check1.check().passed
+        result = check1.check()
+        assert result.passed
+        assert result.status == "passed"
 
         # Change the variable value to something else in which the regex will
         # fail
         mp.setenv(variable_name, f"!{variable_value}!")
 
-        # The regex should not match
+        # 2. The regex should not match
         check2 = CheckEnv(name="regex2", value=f"${variable_name}", regex=regex)
-        assert not check2.check().passed
+        result = check2.check()
+        assert not result.passed
+        assert result.status == f"failed (does not match regex '{regex}')"
 
 
 def test_check_base_types_dict():

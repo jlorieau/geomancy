@@ -355,49 +355,47 @@ AWS:
    for an example of all checks.
 
     ```yaml
-    checks:
-      Environment:
-        desc: Check environment variables common to all development environments
+    Environment:
+      desc: Check environment variables common to all development environments
 
-        Username:
-          desc: The current username
-          checkEnv: "$USER"
-          regex: "[a-z_][a-z0-9_-]*[$]?"
+      Username:
+        desc: The current username
+        checkEnv: "$USER"
+        regex: "[a-z_][a-z0-9_-]*[$]?"
 
-      Paths:
-        desc: Checks the existence of needed files and directories
-        subchecks: "any" # at least one of the files must be present
+    Paths:
+      desc: Checks the existence of needed files and directories
+      subchecks: "any" # at least one of the files must be present
 
-        Geomancy:
-          desc: Check for the 'geomancy.toml' file
-          checkPath: examples/geomancy.toml
-          type: file
-        Pyproject:
-          desc: Check for 'pyproject.toml' file
-          checkPath: examples/pyproject.toml
-          type: file
+      Geomancy:
+        desc: Check for the 'geomancy.toml' file
+        checkPath: examples/geomancy.toml
+        type: file
+      Pyproject:
+        desc: Check for 'pyproject.toml' file
+        checkPath: examples/pyproject.toml
+        type: file
 
-      Executables:
-        desc: Check the availability of commands and their versions
+    Executables:
+      desc: Check the availability of commands and their versions
 
-        Python:
-          desc: Python interpreter ver 3.11 or higher
-          checkExec: python3>=3.11
+      Python:
+        desc: Python interpreter ver 3.11 or higher
+        checkExec: python3>=3.11
     ```
 
 2. Use ``geo`` to run the checks.
 
     ```shell
-    [✔] test.yaml...passed
-    [✔]   checks...passed
-    [✔]     Environment...passed
-    [✔]       Check environment variable '$USER'...passed
-    [✔]     Paths...passed
-    [✔]       Check path 'examples/geomancy.toml'...passed
-    [✔]       Check path 'examples/pyproject.toml'...passed
-    [✔]     Executables...passed
-    [✔]       Check executable 'python3>=3.11'...passed
-    ================================= 9 passed in 0.51s ==================================
+     [✔] test.yaml...passed
+     [✔]   Environment...passed
+     [✔]     Check environment variable '$USER'...passed
+     [✔]   Paths...passed
+     [✔]     Check path 'examples/geomancy.toml'...passed
+     [✔]     Check path 'examples/pyproject.toml'...passed
+     [✔]   Executables...passed
+     [✔]     Check executable 'python3>=3.11'...passed
+    ================================= 8 passed in 0.50s ==================================
     ```
 
     (By default, ``geomancy`` will search ``.geomancy.y[a]ml``, ``geomancy.y[a]ml``

@@ -36,7 +36,7 @@ class Result:
 
     #: Regular expression to validate allowed statuses
     _allowed_re: t.Pattern[str] = field(
-        repr=False, default=re.compile(r"^(passed|failed|pending)( \([^)\n]+\))?$")
+        repr=False, default=re.compile(r"^(passed|failed|pending)( \([^\n]+\))?$")
     )
 
     #: Result message used when displaying the result. This may include
