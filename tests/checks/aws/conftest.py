@@ -13,7 +13,7 @@ test_aws_request_id = "99999999-9999-9999-9999-999999999999"
 
 
 @pytest.fixture(scope="module")
-def vcr_config(vcr_config):
+def vcr_config():
     """VCR additional configuration for AWS"""
 
     # Scrub functions
@@ -73,8 +73,17 @@ def vcr_config(vcr_config):
         response["headers"]["x-amzn-RequestId"] = test_aws_request_id
         return response
 
+    vcr_config = dict()
     vcr_config["before_record_request"] = scrub_request
     vcr_config["before_record_response"] = scrub_response
+    vcr_config["filter_headers"] = [
+        "authorization",
+        "User-Agent",
+        "X-Amz-Date",
+        "X-Amz-Content-SHA256",
+        "amz-sdk-invocation-id",
+        "amz-sdk-request",
+    ]
     return vcr_config
 
 
