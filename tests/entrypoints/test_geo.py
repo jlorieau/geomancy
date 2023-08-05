@@ -74,17 +74,6 @@ def test_cli_check_glob(run, options):
     )
 
 
-@pytest.mark.parametrize(
-    "checks_file,fixture",
-    (("examples/aws/geomancy.yaml", "examples/aws/fixtures.yaml"),),
-)
-def test_cli_check_fixtures(run, checks_file, fixture):
-    """Test the CLI with checks that require network access and therefore use
-    fixtures."""
-    # Run the command and test that an 0 error code was received
-    result = run(("--fixture", fixture, checks_file))
-
-
 @pytest.mark.parametrize("flag", ("", "--toml", "--yaml"))
 def test_cli_config(run, flag):
     """Test the --config option"""

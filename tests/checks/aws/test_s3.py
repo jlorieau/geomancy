@@ -2,67 +2,90 @@
 import pytest
 
 
-from geomancy.checks.aws.s3 import CheckAWSS3
+from geomancy.checks.aws.base import CheckAws
+from geomancy.checks.aws.s3 import (
+    CheckAwsS3,
+    CheckAwsS3BucketAccess,
+    CheckAwsS3BucketPrivate,
+)
 
-# Basic accessibility testss
+# Basic accessibility tests
+
+
+@pytest.mark.parametrize(
+    "cls", (CheckAwsS3, CheckAwsS3BucketAccess, CheckAwsS3BucketPrivate)
+)
+def test_check_aws_s3_profile(cls):
+    """Test that CheckAwsS3* profiles are properly loaded"""
+    # Create the check with a custom profile
+    custom_profile = "custom_profile"
+    check = cls(name="CheckProfile", profile=custom_profile)
+
+    assert check.profile == custom_profile
+
+    # If the class has children (CheckAwsS3) check those too
+    for child in check.children:
+        if not isinstance(child, CheckAws):
+            continue
+        assert child.profile == custom_profile
 
 
 @pytest.mark.vcr
 def test_check_aws_s3_missing():
-    """Test CheckAWSS3/CheckAWSS3BucketAccess check with a missing bucket"""
+    """Test CheckAwsS3/CheckAwsS3BucketAccess check with a missing bucket"""
     bucket_name = "my-missing-bucket-noexist"
 
     # Run the check, which should not pass
-    check = CheckAWSS3(name="Missing Bucket", value=bucket_name)
+    check = CheckAwsS3(name="Missing Bucket", value=bucket_name)
     result = check.check()
     assert not result.passed
 
-    # Validate the result of the first child check, CheckAWSS3BucketAccess,
+    # Validate the result of the first child check, CheckAwsS3BucketAccess,
     # which could not find the bucket
     child_results = result.children
     assert not child_results[0].passed
-    assert child_results[0].status == "not found"
+    assert child_results[0].status == "failed (not found)"
 
 
 @pytest.mark.vcr
 def test_check_aws_s3_forbidden():
-    """Test CheckAWSS3/CheckAWSS3BucketAccess check with a bucket that has
+    """Test CheckAwsS3/CheckAwsS3BucketAccess check with a bucket that has
     forbidden access"""
     bucket_name = "docker"
 
     # Run the check, which should not pass
-    check = CheckAWSS3(name="Forbidden Bucket", value=bucket_name)
+    check = CheckAwsS3(name="Forbidden Bucket", value=bucket_name)
     result = check.check()
     assert not result.passed
 
-    # Validate the result of the first child check, CheckAWSS3BucketAccess,
+    # Validate the result of the first child check, CheckAwsS3BucketAccess,
     # which found that the bucket access is forbidden
     child_results = result.children
     assert not child_results[0].passed
-    assert child_results[0].status == "access forbidden"
+    assert child_results[0].status == "failed (access forbidden)"
 
 
 def test_check_aws_s3_invalid():
-    """Test CheckAWSS3/CheckAWSS3BucketAccess check with a bucket that has an
+    """Test CheckAwsS3/CheckAwsS3BucketAccess check with a bucket that has an
     invalid name"""
     bucket_name = "!invalid!"
 
     # Run the check, which should not pass
-    check = CheckAWSS3(name="Invalid Bucket", value=bucket_name)
+    check = CheckAwsS3(name="Invalid Bucket", value=bucket_name)
     result = check.check()
     assert not result.passed
 
-    # Validate the result of the first child check, CheckAWSS3BucketAccess,
+    # Validate the result of the first child check, CheckAwsS3BucketAccess,
     # which found the bucket name to be invalid
     child_results = result.children
     assert not child_results[0].passed
-    assert child_results[0].status.startswith("Invalid bucket name")
+    assert child_results[0].status.startswith("failed (Invalid bucket name")
 
 
 # The following are public/private bucket tests
 @pytest.mark.vcr
 def test_check_aws_s3_without_public_access_block():
-    """Test CheckAWSS3/CheckAWSS3BucketPrivate check using a bucket with
+    """Test CheckAwsS3/CheckAwsS3BucketPrivate check using a bucket with
     Public Access Block turned off."""
     # The following is a bucket created with "Block Public Access" turned off
     # but without a policy or ACL specified. Altogether, it should not give
@@ -70,11 +93,11 @@ def test_check_aws_s3_without_public_access_block():
     bucket_name = "testbucket-nopublicblock"
 
     # Run the check, which should not pass
-    check = CheckAWSS3(name="Public Bucket", value=bucket_name)
+    check = CheckAwsS3(name="Public Bucket", value=bucket_name)
     result = check.check()
     assert result.passed
 
-    # Validate the result of the second child check, CheckAWSS3BucketAccess,
+    # Validate the result of the second child check, CheckAwsS3BucketAccess,
     # which found the bucket name to be invalid
     child_results = result.children
     assert child_results[1].passed
@@ -82,7 +105,7 @@ def test_check_aws_s3_without_public_access_block():
 
 @pytest.mark.vcr
 def test_check_aws_s3_public_policy():
-    """Test CheckAWSS3/CheckAWSS3BucketPrivate check using a bucket with a
+    """Test CheckAwsS3/CheckAwsS3BucketPrivate check using a bucket with a
     public Policy."""
     # The following is a bucket created with "Block Public Access" turned off
     # and with a policy that allows public access. This bucket should be
@@ -90,20 +113,20 @@ def test_check_aws_s3_public_policy():
     bucket_name = "testbucket-public-policy"
 
     # Run the check, which should not pass
-    check = CheckAWSS3(name="Public Bucket", value=bucket_name)
+    check = CheckAwsS3(name="Public Bucket", value=bucket_name)
     result = check.check()
     assert not result.passed
 
-    # Validate the result of the second child check, CheckAWSS3BucketAccess,
+    # Validate the result of the second child check, CheckAwsS3BucketAccess,
     # which found the bucket name to be invalid
     child_results = result.children
     assert not child_results[1].passed
-    assert child_results[1].status.startswith("publicly accessible")
+    assert child_results[1].status == "failed (publicly accessible)"
 
 
 @pytest.mark.vcr
 def test_check_aws_s3_public_acl():
-    """Test CheckAWSS3/CheckAWSS3BucketPrivate check using a bucket with a
+    """Test CheckAwsS3/CheckAwsS3BucketPrivate check using a bucket with a
     public ACL."""
     # The following is a bucket created with "Block Public Access" turned off
     # and with a policy that allows public access. This bucket should be
@@ -111,28 +134,28 @@ def test_check_aws_s3_public_acl():
     bucket_name = "testbucket-alluser-acl"
 
     # Run the check, which should not pass
-    check = CheckAWSS3(name="Public Bucket", value=bucket_name)
+    check = CheckAwsS3(name="Public Bucket", value=bucket_name)
     result = check.check()
     assert not result.passed
 
-    # Validate the result of the second child check, CheckAWSS3BucketAccess,
+    # Validate the result of the second child check, CheckAwsS3BucketAccess,
     # which found the bucket name to be invalid
     child_results = result.children
     assert not child_results[1].passed
-    assert child_results[1].status.startswith("publicly accessible")
+    assert child_results[1].status.startswith("failed (publicly accessible)")
 
 
 @pytest.mark.vcr
 def test_check_aws_s3_valid():
-    """Test CheckAWSS3 check with a valid bucket"""
+    """Test CheckAwsS3 check with a valid bucket"""
     bucket_name = "testbucket-valid"
 
     # Run the check, which should pass
-    check = CheckAWSS3(name="Valid Bucket", value=bucket_name)
+    check = CheckAwsS3(name="Valid Bucket", value=bucket_name)
     result = check.check()
     assert result.passed
 
-    # Validate the result of the first child check, CheckAWSS3BucketAccess,
+    # Validate the result of the first child check, CheckAwsS3BucketAccess,
     # which found an accessible bucket
     child_results = result.children
     assert child_results[0].passed

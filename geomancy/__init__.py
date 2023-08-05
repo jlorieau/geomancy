@@ -9,7 +9,7 @@ def get_version(version=__version__):
 
     Examples
     --------
-    >>> get_version((0, 1, 1, 'b'))
+    >>> get_version((0, 1, 0, 'b'))
     '0.1.0b'
     >>> get_version((1, 0, 0))
     '1.0.0'

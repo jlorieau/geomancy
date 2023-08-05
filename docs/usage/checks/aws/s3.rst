@@ -11,14 +11,16 @@ checkAwsS3
     Parameters
     ^^^
 
-    `checkAwsS3`: str
-        | The S3 bucket to probe using the currently configured AWS credentials.
-        | *aliases*: `checkS3`, `CheckS3`, `checkAWSS3`, `checkAwsS3`,
-          `CheckAwsS3`
+    ``checkAwsS3``: str
+        | Check the given S3 bucket
+        | *aliases*: ``checkS3``, ``CheckS3``, ``checkAWSS3``, ``checkAwsS3``,
+          ``CheckAwsS3``
 
-    `private`: bool
-        | Whether to check the public availability of the bucket.
+    ``private``: bool
+        | Security check the public availability of the bucket
         | *default*: True
+
+    .. include:: snippets/common_args.rst
 
     .. include:: ../snippets/common_args.rst
 
@@ -26,7 +28,7 @@ checkAwsS3
 
     .. tab-item:: Example 1 (yaml)
 
-        The `checkAwsS3` check in YAML format.
+        The ``checkAwsS3`` check in YAML format.
 
         .. code-block:: yaml
 
@@ -38,7 +40,7 @@ checkAwsS3
 
     .. tab-item:: Example 2 (toml)
 
-        The `checkAwsS3` check in TOML format.
+        The ``checkAwsS3`` check in TOML format.
 
         .. code-block:: toml
 

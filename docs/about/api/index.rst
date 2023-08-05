@@ -16,7 +16,8 @@ Checks
     geomancy.checks.CheckPath
     geomancy.checks.CheckPlatform
     geomancy.checks.CheckPythonPackage
-    geomancy.checks.CheckAWSS3
+    geomancy.checks.aws.CheckAwsS3
+    geomancy.checks.aws.CheckAwsIam
 
 Config
 ------

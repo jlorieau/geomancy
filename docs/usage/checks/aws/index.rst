@@ -3,6 +3,10 @@ AWS
 
 Checks for Amazon Web Service (`AWS <https://aws.amazon.com>`_) resources:
 
+:ref:`checkAwsIam`
+    .. automodule:: geomancy.checks.aws.iam
+        :noindex:
+
 :ref:`checkAwsS3`
     .. automodule:: geomancy.checks.aws.s3
         :noindex:
@@ -21,8 +25,8 @@ Checks for Amazon Web Service (`AWS <https://aws.amazon.com>`_) resources:
         $ python -m pip install geomancy[all]
 
 .. toctree::
+    :hidden:
     :maxdepth: 1
     :glob:
-    :hidden:
 
     *

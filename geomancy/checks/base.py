@@ -15,7 +15,7 @@ from .utils import pop_first, all_subclasses
 from ..config import Parameter
 from ..environment import sub_env
 
-__all__ = ("Check", "CheckException", "Result", "Executor")
+__all__ = ("Check", "CheckException", "Result", "CheckException", "Executor")
 
 
 class CheckException(Exception):
@@ -27,8 +27,10 @@ class Result:
     """A Check's result with awareness of concurrent.futures and rich
     functionality"""
 
-    #: Result's status--e.g. 'passed', 'failed', 'not found'
-    #: Only a 'passed' status is considered a passed result
+    #: Result's status--e.g. 'passed', 'failed', 'pending
+    #: Only a status that **starts with** 'passed' is considered a passed result
+    #: By convention, this string should start with 'passed', 'failed', 'warning'
+    #: or 'pending'. e.g. 'failed to find file'
     status: str = "pending"
 
     #: Result message used when displaying the result. This may include
@@ -62,12 +64,12 @@ class Result:
         for child in self.children:
             if isinstance(child, Result):
                 # The child is a Result object
-                child_status = child.status == "passed"
+                child_status = child.status.startswith("passed")
                 children_passed.append(child_status)
             elif isinstance(child, Future) and child.done():
                 # The child is a future with a result
                 result = child.result()
-                child_status = result.status == "passed"
+                child_status = result.status.startswith("passed")
                 children_passed.append(child_status)
             else:
                 # The child is a future that isn't done evaluating
@@ -75,11 +77,11 @@ class Result:
                 children_passed.append(False)
 
         # Update the status from "pending" if this result is done (finished)
-        if self.status.lower() == "pending" and done:
+        if self.status.startswith("pending") and done:
             self.status = "passed" if self.condition(children_passed) else "failed"
 
         # Only a 'passed' status is considered a passed result
-        return self.status.lower() == "passed"
+        return self.status.startswith("passed")
 
     @property
     def done(self) -> bool:
@@ -101,10 +103,10 @@ class Result:
             else:
                 children_done.append(False)
 
-        if all(children_done) and self.status.lower() != "pending":
+        if all(children_done) and not self.status.startswith("pending"):
             # All children are done and this result has a non-pending status
             return True
-        elif all(children_done) and self.status.lower() == "pending":
+        elif all(children_done) and self.status.startswith("pending"):
             # All the children are done and this result's pending. This result's
             # status can be updated/changed from 'pending'. The passed
             # property will do this
@@ -143,10 +145,10 @@ class Result:
 
         # Format the checkbox string, status string and warning option for
         # children results
-        if self.status.lower() == "pending":
+        if self.status.lower().startswith("pending"):
             checkbox = "[ ]"
             status = f"[yellow]{self.status}[/yellow]"
-        elif self.status.lower() == "passed":
+        elif self.status.lower().startswith("passed"):
             checkbox = "[[green]:heavy_check_mark:[/green]]"
             status = f"[green]{self.status}[/green]"
             warning |= True  # All children should be marked as warnings

@@ -1,0 +1,26 @@
+interactions:
+- request:
+    body: Action=GetUser&Version=2010-05-08
+    headers: {}
+    method: POST
+    uri: https://iam.amazonaws.com/
+  response:
+    body:
+      string: "<GetUserResponse xmlns=\"https://iam.amazonaws.com/doc/2010-05-08/\">\n
+        \ <GetUserResult>\n    <User>\n      <Path>/</Path>\n      <UserName>mytestuser</UserName>\n
+        \     <Arn>arn:aws:iam::888888888888:user/mytestuser</Arn>\n      <UserId>888888888888</UserId>\n
+        \     <CreateDate>2023-03-15T16:55:34Z</CreateDate>\n    </User>\n  </GetUserResult>\n
+        \ <ResponseMetadata>\n    <RequestId>99999999-9999-9999-9999-999999999999</RequestId>\n
+        \ </ResponseMetadata>\n</GetUserResponse>\n"
+    headers:
+      Content-Length:
+      - '465'
+      Content-Type:
+      - text/xml
+      Date:
+      - Fri, 04 Aug 2023 19:05:31 GMT
+      x-amzn-RequestId: 99999999-9999-9999-9999-999999999999
+    status:
+      code: 200
+      message: OK
+version: 1

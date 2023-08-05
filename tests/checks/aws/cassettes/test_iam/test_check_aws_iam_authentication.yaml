@@ -1,0 +1,25 @@
+interactions:
+- request:
+    body: Action=GetCallerIdentity&Version=2011-06-15
+    headers: {}
+    method: POST
+    uri: https://sts.amazonaws.com/
+  response:
+    body:
+      string: "<GetCallerIdentityResponse xmlns=\"https://sts.amazonaws.com/doc/2011-06-15/\">\n
+        \ <GetCallerIdentityResult>\n    <Arn>arn:aws:iam::888888888888:user/mytestuser</Arn>\n
+        \   <UserId>888888888888</UserId>\n    <Account>888888888888</Account>\n  </GetCallerIdentityResult>\n
+        \ <ResponseMetadata>\n    <RequestId>99999999-9999-9999-9999-999999999999</RequestId>\n
+        \ </ResponseMetadata>\n</GetCallerIdentityResponse>\n"
+    headers:
+      Content-Length:
+      - '405'
+      Content-Type:
+      - text/xml
+      Date:
+      - Fri, 04 Aug 2023 18:58:49 GMT
+      x-amzn-RequestId: 99999999-9999-9999-9999-999999999999
+    status:
+      code: 200
+      message: OK
+version: 1

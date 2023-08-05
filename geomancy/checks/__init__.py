@@ -5,7 +5,7 @@ from .path import CheckPath
 from .platform import CheckPlatform
 from .python import CheckPythonPackage
 
-from .aws import CheckAWSS3
+from . import aws
 
 __all__ = (
     Check,
@@ -16,5 +16,5 @@ __all__ = (
     CheckPath,
     CheckPlatform,
     CheckPythonPackage,
-    CheckAWSS3,
+    aws,
 )
