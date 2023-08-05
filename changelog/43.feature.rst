@@ -1,0 +1,1 @@
+Implemented validation checks for consistency with Result statuses
