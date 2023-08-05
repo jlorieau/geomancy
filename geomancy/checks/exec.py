@@ -1,5 +1,6 @@
 """
-Checks for executables
+Check the existence and, optionally, the version of available executables or
+commands.
 """
 import typing as t
 from shutil import which
@@ -20,7 +21,7 @@ class CheckExec(CheckVersion):
     require_current_version = False
 
     msg = Parameter(
-        "CHECKEXEC.MSG",
+        "CHECK_EXEC.MSG",
         default="Check executable '{check.raw_value}'",
     )
 

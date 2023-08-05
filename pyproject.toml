@@ -44,7 +44,6 @@ dependencies = [
     "click>=8.1",  # Tool to develop CLI
     "click-default-group",  # All default click subcommands. e.g. geo -> geo check
     "rich>=13",  # Platform-independent terminal rendering
-    "vcrpy<5.0",  # Mock http interactions and fixtures
 ]
 
 [tool.setuptools]
@@ -67,6 +66,7 @@ dev = [  # For development
     "twine>=4.0",  # Manage package uploads
     "build",  # Manage package builds
     "black[d]",  # Code formatter
+    "vcrpy<5.0",  # Mock http interactions and fixtures
     "pytest-recording"  # Implementation of vcrpy in pytest
     ]
 docs = [  # For building documentation
@@ -86,13 +86,11 @@ addopts = "--doctest-modules"
 
 [tool.towncrier]
 package = "geomancy"
-filename = "docs/about/changelog.md"
-directory = "changelog/"
-template = "changelog/changelog_template.jinja"
-start_string = "<!-- towncrier release notes start -->\n"
-underlines = ["", "", ""]
-title_format = "## [{version}](https://github.com/jlorieau/geomancy/tree/{version}) - {project_date}"
-issue_format = "[#{issue}](https://github.com/jlorieau/geomancy/issues/{issue})"
+filename = "docs/about/changelog.rst"
+directory = "changelog"
+template = "changelog/_template.rst"
+title_format = "`{name} {version} <https://github.com/jlorieau/geomancy/tree/{version}>`_ - {project_date}"
+issue_format = "`#{issue} <https://github.com/jlorieau/geomancy/issues/{issue}>`_"
 
     [[tool.towncrier.type]]
     directory = "breaking"

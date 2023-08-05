@@ -35,7 +35,7 @@ Layered environments could include a _common_ or _base_ environment, with
 additional checks for settings of _test_, _development_ and _production_
 environments.
 
-In the following checks file, the existence of environment file and secrets
+In the following checks file, the existence of an environment file and a secrets
 file can be checked based on the ``$ENV`` environment variable. (See the
 [docker environment variable parameter expansion rules](https://docs.docker.com/compose/environment-variables/env-file/#parameter-expansion))
 
@@ -327,7 +327,7 @@ checks:
 <p>
 <details>
 <summary><strong><u>AWS</u></strong> resources exist and are securely setup
-  (<a href="https://geomancy.readthedocs.io/en/latest/usage/format.html#checkawss3">checkS3</a>)
+  (<a href="https://geomancy.readthedocs.io/en/latest/usage/checks/aws/index.html">AWS checks</a>)
 </summary>
 
 The following shows an example in yaml format. Checks can be formatted in
@@ -335,8 +335,12 @@ toml format as well.
 
 ```yaml
 AWS:
+  IAM:
+    desc: Check the default authentication and security settings
+    checkIAM:
+
   TemplatesS3Bucket:
-    desc: The bucket for cloudformation templates
+    desc: Check the bucket for cloudformation templates
     checkS3: "myproject-cfn-templates"
 ```
 </details>
@@ -384,14 +388,16 @@ AWS:
 2. Use ``geo`` to run the checks.
 
     ```shell
-    $ geo check
-    [✔] .geomancy.yaml...passed
+    [✔] test.yaml...passed
     [✔]   checks...passed
     [✔]     Environment...passed
-    [✔]       Check environment variable '$USER'......passed
+    [✔]       Check environment variable '$USER'...passed
     [✔]     Paths...passed
-    [✔]       Check path 'examples/geomancy.toml'......passed
-    [✔]       Check path 'examples/pyproject.toml'......passed
+    [✔]       Check path 'examples/geomancy.toml'...passed
+    [✔]       Check path 'examples/pyproject.toml'...passed
+    [✔]     Executables...passed
+    [✔]       Check executable 'python3>=3.11'...passed
+    ================================= 9 passed in 0.51s ==================================
     ```
 
     (By default, ``geomancy`` will search ``.geomancy.y[a]ml``, ``geomancy.y[a]ml``
@@ -407,6 +413,13 @@ For full documentation please see https://geomancy.readthedocs.io/en/latest.
 ## Bugs or Requests
 Please use the [GitHub issue tracker](https://github.com/jlorieau/geomancy/issues)
 to submit bugs or request features.
+
+## Similar projects
+
+The following projects share some of the same goals in different contexts:
+
+- [Envalid](https://github.com/af/envalid)
+- [AWS Config](https://aws.amazon.com/config/)
 
 ## License
 

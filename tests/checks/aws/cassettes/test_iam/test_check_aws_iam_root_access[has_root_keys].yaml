@@ -1,0 +1,57 @@
+interactions:
+- request:
+    body: Action=GetAccountSummary&Version=2010-05-08
+    headers: {}
+    method: POST
+    uri: https://iam.amazonaws.com/
+  response:
+    body:
+      string: "<GetAccountSummaryResponse xmlns=\"https://iam.amazonaws.com/doc/2010-05-08/\">\n
+        \ <GetAccountSummaryResult>\n    <SummaryMap>\n      <entry>\n        <key>GroupPolicySizeQuota</key>\n
+        \       <value>5120</value>\n      </entry>\n      <entry>\n        <key>InstanceProfilesQuota</key>\n
+        \       <value>1000</value>\n      </entry>\n      <entry>\n        <key>Policies</key>\n
+        \       <value>0</value>\n      </entry>\n      <entry>\n        <key>GroupsPerUserQuota</key>\n
+        \       <value>10</value>\n      </entry>\n      <entry>\n        <key>InstanceProfiles</key>\n
+        \       <value>0</value>\n      </entry>\n      <entry>\n        <key>AttachedPoliciesPerUserQuota</key>\n
+        \       <value>10</value>\n      </entry>\n      <entry>\n        <key>Users</key>\n
+        \       <value>1</value>\n      </entry>\n      <entry>\n        <key>PoliciesQuota</key>\n
+        \       <value>1500</value>\n      </entry>\n      <entry>\n        <key>Providers</key>\n
+        \       <value>0</value>\n      </entry>\n      <entry>\n        <key>AccountMFAEnabled</key>\n
+        \       <value>0</value>\n      </entry>\n      <entry>\n        <key>AccessKeysPerUserQuota</key>\n
+        \       <value>2</value>\n      </entry>\n      <entry>\n        <key>AssumeRolePolicySizeQuota</key>\n
+        \       <value>2048</value>\n      </entry>\n      <entry>\n        <key>PolicyVersionsInUseQuota</key>\n
+        \       <value>10000</value>\n      </entry>\n      <entry>\n        <key>GlobalEndpointTokenVersion</key>\n
+        \       <value>1</value>\n      </entry>\n      <entry>\n        <key>VersionsPerPolicyQuota</key>\n
+        \       <value>5</value>\n      </entry>\n      <entry>\n        <key>AttachedPoliciesPerGroupQuota</key>\n
+        \       <value>10</value>\n      </entry>\n      <entry>\n        <key>PolicySizeQuota</key>\n
+        \       <value>6144</value>\n      </entry>\n      <entry>\n        <key>Groups</key>\n
+        \       <value>1</value>\n      </entry>\n      <entry>\n        <key>AccountSigningCertificatesPresent</key>\n
+        \       <value>0</value>\n      </entry>\n      <entry>\n        <key>UsersQuota</key>\n
+        \       <value>5000</value>\n      </entry>\n      <entry>\n        <key>ServerCertificatesQuota</key>\n
+        \       <value>20</value>\n      </entry>\n      <entry>\n        <key>MFADevices</key>\n
+        \       <value>0</value>\n      </entry>\n      <entry>\n        <key>UserPolicySizeQuota</key>\n
+        \       <value>2048</value>\n      </entry>\n      <entry>\n        <key>PolicyVersionsInUse</key>\n
+        \       <value>13</value>\n      </entry>\n      <entry>\n        <key>ServerCertificates</key>\n
+        \       <value>0</value>\n      </entry>\n      <entry>\n        <key>Roles</key>\n
+        \       <value>14</value>\n      </entry>\n      <entry>\n        <key>RolesQuota</key>\n
+        \       <value>1000</value>\n      </entry>\n      <entry>\n        <key>SigningCertificatesPerUserQuota</key>\n
+        \       <value>2</value>\n      </entry>\n      <entry>\n        <key>MFADevicesInUse</key>\n
+        \       <value>0</value>\n      </entry>\n      <entry>\n        <key>RolePolicySizeQuota</key>\n
+        \       <value>10240</value>\n      </entry>\n      <entry>\n        <key>AttachedPoliciesPerRoleQuota</key>\n
+        \       <value>10</value>\n      </entry>\n      <entry>\n        <key>AccountAccessKeysPresent</key>\n
+        \       <value>1</value>\n      </entry>\n      <entry>\n        <key>GroupsQuota</key>\n
+        \       <value>300</value>\n      </entry>\n    </SummaryMap>\n  </GetAccountSummaryResult>\n
+        \ <ResponseMetadata>\n    <RequestId>99999999-9999-9999-9999-999999999999</RequestId>\n
+        \ </ResponseMetadata>\n</GetAccountSummaryResponse>\n"
+    headers:
+      Content-Length:
+      - '3388'
+      Content-Type:
+      - text/xml
+      Date:
+      - Fri, 04 Aug 2023 18:58:49 GMT
+      x-amzn-RequestId: 99999999-9999-9999-9999-999999999999
+    status:
+      code: 200
+      message: OK
+version: 1

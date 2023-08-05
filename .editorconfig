@@ -15,11 +15,13 @@ charset = utf-8
 max_line_length = 88
 
 # YAML files are indented by 2 spaces
-[*.yml]
+[*.{yaml,yml}]
 indent_size = 2
 
-[*.yaml]
-indent_size = 2
-
+# Markdown files are indented by 2 spaces
 [*.md]
 indent_size = 2
+
+# Restructured text are indented by 4 spaces (not 3)
+[*.rst]
+indent_size = 4

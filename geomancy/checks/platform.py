@@ -1,5 +1,5 @@
 """
-Checks the platform (Operating System) and its version
+Check the current platform (operating system) and, optionally, its minimum version.
 """
 import typing as t
 import platform
@@ -20,7 +20,7 @@ class CheckPlatform(CheckVersion):
 
     # The message for checking python packages
     msg = Parameter(
-        "CHECKPLATFORM.MSG",
+        "CHECK_PLATFORM.MSG",
         default="Check platform '{check.raw_value}'",
     )
 
@@ -70,7 +70,7 @@ class CheckPlatform(CheckVersion):
 
         if current_platform.lower() != name.lower():
             # Failed check if the platform doesn't match this check
-            return Result(msg=msg, status="wrong platform")
+            return Result(status="failed (wrong platform)", msg=msg)
 
         # Check the version, as usual
         return super().check(level=level)

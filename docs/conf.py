@@ -52,7 +52,6 @@ myst_enable_extensions = ["colon_fence", "deflist", "fieldlist", "substitution"]
 # a list of builtin themes.
 #
 html_theme = "furo"
-html_title = " "
 html_logo = "_static/geomancy_logo.svg"
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -63,7 +62,10 @@ html_css_files = ["custom.css"]
 
 # Other html variables (Furo)
 # https://pradyunsg.me/furo/customisation/colors/
-html_theme_options = {"light_css_variables": {"color-foreground-border": "#bfbfbf"}}
+html_theme_options = {
+    "light_css_variables": {"color-foreground-border": "#bfbfbf"},
+    "sidebar_hide_name": True,
+}
 
 # Remove the autosummary stub links from toctrees
 remove_from_toctrees = ["about/api/generated/*"]

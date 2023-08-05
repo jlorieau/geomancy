@@ -1,3 +1,4 @@
-from .s3 import CheckAWSS3
+from .s3 import CheckAwsS3
+from .iam import CheckAwsIam
 
-__all__ = (CheckAWSS3,)
+__all__ = (CheckAwsS3, CheckAwsIam)

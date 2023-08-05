@@ -1,5 +1,6 @@
 """
-Checks for python environment and packages
+Checks whether the python package is installed and, optionally, check its
+version.
 """
 import typing as t
 import logging
@@ -19,7 +20,7 @@ class CheckPythonPackage(CheckVersion):
 
     # The message for checking python packages
     msg = Parameter(
-        "CHECKPYTHONPACKAGE.MSG",
+        "CHECK_PYTHON_PACKAGE.MSG",
         default="Check python package '{check.raw_value}'",
     )
 

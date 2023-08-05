@@ -1,5 +1,5 @@
 """
-Checks for environment variables
+Check the existence and, optionally, the value of an environment variable.
 """
 import typing as t
 import re
@@ -16,7 +16,7 @@ class CheckEnv(Check):
     regex: t.Optional[t.Tuple[str, ...]] = None
 
     msg = Parameter(
-        "CHECKENV.MSG",
+        "CHECK_ENV.MSG",
         default="Check environment variable '{check.raw_value}'",
     )
 
@@ -33,13 +33,13 @@ class CheckEnv(Check):
 
         if value is None:
             # If the value is None, the environment variable doesn't exist.
-            status = "missing"
+            status = "failed (missing)"
         elif value == "":
             # An empty string environment variable is considered not set
-            status = "empty string"
+            status = "failed (empty string)"
         elif isinstance(self.regex, str) and re.match(self.regex, value) is None:
             # Check the regex, if specified
-            status = f"does not match regex '{self.regex}'"
+            status = f"failed (does not match regex '{self.regex}')"
         else:
             # All checks passed!
             status = "passed"

@@ -13,11 +13,12 @@ interactions:
       Content-Type:
       - application/xml
       Date:
-      - Sun, 30 Jul 2023 23:03:39 GMT
+      - Fri, 04 Aug 2023 20:31:49 GMT
       Server:
       - AmazonS3
       x-amz-bucket-region:
       - eu-west-1
+      x-amzn-RequestId: 99999999-9999-9999-9999-999999999999
     status:
       code: 400
       message: Bad Request
@@ -33,11 +34,12 @@ interactions:
       Content-Type:
       - application/xml
       Date:
-      - Sun, 30 Jul 2023 23:03:39 GMT
+      - Fri, 04 Aug 2023 20:31:49 GMT
       Server:
       - AmazonS3
       x-amz-bucket-region:
       - eu-west-1
+      x-amzn-RequestId: 99999999-9999-9999-9999-999999999999
     status:
       code: 403
       message: Forbidden

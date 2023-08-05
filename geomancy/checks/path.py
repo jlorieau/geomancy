@@ -1,5 +1,5 @@
 """
-Checks for paths
+Check the existence and, optionally, the type of path.
 """
 import typing as t
 from pathlib import Path
@@ -19,7 +19,7 @@ class CheckPath(Check):
     #: The valid values of path types
     type_options = (None, "dir", "file")
 
-    msg = Parameter("CHECKPATH.MSG", default="Check path '{check.value}'")
+    msg = Parameter("CHECK_PATH.MSG", default="Check path '{check.value}'")
 
     aliases = ("checkPath",)
 
@@ -38,11 +38,11 @@ class CheckPath(Check):
         path = Path(value)
 
         if not path.exists():
-            status = "missing"
+            status = "failed (missing)"
         elif self.type == "dir" and not path.is_dir():
-            status = "not dir"
+            status = "failed (not dir)"
         elif self.type == "file" and not path.is_file():
-            status = "not file"
+            status = "failed (not file)"
         else:
             status = "passed"
 

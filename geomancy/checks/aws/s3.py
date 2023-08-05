@@ -1,51 +1,50 @@
-"""Checks for AWS resources"""
+"""Check AWS `S3 buckets`_ and `security settings`_.
+
+- Existence and accessibility
+- Public access is disabled
+
+.. _S3 buckets: https://aws.amazon.com/s3/
+.. _security settings: https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html
+"""
 import typing as t
 import logging
 
-from ..base import Check, Result, Executor
+from .base import CheckAws
+from ..base import Result, Executor, CheckException
 from ..utils import pop_first
 from ...config import Parameter
 
-__all__ = ("CheckAWSS3",)
-
 logger = logging.getLogger(__name__)
 
-#: The error message to show when AWS modules can't be imported
-import_error_msg = (
-    "The 'aws' dependency is not installed: {exception}. "
-    "Please reinstall with the '[aws]' or '[all]' extra install "
-    '`python -m pip install "geomancy[aws]"` or '
-    '`python -m pip install "geomancy[all]"`'
-)
 
-
-class CheckAWSS3BucketAccess(Check):
+class CheckAwsS3BucketAccess(CheckAws):
     """Check AWS S3 bucket availability"""
 
     msg = Parameter(
-        "CHECKAWSS3BUCKETACCESS.MSG",
+        "CHECK_AWS_S3_BUCKET_ACCESS.MSG",
         default="Check AWS S3 bucket access '{check.value}'...",
     )
-
-    import_error_msg = import_error_msg
 
     def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         """Check the availability and access to S3 Bucket"""
         msg = self.msg.format(check=self)
 
         # Get the needed modules, bucket name and boto3 client
-        boto3, exceptions = self.import_modules("boto3", "botocore.exceptions")
+        exceptions = self.import_modules("botocore.exceptions")
         bucket_name = self.value.strip()
-        s3 = boto3.client("s3")
+
+        # Retrieve the client
+        try:
+            s3 = self.client("s3")
+        except CheckException as exc:
+            return Result(status=exc.args[0], msg=msg)
 
         # Retrieve information on the bucket
         try:
             response = s3.head_bucket(Bucket=bucket_name)
-
         except exceptions.NoCredentialsError as e:
             # Unable to authenticate the client
-            return Result(msg=msg, status="Unable to locate credentials")
-
+            return Result(status="failed (unable to locate credentials)", msg=msg)
         except exceptions.ClientError as e:
             response = e.response
 
@@ -58,21 +57,21 @@ class CheckAWSS3BucketAccess(Check):
 
             if error_msg in ("Not Found",) and error_code == "404":
                 # Couldn't find the bucket
-                return Result(msg=msg, status="not found")
+                return Result(status="failed (not found)", msg=msg)
             elif error_msg in ("Forbidden",) and error_code == "403":
                 # Do no have access to an existing bucket
-                return Result(msg=msg, status="access forbidden")
+                return Result(status="failed (access forbidden)", msg=msg)
             else:
-                return Result(msg=msg, status="unknown reason")
+                return Result(status="failed (unknown reason)", msg=msg)
 
         except exceptions.ParamValidationError as e:
             # The bucket name failed validation
             report = e.kwargs["report"] if "report" in e.kwargs else None
 
             if isinstance(report, str):
-                return Result(msg=msg, status=report)
-            else:
-                return Result(msg=msg, status="invalid bucket name")
+                return Result(
+                    status=f"failed (invalid bucket name '{self.value}')", msg=msg
+                )
 
         # Parse the response
         metadata = (
@@ -86,21 +85,19 @@ class CheckAWSS3BucketAccess(Check):
 
         if return_code == 200:
             # Successfully probed S3 bucket
-            return Result(msg=msg, status="passed")
+            return Result(status="passed", msg=msg)
         else:
             # It failed, and I don't know why
-            return Result(msg=msg, status="unknown reason")
+            return Result(status="failed (unknown reason)", msg=msg)
 
 
-class CheckAWSS3BucketPrivate(Check):
+class CheckAwsS3BucketPrivate(CheckAws):
     """Check AWS S3 buck availability"""
 
     msg = Parameter(
-        "CHECKAWSS3BUCKETPRIVATE.MSG",
+        "CHECK_AWS_S3_BUCKET_PRIVATE.MSG",
         default="Check AWS S3 bucket private '{check.value}'...",
     )
-
-    import_error_msg = import_error_msg
 
     def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         """Check the availability and access to S3 Bucket.
@@ -110,22 +107,27 @@ class CheckAWSS3BucketPrivate(Check):
         msg = self.msg.format(check=self)
 
         # Get the needed modules, bucket name and boto3 client
-        boto3, exceptions = self.import_modules("boto3", "botocore.exceptions")
+        exceptions = self.import_modules("botocore.exceptions")
         bucket_name = self.value.strip()
-        s3 = boto3.client("s3")
+
+        # Retrieve the client
+        try:
+            s3 = self.client("s3")
+        except CheckException as exc:
+            return Result(status=exc.args[0], msg=msg)
 
         # 1. Check the PublicAccessBlock
         try:
             response = s3.get_public_access_block(Bucket=bucket_name)
         except (exceptions.BotoCoreError, exceptions.ClientError):
-            return Result(msg=msg, status="Couldn't access PublicAccessBlock")
+            return Result(status="failed (couldn't get public access block)", msg=msg)
 
         section = response.get("PublicAccessBlockConfiguration", {})
         block_public_policy = section.get("BlockPublicPolicy")
         block_public_acls = section.get("BlockPublicAcls")
 
         if block_public_policy and block_public_acls:
-            return Result(msg=msg, status="passed")
+            return Result(status="passed", msg=msg)
 
         logger.debug(f"Bucket '{bucket_name}' does not block all public access")
 
@@ -160,14 +162,14 @@ class CheckAWSS3BucketPrivate(Check):
         # If the policy is false and the acl doesn't have a grantee type of 'group',
         # then it should be private
         if not public_policy and not public_acl:
-            return Result(msg=msg, status="passed")
+            return Result(status="passed", msg=msg)
 
         # At this stage, all the checks for private have failed, and it appears
         # that the s3 bucket is publicly accessible
-        return Result(msg=msg, status="publicly accessible")
+        return Result(status="failed (publicly accessible)", msg=msg)
 
 
-class CheckAWSS3(Check):
+class CheckAwsS3(CheckAws):
     """Check AWS the availability and permissions of S3 buckets.
 
     Notes
@@ -175,23 +177,23 @@ class CheckAWSS3(Check):
     The child checks are meant to verify the accessibility of the bucket as well
     as optionally test for the best security practices`. Current, these include:
 
-    - Default private access (CheckAWSS3BucketPrivate)
+    - Default private access (CheckAwsS3BucketPrivate)
 
     See: https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html
     """
 
-    #: Whether to check that the bucket is private
+    #: Check that a bucket is private and fail if it is publicly accessible
     private: bool = True
 
     #: Alternative parameter names for private
     private_aliases = ("private",)
 
     msg = Parameter(
-        "CHECKAWSS3.MSG",
-        default="Check AWS S3 bucket '{check.value}'...",
+        "CHECK_AWS_S3.MSG",
+        default="Check AWS S3 bucket '{check.value}'",
     )
 
-    aliases = ("checkAWSS3", "checkAwsS3", "CheckAwsS3", "checkS3", "CheckS3")
+    aliases = ("checkAWSS3", "CheckAWSS3", "checkS3", "CheckS3")
 
     def __init__(self, *args, **kwargs):
         # Set up keyword arguments
@@ -204,31 +206,12 @@ class CheckAWSS3(Check):
         self.children.clear()
 
         # Bucket accessibility check
-        self.children.append(
-            CheckAWSS3BucketAccess(name=f"{self.name}Access", value=self.value)
-        )
+        child = CheckAwsS3BucketAccess(*args, **kwargs)
+        child.name = f"{self.name}Access"
+        self.children.append(child)
 
         # Bucket public access
         if self.private:
-            self.children.append(
-                CheckAWSS3BucketPrivate(name=f"{self.name}Private", value=self.value)
-            )
-
-    def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
-        """Run sub-checks in sequence, rather the Check base default.
-
-        This is done because the results of latter checks depend on earlier checks.
-        """
-        # check children
-        child_results = []
-        for child in self.children:
-            result = child.check(executor=executor, level=level + 1)
-            child_results.append(result)
-            if result.status != "passed":
-                break
-
-        return Result(
-            msg=f"[bold]{self.name}[/bold]",
-            children=child_results,
-            condition=self.condition,
-        )
+            child = CheckAwsS3BucketPrivate(*args, **kwargs)
+            child.name = f"{self.name}Private"
+            self.children.append(child)

@@ -9,16 +9,19 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import ExitStack
 
 import click
-from rich.live import Live
 import yaml
-import vcr
+from rich.live import Live
+from rich.console import Group
+from rich.rule import Rule
+from rich.console import Console, Theme
+import rich.progress as progress
 
 from .environment import env_options
 from .utils import filepaths
 from ..checks import Check
 from ..config import Config
 
-__all__ = ("check",)
+__all__ = ("check_cmd",)
 
 # Setup logger and configuration
 logger = logging.getLogger(__name__)
@@ -40,8 +43,6 @@ config.CLI.CHECKS_PATHS = [  # Default paths for checks files
 ]
 config.CLI.TOML_EXTS = [".toml"]  # Default file extensions for TOML files
 config.CLI.YAML_EXTS = [".yml", ".yaml"]  # Default file extensions for YAML files
-config.CLI.VCR.RECORD_MODE = "ONCE"  # record fixtures if they don't exist
-config.CLI.VCR.ADDITIONAL_FILTER_HEADERS = []
 
 
 def validate_checks_files(
@@ -64,19 +65,12 @@ def validate_checks_files(
 
 
 # Setup 'check' command
-@click.command
+@click.command(name="check")
 @env_options
-@click.option(
-    "-f",
-    "--fixture",
-    required=False,
-    type=click.Path(),
-    help="Fixture to replace network requests",
-)
 @click.argument("checks_files", nargs=-1, type=str, callback=validate_checks_files)
-def check(checks_files, env, fixture):
+def check_cmd(checks_files, env):
     """Run checks"""
-    logger.debug(f"check_files={checks_files}, env={env}, fixture={fixture}")
+    logger.debug(f"check_files={checks_files}, env={env}")
 
     # Convert the checks_files into checks
     checks = []
@@ -121,39 +115,64 @@ def check(checks_files, env, fixture):
             f"{', '.join(map(str, checks_files))}."
         )
 
+    # Set up a console for rendering to the terminal
+    console = Console(theme=Theme({"repr.number": ""}))
+
     with ExitStack() as stack:
-        # Set up the context managers
-        executor = stack.enter_context(ThreadPoolExecutor())  # concurrent.futures
-        live = stack.enter_context(Live(refresh_per_second=4))  # rich live display
+        # Context manager for running checks in multiple threads
+        executor = stack.enter_context(ThreadPoolExecutor())
 
-        if fixture is not None:
-            # Request header items to remove before saving
-            filter_headers = {
-                "Authorization",
-                "User-Agent",
-                "X-Amz-Content-SHA256",
-                "X-Amz-Date",
-                "amz-sdk-invocation-id",
-                "amz-sdk-request",
-            }
-            filter_headers.update(config.CLI.VCR.ADDITIONAL_FILTER_HEADERS)
-            kwargs = {
-                "record_mode": config.CLI.VCR.RECORD_MODE,
-                "filter_headers": list(filter_headers),
-            }
-
-            stack.enter_context(vcr.use_cassette(fixture, **kwargs))  # vcr fixtures
+        # Context manager for rendering live to the terminal (rich)
+        live = stack.enter_context(Live(refresh_per_second=4, console=console))
 
         # Run the checks, display the results to the terminal
         result = check.check(executor=executor)
 
+        # Get the total number of checks
+        check_total = len(check.flatten)
+
+        # Set up a progress bar and render group
+        pbar = progress.Progress(
+            progress.SpinnerColumn(),
+            progress.BarColumn(),
+            progress.TextColumn("checks"),
+            progress.MofNCompleteColumn(),
+            progress.TimeRemainingColumn(),
+        )
+        task1 = pbar.add_task("checking...", total=check_total)
+
         # Update the display until the checks are done
         while not result.done:
             time.sleep(0.5)
-            live.update(result.rich_table())
 
-        # Print the final table
-        live.update(result.rich_table())
+            # Update progress
+            pbar.update(task1, completed=len(result.finished))
+
+            # Update group
+            group = Group(
+                result.rich_table(),
+                pbar.make_tasks_table(tasks=pbar.tasks),
+            )
+            live.update(group)
+
+        # Create a summary line to render
+        passed_total = len([r for r in result.finished if r.passed])
+        failed_total = check_total - passed_total
+        elapsed = sum(task.elapsed for task in pbar.tasks if task.elapsed is not None)
+
+        if result.passed:
+            color = "green"
+            title = f"[{color}][bold]{passed_total} passed[/bold][/{color}]"
+        else:
+            color = "red"
+            title = f"[{color}][bold]{failed_total} failed[/bold][/{color}]"
+
+        title = f"{title}[{color}] in {elapsed:.2f}s[/{color}]"
+        status = Rule(title=title, characters="=", style=color)
+
+        # Print the final table and summary
+        group = Group(result.rich_table(), status)
+        live.update(group)
 
     if not result.passed:
         exit(1)

@@ -1,14 +1,14 @@
 """The geo CLI entrypoint"""
-import logging
+import logging, logging.config
 import os
 from pathlib import Path
 
 import click
 from click_default_group import DefaultGroup
 
-from .check import check
-from .run import run
-from .config import config
+from .check import check_cmd
+from .run import run_cmd
+from .config import config_cmd
 from .. import get_version
 
 logger = logging.getLogger(__name__)
@@ -46,13 +46,37 @@ def geo_cli(ctx, debug, disable_color):
         os.environ["NO_COLOR"] = "TRUE"
 
     # Setup logging
-    logging.basicConfig(
-        level=logging.DEBUG if debug else None,
-        format="%(levelname)s:%(name)s: %(message)s",
+    logging.config.dictConfig(
+        {
+            "version": 1,
+            "formatters": {
+                "standard": {"format": "%(levelname)s:%(name)s: %(message)s"},
+            },
+            "handlers": {
+                "default": {
+                    "level": "DEBUG" if debug else "WARNING",
+                    "formatter": "standard",
+                    "class": "logging.StreamHandler",
+                    "stream": "ext://sys.stdout",  # Default is stderr
+                },
+            },
+            "loggers": {
+                "": {  # root logger
+                    "handlers": ["default"],
+                    "level": "WARNING",
+                    "propagate": False,
+                },
+                "geomancy": {  # geomancy logs
+                    "handlers": ["default"],
+                    "level": "DEBUG" if debug else "INFO",
+                    "propagate": False,
+                },
+            },
+        }
     )
 
 
 # Add sub-commands
-geo_cli.add_command(check)
-geo_cli.add_command(run)
-geo_cli.add_command(config)
+geo_cli.add_command(check_cmd)  # noqa
+geo_cli.add_command(run_cmd)  # noqa
+geo_cli.add_command(config_cmd)  # noqa
