@@ -1,45 +1,42 @@
-checks:
-  desc: Check for the local development environment
+Executables:
+  Python3:
+    desc: Python version >=3.11 needed (https://www.python.org)
+    checkExec: python3 >= 3.11
+  Task:
+    desc: Task runner and build tool (Taskfile.yaml)
+    checkExec: task >= 3
+  Sphinx:
+    desc: Documentation building tool (https://www.sphinx-doc.org/en/master/)
+    checkExec: sphinx-build >= 6.2
+  Towncrier:
+    desc: Changelog building tool (https://pypi.org/project/towncrier/)
+    checkExec: towncrier >= 23
+  Twine:
+    desc: Build and upload packages on PyPI (https://pypi.org/project/twine/)
+    checkExec: twine >= 4
+  Pytest:
+    desc: Test python packages (https://github.com/pytest-dev/pytest)
+    checkExec: pytest >= 7
+  Black:
+    desc: Python code formatter (https://github.com/psf/black)
+    checkExec: black >= 23
 
-  Executables:
-    Python3:
-      desc: Python version >=3.11 needed (https://www.python.org)
-      checkExec: python3 >= 3.11
-    Task:
-      desc: Task runner and build tool (Taskfile.yaml)
-      checkExec: task >= 3
-    Sphinx:
-      desc: Documentation building tool (https://www.sphinx-doc.org/en/master/)
-      checkExec: sphinx-build >= 6.2
-    Towncrier:
-      desc: Changelog building tool (https://pypi.org/project/towncrier/)
-      checkExec: towncrier >= 23
-    Twine:
-      desc: Build and upload packages on PyPI (https://pypi.org/project/twine/)
-      checkExec: twine >= 4
-    Pytest:
-      desc: Test python packages (https://github.com/pytest-dev/pytest)
-      checkExec: pytest >= 7
-    Black:
-      desc: Python code formatter (https://github.com/psf/black)
-      checkExec: black >= 23
+Paths:
+  GeomancyYaml:
+    desc: Check development requirements
+    checkPath: .geomancy.yaml
+    type: file
 
-  Paths:
-    GeomancyYaml:
-      desc: Check development requirements
-      checkPath: .geomancy.yaml
-      type: file
-
-  PythonPackages:  # This section is redundant with pyproject.toml
-    PyYaml:
-      desc: YAML parser for Python (https://pypi.org/project/PyYAML/)
-      checkPythonPkg: pyyaml >= 6.0
-    Click:
-      desc: Command-line interface tool (https://pypi.org/project/click/)
-      checkPythonPkg: click >= 8.1
-    ClickDefaultGroup:
-      desc: Allow default commands for click (https://pypi.org/project/click-default-group/)
-      checkPythonPkg: click-default-group
-    Rich:
-      desc: CLI terminal renderer (https://pypi.org/project/rich/)
-      checkPythonPkg: rich >= 13
+PythonPackages:  # This section is redundant with pyproject.toml
+  PyYaml:
+    desc: YAML parser for Python (https://pypi.org/project/PyYAML/)
+    checkPythonPkg: pyyaml >= 6.0
+  Click:
+    desc: Command-line interface tool (https://pypi.org/project/click/)
+    checkPythonPkg: click >= 8.1
+  ClickDefaultGroup:
+    desc: Allow default commands for click (https://pypi.org/project/click-default-group/)
+    checkPythonPkg: click-default-group
+  Rich:
+    desc: CLI terminal renderer (https://pypi.org/project/rich/)
+    checkPythonPkg: rich >= 13
