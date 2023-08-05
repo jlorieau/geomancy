@@ -1,11 +1,12 @@
 """
 Test the environment variable check class
 """
+import typing as t
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from geomancy.checks import Check, Result, CheckException
+from geomancy.checks.base import Check, Result, CheckException, Executor
 
 
 class CheckDummy(Check):
@@ -19,7 +20,7 @@ class HangCheck(Check):
 
     locked = True
 
-    def check(self, executor, level: int = 0):
+    def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         # The following hangs the thread until self.locked is set to False
         while self.locked:
             pass
@@ -32,8 +33,35 @@ class DefaultCheck(Check):
 
     default_status = "passed"
 
-    def check(self, executor, level: int = 0):
+    def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         return Result(msg=self.name, status=self.default_status)
+
+
+def test_result_status_validation():
+    """The Result validation of status"""
+    # These are ok
+    allowed = (
+        "passed",
+        "failed",
+        "pending",
+        "passed (it went well)",
+        "failed (it didn't go well)",
+    )
+    for status in allowed:
+        Result(status=status)
+
+    # These are not ok
+    not_allowed = (
+        "passed ",  # extra space
+        "passed (open",  # parenthesis not closed
+        "passed  (it went well)",  # extra space before parenthesis
+        "passed (it went well) ",  # extra space after parenthesis
+        "passed (This has\na new line)",  # new line
+    )
+
+    for status in not_allowed:
+        with pytest.raises(AssertionError):
+            Result(status=status)
 
 
 def test_check_init_env_subtitute():

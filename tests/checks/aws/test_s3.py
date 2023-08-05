@@ -79,7 +79,7 @@ def test_check_aws_s3_invalid():
     # which found the bucket name to be invalid
     child_results = result.children
     assert not child_results[0].passed
-    assert child_results[0].status.startswith("failed (Invalid bucket name")
+    assert child_results[0].status.startswith("failed (invalid bucket name")
 
 
 # The following are public/private bucket tests

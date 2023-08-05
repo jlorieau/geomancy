@@ -69,9 +69,9 @@ class CheckAwsS3BucketAccess(CheckAws):
             report = e.kwargs["report"] if "report" in e.kwargs else None
 
             if isinstance(report, str):
-                return Result(status=f"failed ({report})", msg=msg)
-            else:
-                return Result(status="failed (invalid bucket name)", msg=msg)
+                return Result(
+                    status=f"failed (invalid bucket name '{self.value}')", msg=msg
+                )
 
         # Parse the response
         metadata = (

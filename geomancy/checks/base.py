@@ -3,6 +3,7 @@ Check base class and check groups that contain one or more child checks.
 """
 import typing as t
 import importlib
+import re
 from concurrent.futures import Future, Executor
 from types import ModuleType
 from inspect import isabstract
@@ -33,17 +34,30 @@ class Result:
     #: or 'pending'. e.g. 'failed to find file'
     status: str = "pending"
 
+    #: Regular expression to validate allowed statuses
+    _allowed_re: t.Pattern[str] = field(
+        repr=False, default=re.compile(r"^(passed|failed|pending)( \([^)\n]+\))?$")
+    )
+
     #: Result message used when displaying the result. This may include
     #: rich tags
     msg: str = ""
 
     #: The pass condition for children checks and their passed property values
-    condition: t.Callable = all
+    condition: t.Callable = field(repr=False, default=all)
 
     #: The flat list of Results or Futures from children checks
     children: t.List[t.Union["Result", t.Awaitable["Result"]]] = field(
-        default_factory=list
+        repr=False,
+        default_factory=list,
     )
+
+    def __post_init__(self):
+        # Validate (on creation) that the status starts with an allowed value
+        assert self._allowed_re.match(self.status), (
+            f"The '{self.status}' status should match the following regular "
+            f"expression: '{self._allowed_re}'"
+        )
 
     @property
     def passed(self) -> bool:

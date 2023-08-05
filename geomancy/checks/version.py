@@ -46,9 +46,9 @@ class CheckVersion(Check):
         current_version = self.get_current_version()
 
         if name is None:
-            status = "missing"
+            status = "failed (missing)"
         elif self.require_current_version and current_version is None:
-            status = "missing"
+            status = "failed (missing)"
         else:
             if version is not None and current_version is None:
                 status = "present but current version unknown"
@@ -58,7 +58,10 @@ class CheckVersion(Check):
                 and op is not None
                 and not op(current_version, version)
             ):
-                status = f"incorrect version=" f"{'.'.join(map(str, current_version))}"
+                status = (
+                    f"failed (incorrect version="
+                    f"{'.'.join(map(str, current_version))})"
+                )
             else:
                 status = "passed"
 
