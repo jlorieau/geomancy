@@ -39,8 +39,6 @@ config.CLI.CHECKS_PATHS = [  # Default paths for checks files
 ]
 config.CLI.TOML_EXTS = [".toml"]  # Default file extensions for TOML files
 config.CLI.YAML_EXTS = [".yml", ".yaml"]  # Default file extensions for YAML files
-config.CLI.VCR.RECORD_MODE = "ONCE"  # record fixtures if they don't exist
-config.CLI.VCR.ADDITIONAL_FILTER_HEADERS = []
 
 
 def validate_checks_files(
