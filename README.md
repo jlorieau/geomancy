@@ -327,7 +327,7 @@ checks:
 <p>
 <details>
 <summary><strong><u>AWS</u></strong> resources exist and are securely setup
-  (<a href="https://geomancy.readthedocs.io/en/latest/usage/format.html#checkawss3">checkS3</a>)
+  (<a href="https://geomancy.readthedocs.io/en/latest/usage/checks/aws/index.html">AWS checks</a>)
 </summary>
 
 The following shows an example in yaml format. Checks can be formatted in
@@ -335,8 +335,12 @@ toml format as well.
 
 ```yaml
 AWS:
+  IAM:
+    desc: Check the default authentication and security settings
+    checkIAM:
+
   TemplatesS3Bucket:
-    desc: The bucket for cloudformation templates
+    desc: Check the bucket for cloudformation templates
     checkS3: "myproject-cfn-templates"
 ```
 </details>
