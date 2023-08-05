@@ -22,26 +22,27 @@ The format of the checks file is specified in the :ref:`file-format`.
         .. code-block:: shell
 
             $ geo
-             [✔] examples/geomancy.yaml...passed
-             [✔]   checks...passed
-             [✔]     OperatingSystem...passed
-             [✔]       Check platform 'macOS >= 10.9'...passed
-             [!]       Check platform 'Linux >= 3.0'...wrong platform
-             [!]       Check platform 'Windows >= 10'...wrong platform
-             [✔]     Environment...passed
-             [✔]       Check environment variable '$PATH'...passed
-             [✔]       Username...passed
-             [✔]         Check environment variable '$USER'...passed
-             [!]         Check environment variable '$USERNAME'...empty string
-             [✔]     Paths...passed
-             [✔]       ChecksFile...passed
-             [✔]         Check path 'examples/geomancy.toml'...passed
-             [✔]         Check path 'examples/pyproject.toml'...passed
-             [!]         Check path '.missing__.txt'...missing
-             [✔]     Executables...passed
-             [✔]       Check executable 'python3>=3.11'...passed
-             [✔]     PythonPackages...passed
-             [✔]       Check python package 'geomancy>=0.8'...passed
+              [✔] examples/geomancy.yaml...passed
+              [✔]   checks...passed
+              [✔]     OperatingSystem...passed
+              [✔]       Check platform 'macOS >= 10.9'...passed
+              [!]       Check platform 'Linux >= 3.0'...failed (wrong platform)
+              [!]       Check platform 'Windows >= 10'...failed (wrong platform)
+              [✔]     Environment...passed
+              [✔]       Check environment variable '$PATH'...passed
+              [✔]       Username...passed
+              [✔]         Check environment variable '$USER'...passed
+              [!]         Check environment variable '$USERNAME'...failed (empty string)
+              [✔]     Paths...passed
+              [✔]       ChecksFile...passed
+              [✔]         Check path 'examples/geomancy.toml'...passed
+              [✔]         Check path 'examples/pyproject.toml'...passed
+              [!]         Check path '.missing__.txt'...failed (missing)
+              [✔]     Executables...passed
+              [✔]       Check executable 'python3>=3.11'...passed
+              [✔]     PythonPackages...passed
+              [✔]       Check python package 'geomancy>=0.8'...passed
+             ================================= 16 passed in 0.50s =================================
 
     .. tab-item:: with arguments
 
@@ -51,26 +52,27 @@ The format of the checks file is specified in the :ref:`file-format`.
         .. code-block:: shell
 
             $ geo examples/geomancy.yaml
-             [✔] examples/geomancy.yaml...passed
-             [✔]   checks...passed
-             [✔]     OperatingSystem...passed
-             [✔]       Check platform 'macOS >= 10.9'...passed
-             [!]       Check platform 'Linux >= 3.0'...wrong platform
-             [!]       Check platform 'Windows >= 10'...wrong platform
-             [✔]     Environment...passed
-             [✔]       Check environment variable '$PATH'...passed
-             [✔]       Username...passed
-             [✔]         Check environment variable '$USER'...passed
-             [!]         Check environment variable '$USERNAME'...empty string
-             [✔]     Paths...passed
-             [✔]       ChecksFile...passed
-             [✔]         Check path 'examples/geomancy.toml'...passed
-             [✔]         Check path 'examples/pyproject.toml'...passed
-             [!]         Check path '.missing__.txt'...missing
-             [✔]     Executables...passed
-             [✔]       Check executable 'python3>=3.11'...passed
-             [✔]     PythonPackages...passed
-             [✔]       Check python package 'geomancy>=0.8'...passed
+              [✔] examples/geomancy.yaml...passed
+              [✔]   checks...passed
+              [✔]     OperatingSystem...passed
+              [✔]       Check platform 'macOS >= 10.9'...passed
+              [!]       Check platform 'Linux >= 3.0'...failed (wrong platform)
+              [!]       Check platform 'Windows >= 10'...failed (wrong platform)
+              [✔]     Environment...passed
+              [✔]       Check environment variable '$PATH'...passed
+              [✔]       Username...passed
+              [✔]         Check environment variable '$USER'...passed
+              [!]         Check environment variable '$USERNAME'...failed (empty string)
+              [✔]     Paths...passed
+              [✔]       ChecksFile...passed
+              [✔]         Check path 'examples/geomancy.toml'...passed
+              [✔]         Check path 'examples/pyproject.toml'...passed
+              [!]         Check path '.missing__.txt'...failed (missing)
+              [✔]     Executables...passed
+              [✔]       Check executable 'python3>=3.11'...passed
+              [✔]     PythonPackages...passed
+              [✔]       Check python package 'geomancy>=0.8'...passed
+             ================================= 16 passed in 0.50s =================================
 
 If no checks files are listed as arguments, geo will search the following file
 locations in the current directory, and it wil run all the checks in existing
