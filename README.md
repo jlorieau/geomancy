@@ -412,6 +412,13 @@ For full documentation please see https://geomancy.readthedocs.io/en/latest.
 Please use the [GitHub issue tracker](https://github.com/jlorieau/geomancy/issues)
 to submit bugs or request features.
 
+## Similar projects
+
+The following projects share some of the same goals in different contexts:
+
+- [Envalid](https://github.com/af/envalid)
+- [AWS Config](https://aws.amazon.com/config/)
+
 ## License
 
 Copyright Justin Lorieau and others, 2023.
