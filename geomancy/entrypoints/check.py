@@ -9,8 +9,12 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import ExitStack
 
 import click
-from rich.live import Live
 import yaml
+from rich.live import Live
+from rich.console import Group
+from rich.rule import Rule
+from rich.console import Console, Theme
+import rich.progress as progress
 
 from .environment import env_options
 from .utils import filepaths
@@ -111,21 +115,64 @@ def check(checks_files, env):
             f"{', '.join(map(str, checks_files))}."
         )
 
+    # Set up a console for rendering to the terminal
+    console = Console(theme=Theme({"repr.number": ""}))
+
     with ExitStack() as stack:
-        # Set up the context managers
-        executor = stack.enter_context(ThreadPoolExecutor())  # concurrent.futures
-        live = stack.enter_context(Live(refresh_per_second=4))  # rich live display
+        # Context manager for running checks in multiple threads
+        executor = stack.enter_context(ThreadPoolExecutor())
+
+        # Context manager for rendering live to the terminal (rich)
+        live = stack.enter_context(Live(refresh_per_second=4, console=console))
 
         # Run the checks, display the results to the terminal
         result = check.check(executor=executor)
 
+        # Get the total number of checks
+        check_total = len(check.flatten)
+
+        # Set up a progress bar and render group
+        pbar = progress.Progress(
+            progress.SpinnerColumn(),
+            progress.BarColumn(),
+            progress.TextColumn("checks"),
+            progress.MofNCompleteColumn(),
+            progress.TimeRemainingColumn(),
+        )
+        task1 = pbar.add_task("checking...", total=check_total)
+
         # Update the display until the checks are done
         while not result.done:
             time.sleep(0.5)
-            live.update(result.rich_table())
 
-        # Print the final table
-        live.update(result.rich_table())
+            # Update progress
+            pbar.update(task1, completed=len(result.finished))
+
+            # Update group
+            group = Group(
+                result.rich_table(),
+                pbar.make_tasks_table(tasks=pbar.tasks),
+            )
+            live.update(group)
+
+        # Create a summary line to render
+        passed_total = len([r for r in result.finished if r.passed])
+        failed_total = check_total - passed_total
+        elapsed = sum(task.elapsed for task in pbar.tasks if task.elapsed is not None)
+
+        if result.passed:
+            color = "green"
+            title = f"[{color}][bold]{passed_total} passed[/bold][/{color}]"
+        else:
+            color = "red"
+            title = f"[{color}][bold]{failed_total} failed[/bold][/{color}]"
+
+        title = f"{title}[{color}] in {elapsed:.2f}s[/{color}]"
+        status = Rule(title=title, characters="=", style=color)
+
+        # Print the final table and summary
+        group = Group(result.rich_table(), status)
+        live.update(group)
 
     if not result.passed:
         exit(1)

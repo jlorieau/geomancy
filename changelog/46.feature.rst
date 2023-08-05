@@ -1,0 +1,1 @@
+Added a progressbar and status bar to the terminal output
