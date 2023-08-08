@@ -6,9 +6,10 @@ import typing as t
 from shutil import which
 import subprocess
 
+from thatway import Setting
+
 from .version import CheckVersion
 from .utils import version_to_tuple
-from ..config import Parameter
 
 __all__ = ("CheckExec",)
 
@@ -20,10 +21,7 @@ class CheckExec(CheckVersion):
     #: may not be able to identify the current version
     require_current_version = False
 
-    msg = Parameter(
-        "CHECK_EXEC.MSG",
-        default="Check executable '{check.raw_value}'",
-    )
+    msg = Setting("Check executable '{check.raw_value}'")
 
     aliases = ("checkExec",)
 

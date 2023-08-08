@@ -1,6 +1,5 @@
-[config]
-  [config.CHECKBASE]
-    env_substitute = true
+[config.Check]
+  env_substitute_default = true
 
 [checks]
   [checks.OperatingSystem]

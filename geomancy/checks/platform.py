@@ -5,10 +5,11 @@ import typing as t
 import platform
 import logging
 
+from thatway import Setting
+
 from .base import Result, Executor
 from .version import CheckVersion
 from .utils import version_to_tuple
-from ..config import Parameter
 
 __all__ = ("CheckPlatform",)
 
@@ -19,10 +20,7 @@ class CheckPlatform(CheckVersion):
     """Check the availability and version of a python package"""
 
     # The message for checking python packages
-    msg = Parameter(
-        "CHECK_PLATFORM.MSG",
-        default="Check platform '{check.raw_value}'",
-    )
+    msg = Setting("Check platform '{check.raw_value}'")
 
     aliases = ("checkOS", "checkPlatform")
 

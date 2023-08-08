@@ -1,6 +1,6 @@
 config:  # Configuration options
-  CHECKBASE:
-    env_substitute: True
+  Check:
+    env_substitute_default: true
 
 checks:  # Nested checks
   OperatingSystem:

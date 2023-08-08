@@ -11,9 +11,9 @@ from dataclasses import dataclass, field
 
 from rich.table import Table
 from rich.padding import Padding
+from thatway import Setting
 
 from .utils import pop_first, all_subclasses
-from ..config import Parameter
 from ..environment import sub_env
 
 __all__ = ("Check", "CheckException", "Result", "CheckException", "Executor")
@@ -241,37 +241,35 @@ class Check:
     env_substitute: bool
 
     #: The default value for env_substitute
-    env_substitute_default = Parameter("CHECK.ENV_SUBSTITUTE_DEFAULT", default=True)
+    env_substitute_default = Setting(True)
 
     #: Alternative parameter names (__init__ kwarg names) for env_substitute
     env_substitute_aliases = ("env_substitute", "substitute")
 
     #: Default message and style of h1 headers
-    h1_style = Parameter(
-        "CHECK.H1_MSG", "[dodger_blue1][bold]{self.name}[/bold][/dodger_blue1]"
-    )
+    h1_style = Setting("[dodger_blue1][bold]{self.name}[/bold][/dodger_blue1]")
 
     #: Default message and style of h2 headers
-    h2_style = Parameter("CHECK.H2_MSG", "[bold]{self.name}[/bold]")
+    h2_style = Setting("[bold]{self.name}[/bold]")
 
     #: Default message and style of h3 headers
-    h3_style = Parameter("CHECK.H3_MSG", "[bold]{self.name}[/bold]")
+    h3_style = Setting("[bold]{self.name}[/bold]")
 
     #: Default message and style of h4 headers
-    h4_style = Parameter("CHECK.H4_MSG", "[bold]{self.name}[/bold]")
+    h4_style = Setting("[bold]{self.name}[/bold]")
 
     #: Default message and style of h5 headers
-    h5_style = Parameter("CHECK.H5_MSG", "[bold]{self.name}[/bold]")
+    h5_style = Setting("[bold]{self.name}[/bold]")
 
     #: Default message and style of h6 headers (and lower)
-    h6_style = Parameter("CHECK.H6_MSG", "[bold]{self.name}[/bold]")
+    h6_style = Setting("[bold]{self.name}[/bold]")
 
     #: The import_module() exception message to use if a module is missing
     #: (see the :meth:`import_modules`)
     import_error_msg = "Missing dependency '{exception}'"
 
     #: Maximum recursion depth of the load function
-    max_level = Parameter("CHECK.MAX_LEVEL", default=15)
+    max_level = Setting(15)
 
     #: Whether this check class is available for use. Check subclasses may
     #: require additional dependencies, which might change this flag.

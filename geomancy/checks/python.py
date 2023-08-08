@@ -6,9 +6,10 @@ import typing as t
 import logging
 import importlib.metadata  # python >= 3.8
 
+from thatway import Setting
+
 from .version import CheckVersion
 from .utils import version_to_tuple
-from ..config import Parameter
 
 __all__ = ("CheckPythonPackage",)
 
@@ -19,10 +20,7 @@ class CheckPythonPackage(CheckVersion):
     """Check the availability and version of a python package"""
 
     # The message for checking python packages
-    msg = Parameter(
-        "CHECK_PYTHON_PACKAGE.MSG",
-        default="Check python package '{check.raw_value}'",
-    )
+    msg = Setting("Check python package '{check.raw_value}'")
 
     aliases = ("checkPythonPackage", "checkPythonPkg", "CheckPythonPkg")
 

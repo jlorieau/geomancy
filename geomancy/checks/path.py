@@ -4,8 +4,9 @@ Check the existence and, optionally, the type of path.
 import typing as t
 from pathlib import Path
 
+from thatway import Setting
+
 from .base import Check, Result, CheckException, Executor
-from ..config import Parameter
 
 __all__ = ("CheckPath",)
 
@@ -19,7 +20,7 @@ class CheckPath(Check):
     #: The valid values of path types
     type_options = (None, "dir", "file")
 
-    msg = Parameter("CHECK_PATH.MSG", default="Check path '{check.value}'")
+    msg = Setting("Check path '{check.value}'")
 
     aliases = ("checkPath",)
 

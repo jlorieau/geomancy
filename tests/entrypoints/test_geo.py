@@ -7,7 +7,6 @@ from click.testing import CliRunner
 import pytest
 
 from geomancy.entrypoints import geo_cli
-from geomancy.config import Config
 
 
 def get_checks_files():
@@ -38,11 +37,6 @@ def run() -> t.Callable:
 
     runcmd.__doc__ = run.__doc__
     return runcmd
-
-
-@pytest.fixture
-def config() -> Config:
-    return Config()
 
 
 @pytest.mark.parametrize("options", ("--help",))
