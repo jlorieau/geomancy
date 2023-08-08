@@ -1,6 +1,6 @@
 .. _checkAwsIam:
 
-checkAwsIam
+checkIam
 -----------
 
 .. automodule:: geomancy.checks.aws.iam
@@ -13,7 +13,7 @@ checkAwsIam
 
     ``checkAwsIam``:
         | Check the IAM account
-        | *aliases*: ``checkIAM``, ``CheckIAM``, ``checkAWSIAM``, ``checkAwsIAM``,
+        | *aliases*: ``CheckIAM``, ``checkAwsIam``, ``checkAWSIAM``, ``checkAwsIAM``,
           ``CheckAwsIAM``,
 
     ``root``: bool (Optional)

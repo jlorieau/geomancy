@@ -133,7 +133,7 @@ checks:
     desc: Check environment variables common to all development environments
 
     Path:
-      decs: Paths to search for executables
+      decs: Search paths for executables
       checkEnv: $PATH
 ```
 
@@ -144,8 +144,15 @@ or [toml](https://toml.io/en/) (e.g. ``.geomancy.toml``)
 desc = "Check environment variables common to all development environments"
 
     [checks.Environment.Path]
-    desc = "Paths to search for executables"
+    desc = "Search paths for executables"
     checkEnv = "$PATH"
+```
+
+or [toml](https://toml.io/en/) with each check on 1 line (e.g. ``.geomancy.toml``)
+
+```toml
+[Checks.Environment]
+Path = {checkEnv = "$PATH", desc = "Search paths for executables"}
 ```
 
 or [pyproject.toml](https://peps.python.org/pep-0621/)
@@ -155,7 +162,7 @@ or [pyproject.toml](https://peps.python.org/pep-0621/)
 desc = "Check environment variables common to all development environments"
 
     [tool.geomancy.checks.Environment.Path]
-    desc = "Paths to search for executables"
+    desc = "Search paths for executables"
     checkEnv = "$PATH"
 ```
 

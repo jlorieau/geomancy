@@ -1,7 +1,7 @@
 .. _checkAwsS3:
 
-checkAwsS3
-----------
+checkS3
+-------
 
 .. automodule:: geomancy.checks.aws.s3
   :noindex:
@@ -13,7 +13,7 @@ checkAwsS3
 
     ``checkAwsS3``: str
         | Check the given S3 bucket
-        | *aliases*: ``checkS3``, ``CheckS3``, ``checkAWSS3``, ``checkAwsS3``,
+        | *aliases*: ``CheckS3``, ``checkAWSS3``, ``checkAwsS3``,
           ``CheckAwsS3``
 
     ``private``: bool

@@ -6,9 +6,9 @@ Tips and Tricks
 Unwanted environment substitution
 ---------------------------------
 
-Environment variables are substituted by default in the values passed to
-checks. This can be avoided by setting ``substitute`` to False or by
-using a literal with single quotes.
+Environment variables, denoted by strings starting with a ``$`` character, are
+substituted by default in the values passed to checks. This can be avoided by
+setting ``substitute`` to False or by using a literal with single quotes.
 
 .. tab-set::
 
@@ -50,8 +50,8 @@ Flat Checks Files
 -----------------
 
 Checks can be conveniently grouped by category, but this is not a strict
-requirement for checks files. For example, the following checks file
-includes checks at the root level.
+requirement for checks files. The following show file format examples
+with checks at the root level, with an example on putting each check on 1 line.
 
 .. tab-set::
 
@@ -82,3 +82,10 @@ includes checks at the root level.
             desc = "Check for 'pyproject.toml' file"
             checkPath = "examples/pyproject.toml"
             type = "file"
+
+    .. tab-item:: example 3 (toml, 1 line)
+
+        .. code-block:: toml
+
+            Geomancy = {checkPath = "examples/geomancy.toml", type = "file"}
+            Pyproject = {checkPath = "examples/pyproject.toml", type = "file"}
