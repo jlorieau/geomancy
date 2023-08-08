@@ -9,6 +9,24 @@ deprecations section.
 
 .. towncrier release notes start
 
+`geomancy 1.1.3 <https://github.com/jlorieau/geomancy/tree/1.1.3>`_ - 2023-08-08
+================================================================================
+
+Bug Fixes
+---------
+
+- `#48 <https://github.com/jlorieau/geomancy/issues/48>`_. Fixed bug that would disallow parentheses within parentheses in Result stasuses
+
+
+`gomancy 1.1.3 <https://github.com/jlorieau/geomancy/tree/1.1.3>`_ - 2023-08-08
+===============================================================================
+
+Bug Fixes
+---------
+
+- `#48 <https://github.com/jlorieau/geomancy/issues/48>`_. Fixed bug that would disallow parentheses within parentheses in Result stasuses
+
+
 `geomancy 1.1.1 <https://github.com/jlorieau/geomancy/tree/1.1.1>`_ - 2023-08-05
 ================================================================================
 
