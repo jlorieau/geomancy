@@ -60,7 +60,7 @@ def validate_checks_files(
     # Convert filepath strings into Path objects. Use default locations if
     # no checks_files were specified (i.e. it is an empty list)
     existing_files = []
-    for path in values or config.CLI.CHECKS_PATHS:
+    for path in values or config.cli.checks_paths:
         existing_files += filepaths(path)
 
     # Nothing to do if no checks files were found
