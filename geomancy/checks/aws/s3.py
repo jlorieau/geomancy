@@ -9,10 +9,11 @@
 import typing as t
 import logging
 
+from thatway import Setting
+
 from .base import CheckAws
 from ..base import Result, Executor, CheckException
 from ..utils import pop_first
-from ...config import Parameter
 
 logger = logging.getLogger(__name__)
 
@@ -20,10 +21,7 @@ logger = logging.getLogger(__name__)
 class CheckAwsS3BucketAccess(CheckAws):
     """Check AWS S3 bucket availability"""
 
-    msg = Parameter(
-        "CHECK_AWS_S3_BUCKET_ACCESS.MSG",
-        default="Check AWS S3 bucket access '{check.value}'...",
-    )
+    msg = Setting("Check AWS S3 bucket access '{check.value}'")
 
     def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         """Check the availability and access to S3 Bucket"""
@@ -94,10 +92,7 @@ class CheckAwsS3BucketAccess(CheckAws):
 class CheckAwsS3BucketPrivate(CheckAws):
     """Check AWS S3 buck availability"""
 
-    msg = Parameter(
-        "CHECK_AWS_S3_BUCKET_PRIVATE.MSG",
-        default="Check AWS S3 bucket private '{check.value}'...",
-    )
+    msg = Setting("Check AWS S3 bucket private '{check.value}'")
 
     def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         """Check the availability and access to S3 Bucket.
@@ -188,10 +183,7 @@ class CheckAwsS3(CheckAws):
     #: Alternative parameter names for private
     private_aliases = ("private",)
 
-    msg = Parameter(
-        "CHECK_AWS_S3.MSG",
-        default="Check AWS S3 bucket '{check.value}'",
-    )
+    msg = Setting("Check AWS S3 bucket '{check.value}'")
 
     aliases = ("checkAWSS3", "CheckAWSS3", "checkS3", "CheckS3")
 

@@ -3,9 +3,9 @@ The 'config' subcommand
 """
 import logging
 
-import click
+from thatway import config
 
-from ..config import Config
+import click
 
 __all__ = ("config_cmd",)
 
@@ -19,8 +19,7 @@ def config_cmd(toml, yaml, **kwargs):
     """Configuration information"""
     logger.debug(f"toml={toml}, yaml={yaml}")
 
-    conf = Config()
     if toml:
-        conf.pprint_toml()
+        print(config.dumps_toml())
     else:
-        conf.pprint_yaml()
+        print(config.dumps_yaml())

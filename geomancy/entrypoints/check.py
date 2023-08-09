@@ -15,11 +15,11 @@ from rich.console import Group
 from rich.rule import Rule
 from rich.console import Console, Theme
 import rich.progress as progress
+from thatway import config, Setting
 
 from .environment import env_options
 from .utils import filepaths
 from ..checks import Check
-from ..config import Config
 
 __all__ = ("check_cmd",)
 
@@ -32,17 +32,25 @@ class MissingChecks(click.ClickException):
     """No checks were found in the checks files"""
 
 
-# Config options
-config = Config()
-config.CLI.CHECKS_PATHS = [  # Default paths for checks files
-    "pyproject.toml",
-    ".geomancy.??ml",
-    "geomancy.??ml",
-    "geomancy.yml",
-    ".geomancy.yml",
-]
-config.CLI.TOML_EXTS = [".toml"]  # Default file extensions for TOML files
-config.CLI.YAML_EXTS = [".yml", ".yaml"]  # Default file extensions for YAML files
+#: Default paths for checks files
+config.cli.checks_paths = Setting(
+    [
+        "pyproject.toml",
+        ".geomancy.??ml",
+        "geomancy.??ml",
+        "geomancy.yml",
+        ".geomancy.yml",
+    ]
+)
+
+#: Default file extensions for TOML files
+config.cli.toml_exts = Setting([".toml"])
+
+#: Default file extensions for YAML files
+config.cli.yaml_exts = Setting([".yml", ".yaml"])
+
+#: Names for the config section in checks files
+config.cli.config_sections = Setting(["config", "Config"])
 
 
 def validate_checks_files(
@@ -52,7 +60,7 @@ def validate_checks_files(
     # Convert filepath strings into Path objects. Use default locations if
     # no checks_files were specified (i.e. it is an empty list)
     existing_files = []
-    for path in values or config.CLI.CHECKS_PATHS:
+    for path in values or config.cli.checks_paths:
         existing_files += filepaths(path)
 
     # Nothing to do if no checks files were found
@@ -76,11 +84,11 @@ def check_cmd(checks_files, env):
     checks = []
     for checks_file in checks_files:
         # Parse the file by filetype
-        if checks_file.suffix in config.CLI.TOML_EXTS:
+        if checks_file.suffix in config.cli.toml_exts:
             with open(checks_file, "rb") as f:
                 d = tomllib.load(f)
 
-        elif checks_file.suffix in config.CLI.YAML_EXTS:
+        elif checks_file.suffix in config.cli.yaml_exts:
             with open(checks_file, "r") as f:
                 d = yaml.load(f, Loader=yaml.SafeLoader)
 
@@ -93,7 +101,7 @@ def check_cmd(checks_files, env):
             d = d.get("tool", dict()).get("geomancy", dict())
 
         # Load config section, if available
-        for config_name in config.section_aliases:
+        for config_name in config.cli.config_sections:
             config_section = d.pop(config_name, None)
             if isinstance(config_section, dict):
                 config.update(config_section)

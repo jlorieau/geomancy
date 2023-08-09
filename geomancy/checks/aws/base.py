@@ -1,8 +1,9 @@
 """Base class for AWS checks"""
 import typing as t
 
+from thatway import Setting
+
 from ..base import Check, Result, Executor, CheckException
-from ...config import Parameter
 
 __all__ = ("CheckAws",)
 
@@ -24,7 +25,7 @@ class CheckAws(Check):
     profile: t.Optional[str]
 
     #: Default for profile
-    profile_default = Parameter("CHECK_AWS.PROFILE", None)
+    profile_default = Setting(None, allowed_types=(None, str))
 
     def __init__(self, *args, profile: t.Optional[str] = None, **kwargs):
         self.profile = profile if profile is not None else self.profile_default

@@ -1,9 +1,5 @@
-[tool.geomancy.config]
-# see `geo --config` for all options
-VERSION='0.1.0a'
-
-  [tool.geomancy.config.CHECKBASE]
-  ENV_SUBSTITUTE_DEFAULT=true
+[tool.geomancy.config.Check]
+env_substitute_default=true
 
 [tool.geomancy.checks.Environment]
 desc = "Check environment variables common to all development environments"

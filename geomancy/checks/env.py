@@ -4,9 +4,10 @@ Check the existence and, optionally, the value of an environment variable.
 import typing as t
 import re
 
+from thatway import Setting
+
 from .base import Check, Result, Executor
 from ..environment import sub_env
-from ..config import Parameter
 
 
 class CheckEnv(Check):
@@ -15,10 +16,7 @@ class CheckEnv(Check):
     #: (Optional) regex to match the environment variable value
     regex: t.Optional[t.Tuple[str, ...]] = None
 
-    msg = Parameter(
-        "CHECK_ENV.MSG",
-        default="Check environment variable '{check.raw_value}'",
-    )
+    msg = Setting("Check environment variable '{check.raw_value}'")
 
     aliases = ("checkEnv",)
 

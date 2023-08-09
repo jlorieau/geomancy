@@ -1,7 +1,7 @@
-from . import checks, config, environment
+from . import checks, environment
 
 # Project version
-__version__ = (1, 1, 3)  # Major, minor, patch, stage
+__version__ = (1, 2, 1)  # Major, minor, patch, stage
 
 
 def get_version(version=__version__):

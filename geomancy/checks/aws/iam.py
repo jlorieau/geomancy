@@ -13,10 +13,11 @@ import typing as t
 import logging
 import datetime
 
+from thatway import Setting
+
 from .base import CheckAws
 from ..base import Result, Executor, CheckException
 from ..utils import pop_first
-from ...config import Parameter
 
 logger = logging.getLogger(__name__)
 
@@ -24,10 +25,7 @@ logger = logging.getLogger(__name__)
 class CheckAwsIamAuthentication(CheckAws):
     """Checks that the AWS profile can be authenticated"""
 
-    msg = Parameter(
-        "CHECK_AWS_IAM_AUTHENTICATION.MSG",
-        default="Check AWS IAM authentication",
-    )
+    msg = Setting("Check AWS IAM authentication")
 
     def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         msg = self.msg.format(check=self)
@@ -61,15 +59,12 @@ class CheckAwsIamAccessKeyAge(CheckAws):
     key_age: int
 
     #: The default key age (in days)
-    key_age_default: int = Parameter("CHECK_AWS_IAM_ACCESS_KEY_AGE.KEY_AGE", default=90)
+    key_age_default: int = 90
 
     #: Aliases for the key_age parameter
     key_age_aliases = ("key_age", "age")
 
-    msg = Parameter(
-        "CHECK_AWS_IAM_ACCESS_KEY_AGE.MSG",
-        default="Check AWS IAM access key age ({check.key_age} days)",
-    )
+    msg = Setting("Check AWS IAM access key age ({check.key_age} days)")
 
     def __init__(self, *args, **kwargs):
         # Retrieve kwargs
@@ -124,10 +119,7 @@ class CheckAwsIamRootAccess(CheckAws):
     see: https://aws.amazon.com/blogs/security/an-easier-way-to-determine-the-presence-of-aws-account-access-keys/ # noqa
     """
 
-    msg = Parameter(
-        "CHECK_AWS_IAM_ROOT_ACCESS.MSG",
-        default="Check AWS IAM root keys are not present",
-    )
+    msg = Setting("Check AWS IAM root keys are not present")
 
     def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         msg = self.msg.format(check=self)
@@ -178,7 +170,7 @@ class CheckAwsIam(CheckAws):
     root_access: bool
 
     #: Default value for the root_access parameter
-    root_access_default = Parameter("CHECK_AWS_IAM.ROOT_ACCESS", True)
+    root_access_default = Setting(True)
 
     #: Aliases for the root_access parameter
     root_access_aliases = ("root_access", "root")
@@ -186,16 +178,13 @@ class CheckAwsIam(CheckAws):
     #: Check the key age (in days)
     key_age: t.Optional[int]
 
-    #: Default value for key_age (see :class:`CheckAwsIamAccessKeyAge`)
-    key_age_default = Parameter("CHECK_AWS_IAM_ACCESS_KEY_AGE.KEY_AGE")
+    #: Default value for key_age
+    key_age_default = Setting(90)
 
     #: Aliases for the key_age parameter
     key_age_aliases = ("key_age", "age")
 
-    msg = Parameter(
-        "CHECK_AWS_IAM.MSG",
-        default="Check AWS IAM permissions",
-    )
+    msg = Setting("Check AWS IAM permissions")
 
     aliases = ("checkAWSIAM", "checkAwsIAM", "CheckAwsIAM", "checkIAM", "CheckIAM")
 

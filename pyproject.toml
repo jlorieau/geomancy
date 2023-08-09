@@ -40,6 +40,7 @@ classifiers = [
     ]
 dynamic = ["version", "description"]
 dependencies = [
+    "thatway>=0.5",  # Configuration mananager
     "pyyaml>=6.0",  # Parsing YAML for checks (CheckBase) and Config
     "click>=8.1",  # Tool to develop CLI
     "click-default-group",  # All default click subcommands. e.g. geo -> geo check
