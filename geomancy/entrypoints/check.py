@@ -34,23 +34,23 @@ class MissingChecks(click.ClickException):
 
 #: Default paths for checks files
 config.cli.checks_paths = Setting(
-    [
+    (
         "pyproject.toml",
         ".geomancy.??ml",
         "geomancy.??ml",
         "geomancy.yml",
         ".geomancy.yml",
-    ]
+    )
 )
 
 #: Default file extensions for TOML files
-config.cli.toml_exts = Setting([".toml"])
+config.cli.toml_exts = Setting((".toml",))
 
 #: Default file extensions for YAML files
-config.cli.yaml_exts = Setting([".yml", ".yaml"])
+config.cli.yaml_exts = Setting((".yml", ".yaml"))
 
 #: Names for the config section in checks files
-config.cli.config_sections = Setting(["config", "Config"])
+config.cli.config_sections = Setting(("config", "Config"))
 
 
 def validate_checks_files(
