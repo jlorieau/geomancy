@@ -1,1 +1,0 @@
-Add documentation on CheckAwsSsmParameter for SSM parameter checks

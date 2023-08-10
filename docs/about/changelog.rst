@@ -9,6 +9,22 @@ deprecations section.
 
 .. towncrier release notes start
 
+`geomancy 1.2.2 <https://github.com/jlorieau/geomancy/tree/1.2.2>`_ - 2023-08-10
+================================================================================
+
+Features
+--------
+
+- `#49 <https://github.com/jlorieau/geomancy/issues/49>`_. Switch configuration manager to thatway
+- `#50 <https://github.com/jlorieau/geomancy/issues/50>`_. Implement CheckAwsSsmParameter for SSM parameter checks
+
+
+Improved Documentation
+----------------------
+
+- `#50 <https://github.com/jlorieau/geomancy/issues/50>`_. Add documentation on CheckAwsSsmParameter for SSM parameter checks
+
+
 `geomancy 1.1.3 <https://github.com/jlorieau/geomancy/tree/1.1.3>`_ - 2023-08-08
 ================================================================================
 
