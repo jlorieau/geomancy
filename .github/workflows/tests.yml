@@ -23,6 +23,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: MOCK_SECRET_ACCESS_KEY
         AWS_SECURITY_TOKEN: MOCK_SECURITY_TOKEN
         AWS_SESSION_TOKEN: MOCK_SESSION_TOKEN
+        AWS_DEFAULT_REGION: us-east-1
 
     steps:
       - uses: actions/checkout@v3
