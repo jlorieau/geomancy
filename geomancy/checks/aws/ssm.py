@@ -8,6 +8,7 @@
 
 import typing as t
 import logging
+from functools import lru_cache
 
 from thatway import Setting
 
@@ -36,10 +37,6 @@ class CheckAwsSsmParameter(CheckAws):
 
     aliases = ("checkSsmParameter", "checkSsmParam", "checkAWSSSMParameter")
 
-    #: Class-level cache for parameters lists, sorted by profile username,
-    #: then by parameter name
-    _cache: t.Dict[str, t.Dict[str, dict]] = {}
-
     def __init__(self, *args, **kwargs):
         # Set up keyword arguments
         self.type = pop_first(kwargs, "type", default=self.type_default)
@@ -51,6 +48,7 @@ class CheckAwsSsmParameter(CheckAws):
                 f"Parameter type '{self.type}' not in {self.allowed_types}"
             )
 
+    @lru_cache(maxsize=10)
     def get_parameters(self) -> dict:
         """Retrieve a dict of parameters for the given profile.
 
@@ -66,8 +64,6 @@ class CheckAwsSsmParameter(CheckAws):
         """
         # Check the cache by username
         username = self.username()
-        if username in self._cache:
-            return self._cache[username]
 
         # Retrieve all available parameters
         ssm = self.client("ssm")
@@ -85,8 +81,7 @@ class CheckAwsSsmParameter(CheckAws):
             if "Parameters" in response:
                 parameters.update({p["Name"]: p for p in response["Parameters"]})
 
-        # cache the parameters
-        return self._cache.setdefault(username, parameters)
+        return parameters
 
     def check(self, executor: t.Optional[Executor] = None, level: int = 0) -> Result:
         """Check the availability of the given SSM parameter"""

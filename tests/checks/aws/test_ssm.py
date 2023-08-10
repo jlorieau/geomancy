@@ -8,7 +8,7 @@ from geomancy.checks.aws.ssm import CheckAwsSsmParameter
 def reset_cache():
     """Reset the '_cache' for the CheckAwsSsmParameter"""
     # Reset the cache
-    CheckAwsSsmParameter._cache.clear()
+    CheckAwsSsmParameter.get_parameters.cache_clear()
 
 
 # This vcr cassette loads the '_cache' for CheckAwsSsmParameter, and it
@@ -56,17 +56,19 @@ def test_check_aws_ssm_wrong_type():
     parameter_name = "ValidParameter"
 
     # Run the check, which should not pass
-    check = CheckAwsSsmParameter(
+    check1 = CheckAwsSsmParameter(
         name="Wrong Type", value=parameter_name, type="SecureString"
     )
-    result = check.check()
+    result = check1.check()
     assert not result.passed
     assert result.status == (
         f"failed (parameter '{parameter_name}' has wrong type 'String')"
     )
 
     # Disabling the type check works
-    check = CheckAwsSsmParameter(name="Wrong Type 2", value=parameter_name, type=None)
-    result = check.check()
+    check2 = CheckAwsSsmParameter(name="Wrong Type 2", value=parameter_name, type=None)
+    assert check1 == check2
+
+    result = check2.check()
     assert result.passed
     assert result.status == "passed"
