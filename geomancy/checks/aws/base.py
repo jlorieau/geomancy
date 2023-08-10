@@ -62,7 +62,13 @@ class CheckAws(Check):
         except exceptions.ProfileNotFound:
             raise CheckException("failed (profile not found)")
 
-        return session.client(*args, **kwargs)
+        # Get the client
+        try:
+            client = session.client(*args, **kwargs)
+        except exceptions.NoRegionError:
+            raise CheckException("failed (profile region not specified)")
+
+        return client
 
     @lru_cache(maxsize=10)
     def username(self, *args, **kwargs) -> str:
