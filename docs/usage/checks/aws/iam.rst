@@ -38,10 +38,9 @@ checkIam
 
         .. code-block:: yaml
 
-            checks:
-              IAM:
-                desc: "Check IAM authentication and security settings"
-                checkIAM:
+          IAM:
+            desc: "Check IAM authentication and security settings"
+            checkIAM:
 
     .. tab-item:: Example 2 (toml)
 
@@ -49,6 +48,6 @@ checkIam
 
         .. code-block:: toml
 
-            [checks.Iam]
+            [Iam]
             desc = "Check IAM authentication and security settings"
             chekIAM = ""

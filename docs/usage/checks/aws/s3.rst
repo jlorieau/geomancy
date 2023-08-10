@@ -32,11 +32,10 @@ checkS3
 
         .. code-block:: yaml
 
-            checks:
-              AWS:
-                TemplatesS3Bucket:
-                  desc: The bucket for cloudformation templates
-                  checkS3: "myproject-cfn-templates"
+          AWS:
+            TemplatesS3Bucket:
+              desc: The bucket for cloudformation templates
+              checkS3: "myproject-cfn-templates"
 
     .. tab-item:: Example 2 (toml)
 
@@ -44,7 +43,7 @@ checkS3
 
         .. code-block:: toml
 
-            [checks.AWS.TemplatesS3Bucket]
+            [AWS.TemplatesS3Bucket]
             desc = "The bucket for cloudformation templates"
             checkS3 = "myproject-cfn-templates"
 
@@ -54,7 +53,7 @@ checkS3
 
         .. code-block:: toml
 
-            [checks.AWS]
+            [AWS]
             TemplatesS3Bucket = {desc = "The bucket for cloudformation templates", checkS3 = "myproject-cfn-templates"}
 
 .. versionadded:: 1.0.0
