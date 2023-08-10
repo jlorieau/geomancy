@@ -13,6 +13,13 @@ from geomancy.checks.aws.iam import (
 )
 
 
+@pytest.fixture(autouse=True)
+def reset_cache():
+    """Reset the caches for the CheckAwsIam"""
+    # Reset the cache
+    CheckAwsIam.username.cache_clear()
+
+
 @pytest.mark.parametrize(
     "cls",
     (

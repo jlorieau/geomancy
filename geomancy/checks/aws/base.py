@@ -1,5 +1,6 @@
 """Base class for AWS checks"""
 import typing as t
+from functools import lru_cache
 
 from thatway import Setting
 
@@ -31,6 +32,14 @@ class CheckAws(Check):
         self.profile = profile if profile is not None else self.profile_default
         super().__init__(*args, **kwargs)
 
+    def __eq__(self, other):
+        # Equivalence method used for LRU caching
+        return all((type(self) == type(other), self.profile == other.profile))
+
+    def __hash__(self):
+        # Hash method used for LRU caching
+        return hash((self.__class__.__name__, self.profile))
+
     def client(self, *args, **kwargs) -> "botocore.client.BaseClient":
         """Retrieve the AWS client using the given profile.
 
@@ -55,6 +64,7 @@ class CheckAws(Check):
 
         return session.client(*args, **kwargs)
 
+    @lru_cache(maxsize=10)
     def username(self, *args, **kwargs) -> str:
         """Retrieve the username of the current profile.
 

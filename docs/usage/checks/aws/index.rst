@@ -11,6 +11,9 @@ Checks for Amazon Web Service (`AWS <https://aws.amazon.com>`_) resources:
     .. automodule:: geomancy.checks.aws.s3
         :noindex:
 
+:ref:`checkAwsSsmParameter`
+    .. automodule:: geomancy.checks.aws.ssm
+        :noindex:
 
 .. warning::
 

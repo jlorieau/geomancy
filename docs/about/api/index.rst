@@ -19,17 +19,6 @@ Checks
     geomancy.checks.aws.CheckAwsS3
     geomancy.checks.aws.CheckAwsIam
 
-Config
-------
-
-.. autosummary::
-    :toctree: generated
-    :nosignatures:
-
-    geomancy.config.Config
-    geomancy.config.Parameter
-    geomancy.config.ConfigException
-
 Environment
 -----------
 
