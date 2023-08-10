@@ -1,5 +1,6 @@
 """Base class for AWS checks"""
 import typing as t
+from functools import lru_cache
 
 from thatway import Setting
 
@@ -63,6 +64,7 @@ class CheckAws(Check):
 
         return session.client(*args, **kwargs)
 
+    @lru_cache(maxsize=10)
     def username(self, *args, **kwargs) -> str:
         """Retrieve the username of the current profile.
 
