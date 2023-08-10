@@ -6,7 +6,7 @@ from geomancy.checks.aws.ssm import CheckAwsSsmParameter
 
 @pytest.fixture(autouse=True)
 def reset_cache():
-    """Reset the '_cache' for the CheckAwsSsmParameter"""
+    """Reset the caches for the CheckAwsSsmParameter"""
     # Reset the cache
     CheckAwsSsmParameter.get_parameters.cache_clear()
 
