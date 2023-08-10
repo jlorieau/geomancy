@@ -81,6 +81,16 @@ tasks:
     cmds:
       - "../{{.SPHINX_BUILD}} -M clean {{.SPHINX_SOURCE_DIR}} {{.SPHINX_BUILD_DIR}} {{.SPHINX_OPTS}}"
 
+  test:
+    desc: Run tests
+    cmds:
+      - pytest
+
+  test:act:
+    desc: Run tests with act (run Github actions locally)
+    cmds:
+      - act --reuse
+
   towncrier:cmds:
     desc: A refresher of towncrier commands
     silent: true
